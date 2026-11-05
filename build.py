@@ -13,8 +13,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent
 SRC = ROOT / "src"
 LANGS = {"en": ("index.html", ""), "vi": ("vi/index.html", "../")}
-# Absolute URL for canonical links and the link preview image. Change it to
-# the custom domain (and add a CNAME file) once the domain is set up.
+# Absolute URL for canonical links and the link preview image; must match CNAME.
 SITE_URL = "https://guardspec.io"
 
 
