@@ -15,7 +15,7 @@ SRC = ROOT / "src"
 LANGS = {"en": ("index.html", ""), "vi": ("vi/index.html", "../")}
 # Absolute URL for canonical links and the link preview image. Change it to
 # the custom domain (and add a CNAME file) once the domain is set up.
-SITE_URL = "https://guard-spec.github.io"
+SITE_URL = "https://guardspec.io"
 
 
 def icon(name):

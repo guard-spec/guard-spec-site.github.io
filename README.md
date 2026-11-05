@@ -27,8 +27,9 @@ main repository; copy them again when those change.
 
 ## Custom domain
 
-Add a `CNAME` file with the domain, point the DNS at GitHub Pages, verify the
-domain for the `guard-spec` organization, then enable **Enforce HTTPS**.
+The site is served at https://guardspec.io (`CNAME`). `SITE_URL` in
+`build.py` must match it. The domain is verified for the `guard-spec`
+organization; **Enforce HTTPS** is on.
 
 ## License
 
