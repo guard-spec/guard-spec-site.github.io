@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guard Spec — self-hosted prompt-injection firewall for LLM apps</title>
+<meta name="description" content="Open-source gateway that stops prompt injection before it reaches your LLM. Checks prompts, documents, tool results and MCP tools, and guards the answer. English and Vietnamese.">
+<meta property="og:title" content="Guard Spec — self-hosted prompt-injection firewall for LLM apps">
+<meta property="og:description" content="Open-source gateway that stops prompt injection before it reaches your LLM. Checks prompts, documents, tool results and MCP tools, and guards the answer. English and Vietnamese.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://guard-spec.github.io/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://guard-spec.github.io/">
+<link rel="alternate" hreflang="en" href="https://guard-spec.github.io/">
+<link rel="alternate" hreflang="vi" href="https://guard-spec.github.io/vi/">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href=""><img src="assets/logo.svg" alt="" width="28" height="28"><span>Guard Spec</span></a>
+    <nav class="links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#benchmarks">Benchmarks</a>
+      <a href="#quickstart">Quick start</a>
+    </nav>
+    <div class="nav-end">
+      <div class="lang"><a href="" class="on">EN</a><a href="vi/" class="">VI</a></div>
+      <a class="btn btn-sm btn-ghost-dark" href="https://github.com/guard-spec/guard-spec"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /> <path d="M9 18c-4.51 2-5-2-7-2" /> </svg><span>GitHub</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-in">
+    <div class="hero-copy">
+      <div class="kicker">Open source · Self-hosted</div>
+      <h1>Stop prompt injection <em>before</em> it reaches your LLM</h1>
+      <p class="lead">Guard Spec is a gateway between your apps and any OpenAI-compatible API. It checks prompts, retrieved documents, tool results and MCP tools on the way in, and the model's answer on the way out. Prompts never leave your network.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="#quickstart">Get started<svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /> </svg></a>
+        <a class="btn btn-ghost-dark" href="https://github.com/guard-spec/guard-spec"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /> <path d="M9 18c-4.51 2-5-2-7-2" /> </svg>View on GitHub</a>
+      </div>
+      <ul class="badges">
+        <li>Apache-2.0</li><li>Go</li><li>English · Tiếng Việt</li><li>v0.1 · pre-1.0</li>
+      </ul>
+    </div>
+    <div class="hero-code">
+      <div class="win">
+        <div class="win-bar"><i></i><i></i><i></i><span>app.py</span></div>
+<pre><code><span class="k">from</span> openai <span class="k">import</span> OpenAI
+
+client = OpenAI(
+    <span class="c"># was https://api.openai.com/v1</span>
+    base_url=<span class="s">"http://guard-spec:8080/v1"</span>,
+    api_key=GUARD_SPEC_KEY,
+)
+<span class="c"># the rest of your code stays the same</span></code></pre>
+      </div>
+      <div class="win win-out">
+        <div class="win-bar"><i></i><i></i><i></i><span>when a request carries an injection</span></div>
+<pre><code><span class="e">HTTP 400</span>
+{"error": {
+  "code": <span class="s">"content_filter"</span>,
+  "message": <span class="s">"Request blocked: prompt
+              injection detected."</span>}}
+<span class="c"># the LLM is never called</span></code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="wrap providers">
+    <span>Works with</span>
+    <ul><li>OpenAI</li><li>Azure OpenAI</li><li>Anthropic</li><li>Google Gemini</li><li>vLLM</li><li>Ollama</li></ul>
+  </div>
+</section>
+
+<section class="section" id="problem">
+  <div class="wrap">
+    <div class="eyebrow">The problem</div>
+    <h2>Your LLM reads text that you did not write</h2>
+    <p class="sub">Chatbots, RAG assistants and agents pass user input, web pages, documents and tool output straight into the model. Any of them can carry instructions that override yours.</p>
+    <div class="grid3">
+      <div class="card threat"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <polyline points="4 17 10 11 4 5" /> <line x1="12" x2="20" y1="19" y2="19" /> </svg><h3>Direct injection</h3><p>A user types “ignore your previous instructions” in a hundred disguises: leetspeak, homoglyphs, Vietnamese teencode, text without diacritics.</p></div>
+      <div class="card threat"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /> <path d="M12 9v4" /> <path d="M12 17h.01" /> </svg><h3>Indirect injection</h3><p>A web page, email or PDF in your knowledge base hides an instruction in invisible HTML, Unicode tag characters or bidi tricks.</p></div>
+      <div class="card threat"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12 22v-5" /> <path d="M9 8V2" /> <path d="M15 8V2" /> <path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z" /> </svg><h3>Tool poisoning</h3><p>An MCP server describes a tool with hidden steps that tell your agent to read secrets and send them elsewhere.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="how">
+  <div class="wrap">
+    <div class="eyebrow">How it works</div>
+    <h2>One gateway in front of every LLM call</h2>
+    <p class="sub">Point your SDK's base URL at Guard Spec. Every request is sanitized, scored by three detection layers and checked against your policies. Clean requests go on; injections get a 400 and an alert.</p>
+    <figure class="diagram"><img src="assets/diagram-context.png" alt="Guard Spec between your AI apps and the LLM providers" loading="lazy" width="1600" height="990"></figure>
+    <ol class="pipeline">
+      <li><b>L0</b><h4>Sanitizer</h4><p>Strips invisible characters, Unicode tags and bidi overrides; flags anomalies.</p></li>
+      <li><b>L1</b><h4>Rules</h4><p>Fast pattern rules that see through diacritics, teencode, leetspeak and homoglyphs.</p></li>
+      <li><b>L2</b><h4>Classifier</h4><p>Our own ONNX model, trained for English and Vietnamese, running in process.</p></li>
+      <li><b>L3</b><h4>Similarity</h4><p>Embedding match against known attack exemplars you can add to.</p></li>
+      <li><b>CEL</b><h4>Policies</h4><p>Per-organization rules compiled to CEL: allow, block, log or route.</p></li>
+      <li class="out"><b>OUT</b><h4>Output guard</h4><p>Catches exfiltration links, personal data and a leaked canary, also when streaming.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="section" id="features">
+  <div class="wrap">
+    <div class="eyebrow">Features</div>
+    <h2>Everything a security team needs around the detector</h2>
+    <div class="grid3 features">
+      <div class="card"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /> </svg><h3>Three layers, one score</h3><p>Rules, a classifier and similarity search are fused into one score with a clear threshold. Run rules only, or all three.</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m5 8 6 6" /> <path d="m4 14 6-6 2-3" /> <path d="M2 5h12" /> <path d="M7 2h1" /> <path d="m22 22-5-10-5 10" /> <path d="M14 18h6" /> </svg><h3>English and Vietnamese</h3><p>Built and evaluated for both, including Vietnamese with and without diacritics, teencode and leetspeak.</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" /> <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" /> <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" /> <path d="m2 2 20 20" /> </svg><h3>Self-hosted, private</h3><p>Runs in your network. No prompt goes to a third-party moderation API. Every rule is readable and editable.</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <rect width="8" height="8" x="3" y="3" rx="2" /> <path d="M7 11v4a2 2 0 0 0 2 2h4" /> <rect width="8" height="8" x="13" y="13" rx="2" /> </svg><h3>OpenAI-compatible routing</h3><p>Change one base URL. Route to OpenAI, Azure OpenAI, Anthropic, Gemini, vLLM or Ollama per organization and project.</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M10.268 21a2 2 0 0 0 3.464 0" /> <path d="M22 8c0-2.3-.8-4.3-2-6" /> <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" /> <path d="M4 2C2.8 3.7 2 5.7 2 8" /> </svg><h3>Real-time alerts</h3><p>Blocked requests reach Slack, Microsoft Teams, Telegram, email, signed SIEM webhooks or a SOC agent over A2A.</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4" /> <path d="M14 13.12c0 2.38 0 6.38-1 8.88" /> <path d="M17.29 21.02c.12-.6.43-2.3.5-3.02" /> <path d="M2 12a10 10 0 0 1 18-6" /> <path d="M2 16h.01" /> <path d="M21.8 16c.2-2 .131-5.354 0-6" /> <path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2" /> <path d="M8.65 22c.21-.66.45-1.32.57-2" /> <path d="M9 6.8a6 6 0 0 1 9 5.2v2" /> </svg><h3>SSO and 2FA</h3><p>OpenID Connect single sign-on (Entra ID, Okta, Google, Keycloak), TOTP two-factor, org-wide login rules.</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" /> <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" /> <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" /> <path d="M10 6h4" /> <path d="M10 10h4" /> <path d="M10 14h4" /> <path d="M10 18h4" /> </svg><h3>Multi-tenant</h3><p>Organizations, projects, roles and API keys with rate limits, backed by Postgres row-level security.</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 12h-5" /> <path d="M15 8h-5" /> <path d="M19 17V5a2 2 0 0 0-2-2H4" /> <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" /> </svg><h3>Audit trail</h3><p>One row per request (content off by default) and a log of every configuration and security change.</p></div>
+      <div class="card"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M22 7.7c0-.6-.4-1.2-.8-1.5l-6.3-3.9a1.72 1.72 0 0 0-1.7 0l-10.3 6c-.5.2-.9.8-.9 1.4v6.6c0 .5.4 1.2.8 1.5l6.3 3.9a1.72 1.72 0 0 0 1.7 0l10.3-6c.5-.3.9-1 .9-1.5Z" /> <path d="M10 21.9V14L2.1 9.1" /> <path d="m10 14 11.9-6.9" /> <path d="M14 19.8v-8.1" /> <path d="M18 17.5V9.4" /> </svg><h3>Ready to deploy</h3><p>Docker Compose, a Helm chart and an air-gapped image. Signed images, SBOMs, Prometheus and OpenTelemetry.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="admin">
+  <div class="wrap split">
+    <div>
+      <div class="eyebrow">Admin UI</div>
+      <h2>See every decision, change every rule</h2>
+      <p class="sub">A bilingual admin console for the security team, in light and dark.</p>
+      <ul class="ticks">
+        <li><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M20 6 9 17l-5-5" /> </svg>Dashboard and live request flow through each layer</li>
+        <li><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M20 6 9 17l-5-5" /> </svg>Policy editor, as text or visual, with a simulator</li>
+        <li><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M20 6 9 17l-5-5" /> </svg>Providers, routing, request log and audit</li>
+        <li><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M20 6 9 17l-5-5" /> </svg>Alert rules, channels, members and security settings</li>
+      </ul>
+    </div>
+    <figure class="shot"><img src="assets/admin-flow.png" alt="Guard Spec admin UI showing the request flow" loading="lazy"></figure>
+  </div>
+</section>
+
+<section class="section" id="benchmarks">
+  <div class="wrap">
+    <div class="eyebrow">Benchmarks</div>
+    <h2>Measured, published, reproducible</h2>
+    <p class="sub">All three layers with the default classifier, on our eval set of 2,176 rows (1,171 attacks, 1,005 benign; 926 English, 1,250 Vietnamese).</p>
+    <div class="stats">
+      <div class="stat"><b>0.986</b><span>ROC AUC</span></div>
+      <div class="stat"><b>93.2%</b><span>attacks blocked at the default threshold</span></div>
+      <div class="stat"><b>1.4%</b><span>benign requests blocked</span></div>
+      <div class="stat"><b>3.7 ms</b><span>median detector latency per request</span></div>
+    </div>
+    <p class="note">Measured on 2026-11-04 on an Apple M3 Max; latency is the detector in process, not end-to-end HTTP. The Vietnamese data is synthetic, and benign Vietnamese teencode is still blocked 3.5% of the time. The README lists every number, its limits and the commands to reproduce it.</p>
+  </div>
+</section>
+
+<section class="section alt" id="compare">
+  <div class="wrap">
+    <div class="eyebrow">Compared with</div>
+    <h2>Where Guard Spec fits</h2>
+    <div class="table">
+      <table>
+        <thead><tr><th>Kind of tool</th><th>Examples</th><th>Guard Spec</th></tr></thead>
+        <tbody>
+          <tr><td>Python guardrail libraries</td><td>Guardrails AI, NeMo Guardrails, LLM Guard</td><td>A network service in front of the model: any language can use it, and you change a base URL, not your code</td></tr>
+          <tr><td>Hosted detection APIs</td><td>Lakera Guard, Azure AI Prompt Shields</td><td>Self-hosted: prompts never leave your network, and you can read and change every rule</td></tr>
+          <tr><td>Standalone classifiers</td><td>Prompt Guard, ProtectAI DeBERTa</td><td>Its own classifier is one of several layers, with sanitization, policies, an output guard and an audit log around it</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="quickstart">
+  <div class="wrap split">
+    <div>
+      <div class="eyebrow">Quick start</div>
+      <h2>Running in five minutes</h2>
+      <p class="sub">You need Docker with Compose v2. One script writes strong random secrets, pulls the signed images and the models (SHA-256 verified), and waits until all three layers are ready.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="https://github.com/guard-spec/guard-spec#quick-start">Read the docs<svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12 7v14" /> <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" /> </svg></a>
+      </div>
+    </div>
+    <div class="win">
+      <div class="win-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre><code><span class="p">$</span> git clone https://github.com/guard-spec/guard-spec.git
+<span class="p">$</span> cd guard-spec
+<span class="p">$</span> scripts/quickstart.sh
+<span class="c"># writing .env with random secrets</span>
+<span class="c"># pulling models (≈270 MB, SHA-256 verified)</span>
+<span class="ok">ready: {"layers":["l1","l2","l3"]}</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="wrap cta-in">
+    <img src="assets/logo.svg" alt="" width="56" height="56">
+    <h2>Put a guard in front of your LLM</h2>
+    <p>Free and open source under Apache-2.0. Star the repo, try it on your own traffic, and tell us what it misses.</p>
+    <div class="ctas center">
+      <a class="btn btn-primary" href="https://github.com/guard-spec/guard-spec"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /> <path d="M9 18c-4.51 2-5-2-7-2" /> </svg>Star on GitHub</a>
+      <a class="btn btn-ghost-dark" href="https://huggingface.co/guard-spec">Models on Hugging Face</a>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div class="brand"><img src="assets/logo.svg" alt="" width="22" height="22"><span>Guard Spec</span></div>
+    <nav>
+      <a href="https://github.com/guard-spec/guard-spec">GitHub</a>
+      <a href="https://github.com/guard-spec/guard-spec/blob/main/SECURITY.md">Security</a>
+      <a href="https://github.com/guard-spec/guard-spec/blob/main/CONTRIBUTING.md">Contributing</a>
+      <a href="https://github.com/guard-spec/guard-spec/blob/main/LICENSE">Apache-2.0</a>
+    </nav>
+    <p>© The Guard Spec Authors. Created by Lê Văn Giáp.</p>
+  </div>
+</footer>
+</body>
+</html>

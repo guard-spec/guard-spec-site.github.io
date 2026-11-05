@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{meta_title}}</title>
+<meta name="description" content="{{meta_description}}">
+<meta property="og:title" content="{{meta_title}}">
+<meta property="og:description" content="{{meta_description}}">
+<meta property="og:type" content="website">
+<meta property="og:image" content="{{site_url}}/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="{{site_url}}/{{lang_path}}">
+<link rel="alternate" hreflang="en" href="{{site_url}}/">
+<link rel="alternate" hreflang="vi" href="{{site_url}}/vi/">
+<link rel="icon" href="{{root}}assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="{{root}}assets/style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="{{root}}{{lang_path}}"><img src="{{root}}assets/logo.svg" alt="" width="28" height="28"><span>Guard Spec</span></a>
+    <nav class="links">
+      <a href="#features">{{nav_features}}</a>
+      <a href="#how">{{nav_how}}</a>
+      <a href="#benchmarks">{{nav_benchmarks}}</a>
+      <a href="#quickstart">{{nav_quickstart}}</a>
+    </nav>
+    <div class="nav-end">
+      <div class="lang"><a href="{{root}}" class="{{en_active}}">EN</a><a href="{{root}}vi/" class="{{vi_active}}">VI</a></div>
+      <a class="btn btn-sm btn-ghost-dark" href="https://github.com/guard-spec/guard-spec">{{icon:github}}<span>GitHub</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-in">
+    <div class="hero-copy">
+      <div class="kicker">{{hero_kicker}}</div>
+      <h1>{{hero_title}}</h1>
+      <p class="lead">{{hero_lead}}</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="#quickstart">{{cta_start}}{{icon:arrow-right}}</a>
+        <a class="btn btn-ghost-dark" href="https://github.com/guard-spec/guard-spec">{{icon:github}}{{cta_github}}</a>
+      </div>
+      <ul class="badges">
+        <li>Apache-2.0</li><li>Go</li><li>English · Tiếng Việt</li><li>{{badge_status}}</li>
+      </ul>
+    </div>
+    <div class="hero-code">
+      <div class="win">
+        <div class="win-bar"><i></i><i></i><i></i><span>app.py</span></div>
+<pre><code><span class="k">from</span> openai <span class="k">import</span> OpenAI
+
+client = OpenAI(
+    <span class="c"># {{code_was}}</span>
+    base_url=<span class="s">"http://guard-spec:8080/v1"</span>,
+    api_key=GUARD_SPEC_KEY,
+)
+<span class="c"># {{code_same}}</span></code></pre>
+      </div>
+      <div class="win win-out">
+        <div class="win-bar"><i></i><i></i><i></i><span>{{code_blocked_title}}</span></div>
+<pre><code><span class="e">HTTP 400</span>
+{"error": {
+  "code": <span class="s">"content_filter"</span>,
+  "message": <span class="s">"Request blocked: prompt
+              injection detected."</span>}}
+<span class="c"># {{code_never}}</span></code></pre>
+      </div>
+    </div>
+  </div>
+  <div class="wrap providers">
+    <span>{{works_with}}</span>
+    <ul><li>OpenAI</li><li>Azure OpenAI</li><li>Anthropic</li><li>Google Gemini</li><li>vLLM</li><li>Ollama</li></ul>
+  </div>
+</section>
+
+<section class="section" id="problem">
+  <div class="wrap">
+    <div class="eyebrow">{{problem_eyebrow}}</div>
+    <h2>{{problem_title}}</h2>
+    <p class="sub">{{problem_lead}}</p>
+    <div class="grid3">
+      <div class="card threat">{{icon:terminal}}<h3>{{threat1_t}}</h3><p>{{threat1_p}}</p></div>
+      <div class="card threat">{{icon:file-warning}}<h3>{{threat2_t}}</h3><p>{{threat2_p}}</p></div>
+      <div class="card threat">{{icon:plug}}<h3>{{threat3_t}}</h3><p>{{threat3_p}}</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="how">
+  <div class="wrap">
+    <div class="eyebrow">{{how_eyebrow}}</div>
+    <h2>{{how_title}}</h2>
+    <p class="sub">{{how_lead}}</p>
+    <figure class="diagram"><img src="{{root}}assets/{{context_img}}" alt="{{context_alt}}" loading="lazy" width="1600" height="990"></figure>
+    <ol class="pipeline">
+      <li><b>L0</b><h4>{{l0_t}}</h4><p>{{l0_p}}</p></li>
+      <li><b>L1</b><h4>{{l1_t}}</h4><p>{{l1_p}}</p></li>
+      <li><b>L2</b><h4>{{l2_t}}</h4><p>{{l2_p}}</p></li>
+      <li><b>L3</b><h4>{{l3_t}}</h4><p>{{l3_p}}</p></li>
+      <li><b>CEL</b><h4>{{pol_t}}</h4><p>{{pol_p}}</p></li>
+      <li class="out"><b>OUT</b><h4>{{out_t}}</h4><p>{{out_p}}</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="section" id="features">
+  <div class="wrap">
+    <div class="eyebrow">{{feat_eyebrow}}</div>
+    <h2>{{feat_title}}</h2>
+    <div class="grid3 features">
+      <div class="card">{{icon:layers}}<h3>{{f1_t}}</h3><p>{{f1_p}}</p></div>
+      <div class="card">{{icon:languages}}<h3>{{f2_t}}</h3><p>{{f2_p}}</p></div>
+      <div class="card">{{icon:eye-off}}<h3>{{f3_t}}</h3><p>{{f3_p}}</p></div>
+      <div class="card">{{icon:workflow}}<h3>{{f4_t}}</h3><p>{{f4_p}}</p></div>
+      <div class="card">{{icon:bell-ring}}<h3>{{f5_t}}</h3><p>{{f5_p}}</p></div>
+      <div class="card">{{icon:fingerprint}}<h3>{{f6_t}}</h3><p>{{f6_p}}</p></div>
+      <div class="card">{{icon:building-2}}<h3>{{f7_t}}</h3><p>{{f7_p}}</p></div>
+      <div class="card">{{icon:scroll-text}}<h3>{{f8_t}}</h3><p>{{f8_p}}</p></div>
+      <div class="card">{{icon:container}}<h3>{{f9_t}}</h3><p>{{f9_p}}</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="admin">
+  <div class="wrap split">
+    <div>
+      <div class="eyebrow">{{admin_eyebrow}}</div>
+      <h2>{{admin_title}}</h2>
+      <p class="sub">{{admin_lead}}</p>
+      <ul class="ticks">
+        <li>{{icon:check}}{{admin_1}}</li>
+        <li>{{icon:check}}{{admin_2}}</li>
+        <li>{{icon:check}}{{admin_3}}</li>
+        <li>{{icon:check}}{{admin_4}}</li>
+      </ul>
+    </div>
+    <figure class="shot"><img src="{{root}}assets/{{admin_img}}" alt="{{admin_alt}}" loading="lazy"></figure>
+  </div>
+</section>
+
+<section class="section" id="benchmarks">
+  <div class="wrap">
+    <div class="eyebrow">{{bench_eyebrow}}</div>
+    <h2>{{bench_title}}</h2>
+    <p class="sub">{{bench_lead}}</p>
+    <div class="stats">
+      <div class="stat"><b>0.986</b><span>{{stat_auc}}</span></div>
+      <div class="stat"><b>93.2%</b><span>{{stat_tpr}}</span></div>
+      <div class="stat"><b>1.4%</b><span>{{stat_fpr}}</span></div>
+      <div class="stat"><b>3.7 ms</b><span>{{stat_lat}}</span></div>
+    </div>
+    <p class="note">{{bench_note}}</p>
+  </div>
+</section>
+
+<section class="section alt" id="compare">
+  <div class="wrap">
+    <div class="eyebrow">{{cmp_eyebrow}}</div>
+    <h2>{{cmp_title}}</h2>
+    <div class="table">
+      <table>
+        <thead><tr><th>{{cmp_h1}}</th><th>{{cmp_h2}}</th><th>Guard Spec</th></tr></thead>
+        <tbody>
+          <tr><td>{{cmp_r1a}}</td><td>Guardrails AI, NeMo Guardrails, LLM Guard</td><td>{{cmp_r1c}}</td></tr>
+          <tr><td>{{cmp_r2a}}</td><td>Lakera Guard, Azure AI Prompt Shields</td><td>{{cmp_r2c}}</td></tr>
+          <tr><td>{{cmp_r3a}}</td><td>Prompt Guard, ProtectAI DeBERTa</td><td>{{cmp_r3c}}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="quickstart">
+  <div class="wrap split">
+    <div>
+      <div class="eyebrow">{{qs_eyebrow}}</div>
+      <h2>{{qs_title}}</h2>
+      <p class="sub">{{qs_lead}}</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="https://github.com/guard-spec/guard-spec#quick-start">{{qs_docs}}{{icon:book-open}}</a>
+      </div>
+    </div>
+    <div class="win">
+      <div class="win-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre><code><span class="p">$</span> git clone https://github.com/guard-spec/guard-spec.git
+<span class="p">$</span> cd guard-spec
+<span class="p">$</span> scripts/quickstart.sh
+<span class="c">{{qs_out1}}</span>
+<span class="c">{{qs_out2}}</span>
+<span class="ok">ready: {"layers":["l1","l2","l3"]}</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="wrap cta-in">
+    <img src="{{root}}assets/logo.svg" alt="" width="56" height="56">
+    <h2>{{band_title}}</h2>
+    <p>{{band_lead}}</p>
+    <div class="ctas center">
+      <a class="btn btn-primary" href="https://github.com/guard-spec/guard-spec">{{icon:github}}{{band_cta}}</a>
+      <a class="btn btn-ghost-dark" href="https://huggingface.co/guard-spec">{{band_hf}}</a>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div class="brand"><img src="{{root}}assets/logo.svg" alt="" width="22" height="22"><span>Guard Spec</span></div>
+    <nav>
+      <a href="https://github.com/guard-spec/guard-spec">GitHub</a>
+      <a href="https://github.com/guard-spec/guard-spec/blob/main/SECURITY.md">{{foot_security}}</a>
+      <a href="https://github.com/guard-spec/guard-spec/blob/main/CONTRIBUTING.md">{{foot_contrib}}</a>
+      <a href="https://github.com/guard-spec/guard-spec/blob/main/LICENSE">Apache-2.0</a>
+    </nav>
+    <p>{{foot_credit}}</p>
+  </div>
+</footer>
+</body>
+</html>
