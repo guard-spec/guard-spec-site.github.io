@@ -36,10 +36,10 @@
 <div class="wrap docs">
   <details class="docs-menu">
     <summary><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" /> </svg><span>Documentation</span></summary>
-    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class=""><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child on"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li></ul></nav>
+    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/terraform-aws/">Terraform for AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class=""><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child"><a href="/docs/security/verifying-releases/">Verifying a release</a></li><li class="child on"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li></ul></nav>
   </details>
   <aside class="docs-side">
-    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class=""><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child on"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li></ul></nav>
+    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/terraform-aws/">Terraform for AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class=""><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child"><a href="/docs/security/verifying-releases/">Verifying a release</a></li><li class="child on"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li></ul></nav>
   </aside>
   <main class="doc">
     <h1>Risks and hardening</h1>
@@ -50,8 +50,8 @@
 <p>This page is for the people who deploy and operate Guard Spec. It lists the
 risks that remain when Guard Spec is in front of your LLM, and what you can do
 about each. For what the gateway does and does not protect against, read
-<a href="https://github.com/guard-spec/guard-spec/blob/d653cb29edb009a0a14c4871616aa21c7d208069/README.md#security-model-and-limitations">Security model and limitations</a>
-first. To report a vulnerability, follow <a href="/docs/security/">SECURITY.md</a>.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/4448f51a3ca3507e15275506abddbb7f4ecd4e64/README.md#security-model-and-limitations">Security model and limitations</a>
+first. To report a vulnerability, follow <a href="/docs/security/policy/">SECURITY.md</a>.</p>
 <p>Guard Spec is one layer of defence. It lowers the chance that an injected
 instruction reaches the model and limits what the answer can leak. It does not
 make an LLM application safe on its own.</p>
@@ -218,7 +218,7 @@ make an LLM application safe on its own.</p>
 Vietnamese, encodings that L1 only partly decodes (such as base64) and
 multi-turn attacks that look harmless in each single message can pass. With
 the default model layers the eval set shows a true positive rate of about 0.93
-at the block threshold (see <a href="https://github.com/guard-spec/guard-spec/blob/d653cb29edb009a0a14c4871616aa21c7d208069/README.md#benchmarks">Benchmarks</a>); the rest
+at the block threshold (see <a href="https://github.com/guard-spec/guard-spec/blob/4448f51a3ca3507e15275506abddbb7f4ecd4e64/README.md#benchmarks">Benchmarks</a>); the rest
 reach the model.</p>
 <p>What to do:</p>
 <ul>
@@ -227,7 +227,7 @@ the least privilege they need and ask a person to confirm risky actions.</li>
 <li>Keep the output guard on; it limits what a successful injection can leak.</li>
 <li>Add attacks you see in your traffic as block exemplars for your organization
 (<a href="/docs/operations/#per-organization-exemplars">Per-organization exemplars</a>).</li>
-<li>Report bypasses privately (<a href="/docs/security/">SECURITY.md</a>); they are in scope.</li>
+<li>Report bypasses privately (<a href="/docs/security/policy/">SECURITY.md</a>); they are in scope.</li>
 </ul>
 <h3 id="d2-a-benign-request-is-blocked">D2. A benign request is blocked<a class="anchor" href="#d2-a-benign-request-is-blocked" aria-hidden="true">#</a></h3>
 <p>With L2 and L3, about 1.4% of benign eval prompts are blocked, 3.5% of benign
@@ -386,7 +386,7 @@ monitoring system or the provider.</p>
 <p>What to do:</p>
 <ul>
 <li>Verify images and archives with cosign before you deploy them
-(<a href="/docs/security/#verifying-releases">Verifying releases</a>), and deploy by
+(<a href="/docs/security/policy/#verifying-releases">Verifying releases</a>), and deploy by
 digest rather than by tag.</li>
 <li>Download models with <code>models pull</code>, which checks the SHA-256 pinned in
 <code>models/manifest.yaml</code>. In air-gapped installs, mirror only verified files.</li>
@@ -426,7 +426,7 @@ Postgres, and alert on 503 rates and <code>/readyz</code>.</p>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Tools authorised in your application; risky actions confirmed by a person</li>
 </ul>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/d653cb29edb009a0a14c4871616aa21c7d208069/docs/security-risks.md">docs/security-risks.md</a> @ <code>d653cb29edb0</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/4448f51a3ca3507e15275506abddbb7f4ecd4e64/docs/security-risks.md">docs/security-risks.md</a> @ <code>4448f51a3ca3</code></p>
   </main>
 </div>
 

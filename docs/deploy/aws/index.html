@@ -35,10 +35,10 @@
 <div class="wrap docs">
   <details class="docs-menu">
     <summary><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" /> </svg><span>Documentation</span></summary>
-    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child on"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class=""><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li></ul></nav>
+    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child on"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/terraform-aws/">Terraform for AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class=""><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child"><a href="/docs/security/verifying-releases/">Verifying a release</a></li><li class="child"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li></ul></nav>
   </details>
   <aside class="docs-side">
-    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child on"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class=""><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li></ul></nav>
+    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child on"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/terraform-aws/">Terraform for AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class=""><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child"><a href="/docs/security/verifying-releases/">Verifying a release</a></li><li class="child"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li></ul></nav>
   </aside>
   <main class="doc">
     <h1>AWS</h1>
@@ -48,7 +48,7 @@
 Community-tested: not yet. If you deploy this, please open an
 <a href="https://github.com/guard-spec/guard-spec/issues/new/choose">issue</a> or a pull
 request with what worked and what did not. See
-<a href="https://github.com/guard-spec/guard-spec/blob/d653cb29edb009a0a14c4871616aa21c7d208069/CONTRIBUTING.md">CONTRIBUTING.md</a> and the <a href="/docs/deploy/">index</a>.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/4448f51a3ca3507e15275506abddbb7f4ecd4e64/CONTRIBUTING.md">CONTRIBUTING.md</a> and the <a href="/docs/deploy/">index</a>.</p>
 </blockquote>
 <p>Two ways to run the services, same database and secrets:</p>
 <ul>
@@ -238,7 +238,7 @@ aws ecr get-login-password | docker login --username AWS --password-stdin &lt;ac
 crane copy ghcr.io/guard-spec/guard-spec-gateway-full:0.1.1 &lt;account-id&gt;.dkr.ecr.&lt;region&gt;.amazonaws.com/guard-spec/guard-spec-gateway-full:0.1.1
 crane copy ghcr.io/guard-spec/guard-spec-control-plane:0.1.1 &lt;account-id&gt;.dkr.ecr.&lt;region&gt;.amazonaws.com/guard-spec/guard-spec-control-plane:0.1.1
 </code></pre>
-<p>Verify the signatures first (<a href="/docs/security/#verifying-releases">SECURITY.md</a>).</p>
+<p>Verify the signatures first (<a href="/docs/security/policy/#verifying-releases">SECURITY.md</a>).</p>
 <h3 id="models">Models<a class="anchor" href="#models" aria-hidden="true">#</a></h3>
 <p>Use <code>guard-spec-gateway-full</code>: the models are in the image, so every task
 starts with L1 + L2 + L3 and no shared volume. The image sets
@@ -611,7 +611,7 @@ it). Model versions travel with the <code>gateway-full</code> tag.</p>
 </tbody>
 </table></div>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/d653cb29edb009a0a14c4871616aa21c7d208069/docs/deploy/aws.md">docs/deploy/aws.md</a> @ <code>d653cb29edb0</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/4448f51a3ca3507e15275506abddbb7f4ecd4e64/docs/deploy/aws.md">docs/deploy/aws.md</a> @ <code>4448f51a3ca3</code></p>
   </main>
 </div>
 

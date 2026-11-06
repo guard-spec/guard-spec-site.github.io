@@ -1,7 +1,7 @@
 {
   "_comment": "Pages of guardspec.io/docs, built by build.py from the Markdown of the main repository at the pinned ref. Each language lists candidate sources: the first one that exists at the ref is used; a page with none is skipped (build.py prints it). A page without a Vietnamese source links to the English page in the Vietnamese navigation, labelled (tiếng Anh). To update the docs: set ref to a newer commit or tag of guard-spec/guard-spec, run build.py, commit.",
   "repo": "guard-spec/guard-spec",
-  "ref": "d653cb29edb009a0a14c4871616aa21c7d208069",
+  "ref": "4448f51a3ca3507e15275506abddbb7f4ecd4e64",
   "pages": [
     {
       "slug": "quickstart",

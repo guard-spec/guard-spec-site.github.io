@@ -35,10 +35,10 @@
 <div class="wrap docs">
   <details class="docs-menu">
     <summary><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" /> </svg><span>Documentation</span></summary>
-    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class="on"><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li></ul></nav>
+    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/terraform-aws/">Terraform for AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class="on"><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child"><a href="/docs/security/verifying-releases/">Verifying a release</a></li><li class="child"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li></ul></nav>
   </details>
   <aside class="docs-side">
-    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class="on"><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li></ul></nav>
+    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/terraform-aws/">Terraform for AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class="on"><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child"><a href="/docs/security/verifying-releases/">Verifying a release</a></li><li class="child"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li></ul></nav>
   </aside>
   <main class="doc">
     <h1>Upgrade</h1>
@@ -49,8 +49,23 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 Before 1.0, minor versions may contain breaking changes; they are listed under
 &quot;Changed&quot; and in the upgrade notes.</p>
 <h2 id="unreleased"><a href="https://github.com/guard-spec/guard-spec/compare/v0.1.1...HEAD">Unreleased</a><a class="anchor" href="#unreleased" aria-hidden="true">#</a></h2>
-<h2 id="011---2026-11-06"><a href="https://github.com/guard-spec/guard-spec/compare/v0.1.0...v0.1.1">0.1.1</a> - 2026-11-06<a class="anchor" href="#011---2026-11-06" aria-hidden="true">#</a></h2>
 <h3 id="added">Added<a class="anchor" href="#added" aria-hidden="true">#</a></h3>
+<ul>
+<li><code>docs/security/</code>: documentation for security teams: architecture and trust
+boundaries, the data flow of a request, what is stored where and for how
+long (audit content off by default, retention per table), secrets and
+encryption at rest, and how to verify a release (cosign signatures pinned
+to the release tag, SBOMs, SLSA provenance) with the output for v0.1.0.</li>
+<li><code>deploy/terraform/aws/</code>: a Terraform reference for AWS (ECS on Fargate,
+RDS for PostgreSQL 17, Secrets Manager, two ALBs), with variables for the
+image tags or digests and the detection layers and models. Reference, not
+yet verified against a real account. CI runs <code>terraform fmt -check</code>,
+<code>validate</code> and <code>test</code> (a plan against a mocked provider).</li>
+<li>Documentation site at <a href="https://guardspec.io/docs/">https://guardspec.io/docs/</a>, built from this
+repository's Markdown; linked from the README.</li>
+</ul>
+<h2 id="011---2026-11-06"><a href="https://github.com/guard-spec/guard-spec/compare/v0.1.0...v0.1.1">0.1.1</a> - 2026-11-06<a class="anchor" href="#011---2026-11-06" aria-hidden="true">#</a></h2>
+<h3 id="added-1">Added<a class="anchor" href="#added-1" aria-hidden="true">#</a></h3>
 <ul>
 <li>Bench workflow (<code>.github/workflows/bench.yml</code>, manual only): detection
 latency with the released v3b and multilingual-e5-small models on
@@ -134,7 +149,7 @@ Helm 4 post-renderers (plugins only) and on migration 004's
 </ul>
 <h2 id="010---2026-11-06"><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.1.0">0.1.0</a> - 2026-11-06<a class="anchor" href="#010---2026-11-06" aria-hidden="true">#</a></h2>
 <p>First release.</p>
-<h3 id="added-1">Added<a class="anchor" href="#added-1" aria-hidden="true">#</a></h3>
+<h3 id="added-2">Added<a class="anchor" href="#added-2" aria-hidden="true">#</a></h3>
 <p><strong>Gateway and detection</strong></p>
 <ul>
 <li>OpenAI-compatible gateway: <code>/v1/chat/completions</code> and <code>/v1/completions</code>,
@@ -223,7 +238,7 @@ migration job yet, and the models volume is ReadWriteOnce.</li>
 without <code>limit</code> and <code>cursor</code>; use the paginated form.</li>
 </ul>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/d653cb29edb009a0a14c4871616aa21c7d208069/CHANGELOG.md">CHANGELOG.md</a> @ <code>d653cb29edb0</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/4448f51a3ca3507e15275506abddbb7f4ecd4e64/CHANGELOG.md">CHANGELOG.md</a> @ <code>4448f51a3ca3</code></p>
   </main>
 </div>
 
