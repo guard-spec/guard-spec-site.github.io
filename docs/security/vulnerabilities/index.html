@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vulnerability management · Guard Spec</title>
+<meta name="description" content="Tiếng Việt: vulnerabilities.vi.md. The rule: no release ships with a known vulnerability that has a fix, and a vulnerability published after a release is f">
+<meta property="og:title" content="Vulnerability management · Guard Spec">
+<meta property="og:description" content="Tiếng Việt: vulnerabilities.vi.md. The rule: no release ships with a known vulnerability that has a fix, and a vulnerability published after a release is f">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://guardspec.io/assets/og.png">
+<link rel="canonical" href="https://guardspec.io/docs/security/vulnerabilities/">
+<link rel="alternate" hreflang="en" href="https://guardspec.io/docs/security/vulnerabilities/">
+<link rel="alternate" hreflang="vi" href="https://guardspec.io/vi/docs/security/vulnerabilities/">
+<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="docs-body">
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="/"><img src="/assets/logo.svg" alt="" width="28" height="28"><span>Guard Spec</span></a>
+    <nav class="links">
+      <a href="/docs/" class="on">Docs</a>
+    </nav>
+    <div class="nav-end">
+      <div class="lang"><a href="/docs/security/vulnerabilities/" class="on">EN</a><a href="/vi/docs/security/vulnerabilities/" class="">VI</a></div>
+      <a class="btn btn-sm btn-ghost-dark" href="https://github.com/guard-spec/guard-spec"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /> <path d="M9 18c-4.51 2-5-2-7-2" /> </svg><span>GitHub</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap docs">
+  <details class="docs-menu">
+    <summary><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" /> </svg><span>Documentation</span></summary>
+    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class="child"><a href="/docs/quickstart/integrations/">Integrations</a></li><li class="child"><a href="/docs/quickstart/examples/">Examples</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child"><a href="/docs/deploy/production-compose/">Production compose</a></li><li class="child"><a href="/docs/deploy/managed-postgres/">Managed PostgreSQL</a></li><li class="child"><a href="/docs/deploy/airgapped/">Air-gapped</a></li><li class="child"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/terraform-aws/">Terraform for AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class="child"><a href="/docs/operations/siem/">SIEM export</a></li><li class="child"><a href="/docs/operations/sizing/">Sizing and layers</a></li><li class=""><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class="child"><a href="/docs/models/benchmark/">Benchmark</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child"><a href="/docs/security/verifying-releases/">Verifying a release</a></li><li class="child on"><a href="/docs/security/vulnerabilities/">Vulnerability management</a></li><li class="child"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li><li class="child"><a href="/docs/security/red-team/">Red-team reports</a></li></ul></nav>
+  </details>
+  <aside class="docs-side">
+    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class="child"><a href="/docs/quickstart/integrations/">Integrations</a></li><li class="child"><a href="/docs/quickstart/examples/">Examples</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child"><a href="/docs/deploy/production-compose/">Production compose</a></li><li class="child"><a href="/docs/deploy/managed-postgres/">Managed PostgreSQL</a></li><li class="child"><a href="/docs/deploy/airgapped/">Air-gapped</a></li><li class="child"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/terraform-aws/">Terraform for AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class="child"><a href="/docs/operations/siem/">SIEM export</a></li><li class="child"><a href="/docs/operations/sizing/">Sizing and layers</a></li><li class=""><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class="child"><a href="/docs/models/benchmark/">Benchmark</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child"><a href="/docs/security/verifying-releases/">Verifying a release</a></li><li class="child on"><a href="/docs/security/vulnerabilities/">Vulnerability management</a></li><li class="child"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li><li class="child"><a href="/docs/security/red-team/">Red-team reports</a></li></ul></nav>
+  </aside>
+  <main class="doc">
+    <h1>Vulnerability management</h1>
+
+<blockquote>
+<p>Tiếng Việt: <a href="/vi/docs/security/vulnerabilities/">vulnerabilities.vi.md</a>.</p>
+</blockquote>
+<p>The rule: <strong>no release ships with a known vulnerability that has a fix, and a
+vulnerability published after a release is fixed by a patch release within
+the times in <a href="/docs/security/policy/#known-vulnerabilities-in-dependencies-and-images">SECURITY.md</a>.</strong>
+This page says how that is checked and what to do with a finding.</p>
+<h2 id="what-is-scanned-and-when">What is scanned, and when<a class="anchor" href="#what-is-scanned-and-when" aria-hidden="true">#</a></h2>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>What</th>
+  <th>Tool</th>
+  <th>Pull request and <code>main</code></th>
+  <th>Every day (02:41 UTC)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Go code (reachable vulnerable functions)</td>
+  <td>govulncheck, pinned in <code>tools/go.mod</code></td>
+  <td>yes (<code>ci.yml</code>, required check)</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Lockfiles: <code>go.mod</code>, <code>tools/go.mod</code>, <code>web/</code> and example <code>package-lock.json</code>, <code>train/</code>, <code>bench/</code> and example <code>uv.lock</code></td>
+  <td>Trivy</td>
+  <td>yes</td>
+  <td>yes, on <code>main</code></td>
+</tr>
+<tr>
+  <td>Gateway and control-plane images built from the checkout</td>
+  <td>Trivy</td>
+  <td>yes</td>
+  <td>yes, on <code>main</code></td>
+</tr>
+<tr>
+  <td>Images of the latest release (gateway, gateway-full, control-plane)</td>
+  <td>Trivy</td>
+  <td>-</td>
+  <td>yes</td>
+</tr>
+</tbody>
+</table></div>
+<p><a href="https://github.com/guard-spec/guard-spec/blob/1d90ccd5ad476c4cd2f55f7d50c1aee822a57355/.github/workflows/vuln-scan.yml"><code>.github/workflows/vuln-scan.yml</code></a>
+runs the Trivy scans; Trivy is installed by
+<a href="https://github.com/guard-spec/guard-spec/blob/1d90ccd5ad476c4cd2f55f7d50c1aee822a57355/scripts/install-trivy.sh"><code>scripts/install-trivy.sh</code></a> at a pinned
+version whose archive SHA-256 was checked against Trivy's cosign-signed
+checksums.</p>
+<ul>
+<li><strong>Gate.</strong> A finding with a fixed version fails the job, whatever its
+severity. Findings without a fix do not fail it, but every finding goes to
+the repository's Code scanning (Security tab, categories
+<code>trivy-dependencies</code> and <code>trivy-image-*</code>).</li>
+<li><strong>Released images.</strong> The daily run scans the images of the latest
+release. Any finding opens, or updates, one issue titled &quot;Known
+vulnerabilities in the v&lt;version&gt; images&quot; with the label <code>security</code>,
+and the run fails, so it shows in the Actions tab. The issue is closed by
+the first clean run. A finding there is fixed with a patch release.</li>
+<li><strong>Dependabot</strong> opens pull requests for Go modules (<code>/</code> and <code>/tools</code>), npm,
+uv, GitHub Actions and the base image digests (daily for the images).</li>
+</ul>
+<h2 id="base-images">Base images<a class="anchor" href="#base-images" aria-hidden="true">#</a></h2>
+<p>Chainguard's Wolfi images are rebuilt with fixes every day and carry only
+what the binaries need. They replaced Debian <code>bookworm-slim</code> (gateway,
+hundreds of OS-package CVEs without a fix, among them a critical one in
+zlib) and distroless static (control plane).</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Image</th>
+  <th>Base</th>
+  <th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>gateway, gateway-full</td>
+  <td><code>cgr.dev/chainguard/glibc-dynamic</code></td>
+  <td>glibc, libgcc, libstdc++, CA certificates; ONNX Runtime is added from its release</td>
+</tr>
+<tr>
+  <td>control-plane</td>
+  <td><code>cgr.dev/chainguard/static</code></td>
+  <td>CA certificates, tzdata, passwd</td>
+</tr>
+</tbody>
+</table></div>
+<p>Both are pinned by digest. Neither has a shell, a package manager or curl,
+so the deployment files call the binaries' own subcommands:</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Was</th>
+  <th>Now</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>curl -fsS http://localhost:8080/readyz</code> (HEALTHCHECK, compose, ECS)</td>
+  <td><code>/app/gateway health</code> (<code>/app/gateway health /health</code> for liveness only)</td>
+</tr>
+<tr>
+  <td>the <code>models-init</code> shell script (compose, Helm <code>models-pull</code>)</td>
+  <td><code>./models init</code>: pulls what <code>DETECTOR_LAYERS</code> needs; a failed pull warns, or exits 1 with <code>DETECTOR_REQUIRE_ML=true</code> / <code>MODELS_REQUIRED=true</code></td>
+</tr>
+<tr>
+  <td><code>cp /app/migrations/*.sql /migrations/</code> (Helm migrations job)</td>
+  <td><code>/app/doctor copy-migrations /migrations /app/migrations</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>Since 0.4.0 the compose files, the Helm chart and the Terraform ECS module
+use these forms; the 0.3.x images were the last with a shell (an older
+chart's <code>gateway.image.shell</code> setting is gone). <code>internal/version</code> has a
+test that fails if a deployment file goes back to a shell form.</p>
+<h2 id="when-a-scan-finds-something">When a scan finds something<a class="anchor" href="#when-a-scan-finds-something" aria-hidden="true">#</a></h2>
+<ol>
+<li><p><strong>A fixed version exists.</strong> Update the dependency or let the Dependabot
+pull request through (for a base image, the digest bump). If it is in a
+released image, cut a patch release within the time in SECURITY.md.</p>
+</li>
+<li><p><strong>No fix yet.</strong> It stays visible in Code scanning (and in the issue, for
+a released image). Check whether it affects Guard Spec. Remove the
+component if it is not needed.</p>
+</li>
+<li><p><strong>It does not affect Guard Spec.</strong> Add an OpenVEX statement with the
+reason to <a href="https://github.com/guard-spec/guard-spec/blob/1d90ccd5ad476c4cd2f55f7d50c1aee822a57355/.vex/guard-spec.openvex.json"><code>.vex/guard-spec.openvex.json</code></a>;
+every scan reads that file. Example:</p>
+<pre><code class="language-json">{
+  &quot;vulnerability&quot;: {&quot;name&quot;: &quot;CVE-2026-00000&quot;},
+  &quot;products&quot;: [{&quot;@id&quot;: &quot;pkg:oci/guard-spec-gateway&quot;}],
+  &quot;status&quot;: &quot;not_affected&quot;,
+  &quot;justification&quot;: &quot;vulnerable_code_not_in_execute_path&quot;,
+  &quot;impact_statement&quot;: &quot;The gateway never calls the affected function; govulncheck reports it unreachable.&quot;
+}
+</code></pre>
+<p>Statements are reviewed at each release and removed once the dependency
+is updated.</p>
+</li>
+</ol>
+<h2 id="checking-a-running-installation">Checking a running installation<a class="anchor" href="#checking-a-running-installation" aria-hidden="true">#</a></h2>
+<p><code>doctor</code> (in the gateway and control-plane images) has an <code>advisories</code>
+check: it reads the project's published GitHub security advisories and
+fails when one affects the running version, with the version to upgrade to.
+The request carries no identifier of the installation. Without internet
+access run <code>doctor -skip advisories</code>, or point <code>DOCTOR_ADVISORIES_URL</code> at a
+mirror of <code>https://api.github.com/repos/guard-spec/guard-spec/security-advisories?state=published</code>.</p>
+<p>To scan a running image yourself:</p>
+<pre><code class="language-bash">trivy image ghcr.io/guard-spec/guard-spec-gateway:&lt;version&gt;
+</code></pre>
+
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/1d90ccd5ad476c4cd2f55f7d50c1aee822a57355/docs/security/vulnerabilities.md">docs/security/vulnerabilities.md</a> @ <code>1d90ccd5ad47</code></p>
+  </main>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div class="brand"><img src="/assets/logo.svg" alt="" width="22" height="22"><span>Guard Spec</span></div>
+    <nav>
+      <a href="https://github.com/guard-spec/guard-spec">GitHub</a>
+      <a href="/docs/security/">Security</a>
+      <a href="https://github.com/guard-spec/guard-spec/blob/main/CONTRIBUTING.md">Contributing</a>
+      <a href="https://github.com/guard-spec/guard-spec/blob/main/LICENSE">Apache-2.0</a>
+    </nav>
+    <p>© The Guard Spec Authors. Created by <a href="https://github.com/giaplee">@giaplee</a>.</p>
+  </div>
+</footer>
+
+</body>
+</html>

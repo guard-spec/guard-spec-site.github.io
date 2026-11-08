@@ -1,76 +1,93 @@
 {
   "_comment": "The current release, shown on the landing page (hero badge, 'New in' link, What's new section). On each release: update this file, bump ref in src/docs.json, run build.py, run check_site.py --external. Text may hold inline HTML (<code>). 'previous' lists the newest first; keep about four.",
-  "version": "v0.3.1",
-  "date": "2026-11-07",
-  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.3.1",
-  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.3.1/CHANGELOG.md#031---2026-11-07",
+  "version": "v0.4.0",
+  "date": "2026-11-08",
+  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.4.0",
+  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.4.0/CHANGELOG.md#040---2026-11-08",
   "status": {
     "en": "pre-1.0",
     "vi": "trước 1.0"
   },
   "tagline": {
-    "en": "Output guard security fixes and faster streams",
-    "vi": "Vá bảo mật output guard và stream nhanh hơn"
+    "en": "Data protection, SIEM and on-call integrations, images with no known CVE",
+    "vi": "Bảo vệ dữ liệu, tích hợp SIEM và công cụ trực sự cố, image không còn CVE đã biết"
   },
   "upgrade": {
-    "en": "Upgrading: no migrations. The output guard now removes more: HTML tags that link to or load a URL off the allowlist, and markup that a removal joined into a new link or image. Hosts on your allowlist are unaffected.",
-    "vi": "Khi nâng cấp: không có migration. Output guard giờ xoá nhiều hơn: thẻ HTML trỏ tới hoặc tải URL ngoài allowlist, và markup bị ghép thành link hay ảnh mới sau khi xoá. Host trong allowlist không bị ảnh hưởng."
+    "en": "Upgrading: migrations 021 to 024; back up the database first. The images have no shell or curl any more: the compose files, Helm chart and Terraform module of this release already use <code>gateway health</code>, <code>models init</code> and <code>doctor copy-migrations</code>; remove <code>gateway.image.shell</code> from your Helm values. The request list no longer returns content. New features are off until configured.",
+    "vi": "Khi nâng cấp: migration 021 đến 024; sao lưu database trước. Image không còn shell hay curl: file compose, Helm chart và module Terraform của bản này đã dùng <code>gateway health</code>, <code>models init</code> và <code>doctor copy-migrations</code>; bỏ <code>gateway.image.shell</code> khỏi values Helm. Danh sách request không còn trả nội dung. Tính năng mới tắt cho tới khi được cấu hình."
   },
   "highlights": {
     "en": [
       {
-        "title": "HTML tags checked like links",
-        "text": "<code>&lt;a href&gt;</code>, <code>&lt;iframe src&gt;</code>, <code>style</code> with <code>url()</code> and other tags that reach a host off the allowlist are removed, read the way a browser reads them. <code>javascript:</code> and <code>data:</code> URLs go too."
+        "title": "Images with no known CVE",
+        "text": "The gateway and control-plane images are built on Wolfi, with no shell, curl or package manager: 327 known OS-package vulnerabilities in the v0.3.1 gateway image, none now. Every pull request, <code>main</code> and the released images are scanned daily."
       },
       {
-        "title": "No links rebuilt by a removal",
-        "text": "When removing markup joined the text around it into a new image or link, that new markup was never checked. The guard now checks its own output again, in whole answers and streams."
+        "title": "Stored content encrypted",
+        "text": "Prompts and answers are sealed with a data key per organization, wrapped by a key from the environment, a file or Vault Transit, with rotation and re-encryption commands."
       },
       {
-        "title": "Canary and personal data split by markup",
-        "text": "A canary or an e-mail, phone or card number split by a link the guard removes is now caught after the removal joins it."
+        "title": "Personal data kept from the model",
+        "text": "E-mails, phone numbers, IDs and cards in a request can be replaced by tokens before it reaches the model provider and put back in the answer, or redacted, or used as a policy signal."
       },
       {
-        "title": "Streams 7.5× → 1.3–1.6× of a whole answer",
-        "text": "The output guard holds back only what could still change, so a guarded stream costs about 0.01 ms on a clean 2 KB answer instead of 3.8 ms. Two stream leaks found on the way are fixed."
+        "title": "Content access and a tamper-evident log",
+        "text": "Reading stored content is a permission of its own and needs a reason. The activity log is a hash chain with signed anchors that <code>control-plane audit verify</code> checks."
       },
       {
-        "title": "Supply chain",
-        "text": "SLSA build provenance for the release archives, signed model releases, hash-pinned publish dependencies, and an OpenSSF Best Practices passing badge."
+        "title": "SIEM export as OCSF",
+        "text": "Detections, security and admin events go to Splunk, Elasticsearch, Microsoft Sentinel, syslog over TLS or HTTP as OCSF 1.9.0 records, at least once, with catch-up after an outage."
       },
       {
-        "title": "Docs in Vietnamese",
-        "text": "Integrations, examples, deployment, models, benchmark and security pages now have Vietnamese translations."
+        "title": "PagerDuty and Opsgenie",
+        "text": "A firing alert opens an incident or an Opsgenie alert, never a second one for the same alert, and its resolution closes it."
+      },
+      {
+        "title": "Secrets from files and Vault, mutual TLS",
+        "text": "Every secret can come from a file or Vault KV, and the control plane can reach the gateway's admin API over mutual TLS."
       }
     ],
     "vi": [
       {
-        "title": "Thẻ HTML được kiểm như link",
-        "text": "<code>&lt;a href&gt;</code>, <code>&lt;iframe src&gt;</code>, <code>style</code> có <code>url()</code> và các thẻ khác trỏ tới host ngoài allowlist bị xoá, đọc theo cách trình duyệt đọc. URL <code>javascript:</code> và <code>data:</code> cũng bị xoá."
+        "title": "Image không còn CVE đã biết",
+        "text": "Image gateway và control plane build trên Wolfi, không có shell, curl hay trình quản lý gói: image gateway v0.3.1 có 327 lỗ hổng gói hệ điều hành đã biết, bản mới không còn. Mọi pull request, <code>main</code> và image đã phát hành được quét hằng ngày."
       },
       {
-        "title": "Không còn link bị ghép lại sau khi xoá",
-        "text": "Khi xoá markup làm phần chữ hai bên ghép thành ảnh hay link mới, phần mới đó trước đây không được kiểm. Giờ guard kiểm lại chính đầu ra của nó, cả câu trả lời lẫn stream."
+        "title": "Mã hoá nội dung lưu trữ",
+        "text": "Prompt và câu trả lời được mã hoá bằng khoá dữ liệu riêng mỗi tổ chức, bọc bởi khoá từ biến môi trường, file hoặc Vault Transit, có lệnh xoay khoá và mã hoá lại."
       },
       {
-        "title": "Canary và dữ liệu cá nhân bị chia bởi markup",
-        "text": "Canary, email, số điện thoại hay số thẻ bị chia đôi bởi một link mà guard xoá giờ được phát hiện sau khi ghép lại."
+        "title": "Giữ dữ liệu cá nhân khỏi model",
+        "text": "Email, số điện thoại, số giấy tờ và số thẻ trong request có thể được thay bằng token trước khi tới nhà cung cấp model rồi trả lại trong câu trả lời, hoặc bị che, hoặc dùng làm tín hiệu cho policy."
       },
       {
-        "title": "Stream từ 7,5× xuống 1,3–1,6× so với kiểm cả câu",
-        "text": "Output guard chỉ giữ lại phần còn có thể thay đổi, nên một stream sạch 2 KB chỉ tốn khoảng 0,01 ms thay vì 3,8 ms. Hai lỗ rò trong stream phát hiện trong lúc làm đã được vá."
+        "title": "Quyền xem nội dung và nhật ký chống sửa",
+        "text": "Xem nội dung đã lưu là quyền riêng và phải nêu lý do. Nhật ký hoạt động là chuỗi hash có mốc ký, kiểm bằng <code>control-plane audit verify</code>."
       },
       {
-        "title": "Chuỗi cung ứng",
-        "text": "Provenance SLSA cho file phát hành, ký model release, khoá hash thư viện khi publish, và huy hiệu OpenSSF Best Practices mức passing."
+        "title": "Xuất sang SIEM chuẩn OCSF",
+        "text": "Sự kiện phát hiện, bảo mật và quản trị được gửi tới Splunk, Elasticsearch, Microsoft Sentinel, syslog qua TLS hoặc HTTP dưới dạng bản ghi OCSF 1.9.0, ít nhất một lần, gửi bù sau khi đích phục hồi."
       },
       {
-        "title": "Tài liệu tiếng Việt",
-        "text": "Các trang tích hợp, ví dụ, triển khai, model, benchmark và bảo mật đã có bản tiếng Việt."
+        "title": "PagerDuty và Opsgenie",
+        "text": "Cảnh báo kích hoạt mở incident hoặc alert Opsgenie, không mở trùng cho cùng một cảnh báo, và tự đóng khi cảnh báo hết."
+      },
+      {
+        "title": "Secret từ file và Vault, mTLS",
+        "text": "Mọi secret có thể lấy từ file hoặc Vault KV, và control plane có thể gọi API quản trị của gateway qua mutual TLS."
       }
     ]
   },
   "previous": [
+    {
+      "version": "v0.3.1",
+      "date": "2026-11-07",
+      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.3.1",
+      "summary": {
+        "en": "Output guard security fixes: HTML tags that link to or load a URL off the allowlist are removed, streams are faster, and personal data split by markup is caught.",
+        "vi": "Vá bảo mật output guard: thẻ HTML trỏ tới hoặc tải URL ngoài allowlist bị xoá, stream nhanh hơn, và dữ liệu cá nhân bị markup chia đôi được phát hiện."
+      }
+    },
     {
       "version": "v0.3.0",
       "date": "2026-11-07",
@@ -96,15 +113,6 @@
       "summary": {
         "en": "Anthropic Messages API for Claude Code, shadow mode and model hot reload, a production Helm chart, the doctor command, a production compose and this docs site.",
         "vi": "Anthropic Messages API cho Claude Code, chế độ shadow và nạp lại model khi đang chạy, Helm chart cho production, lệnh doctor, compose cho production và trang tài liệu này."
-      }
-    },
-    {
-      "version": "v0.1.1",
-      "date": "2026-11-06",
-      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.1.1",
-      "summary": {
-        "en": "Fixes and hardening: a dashboard API, clearer health and readiness reports, Helm chart fixes, Go benchmarks and dependency updates.",
-        "vi": "Sửa lỗi và gia cố: API cho dashboard, báo cáo health và readiness rõ hơn, sửa Helm chart, Go benchmark và cập nhật thư viện phụ thuộc."
       }
     }
   ]
