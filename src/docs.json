@@ -1,7 +1,7 @@
 {
   "_comment": "Pages of guardspec.io/docs, built by build.py from the Markdown of the main repository at the pinned ref. Each language lists candidate sources: the first one that exists at the ref is used; a page with none is skipped (build.py prints it). A page without a Vietnamese source links to the English page in the Vietnamese navigation, labelled (tiếng Anh). To update the docs: set ref to a newer commit or tag of guard-spec/guard-spec, run build.py, commit.",
   "repo": "guard-spec/guard-spec",
-  "ref": "f29dc3896da4677f1ad328cdcbb0a0bcf4954093",
+  "ref": "1d90ccd5ad476c4cd2f55f7d50c1aee822a57355",
   "pages": [
     {
       "slug": "quickstart",
@@ -282,6 +282,24 @@
       ]
     },
     {
+      "slug": "operations/siem",
+      "parent": "operations",
+      "title": {
+        "en": "SIEM export",
+        "vi": "Xuất sang SIEM"
+      },
+      "en": [
+        {
+          "file": "docs/siem.md"
+        }
+      ],
+      "vi": [
+        {
+          "file": "docs/siem.vi.md"
+        }
+      ]
+    },
+    {
       "slug": "operations/sizing",
       "parent": "operations",
       "title": {
@@ -401,6 +419,24 @@
       "en": [
         {
           "file": "docs/security/verifying-releases.md"
+        }
+      ]
+    },
+    {
+      "slug": "security/vulnerabilities",
+      "parent": "security",
+      "title": {
+        "en": "Vulnerability management",
+        "vi": "Quản lý lỗ hổng"
+      },
+      "en": [
+        {
+          "file": "docs/security/vulnerabilities.md"
+        }
+      ],
+      "vi": [
+        {
+          "file": "docs/security/vulnerabilities.vi.md"
         }
       ]
     },

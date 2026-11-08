@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xuất sang SIEM · Guard Spec</title>
+<meta name="description" content="English: siem.md. Guard Spec gửi các sự kiện của một tổ chức tới SIEM của bạn dưới dạng bản ghi OCSF 1.9.0: phát hiện prompt injection, đăng nhập thất bại,">
+<meta property="og:title" content="Xuất sang SIEM · Guard Spec">
+<meta property="og:description" content="English: siem.md. Guard Spec gửi các sự kiện của một tổ chức tới SIEM của bạn dưới dạng bản ghi OCSF 1.9.0: phát hiện prompt injection, đăng nhập thất bại,">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://guardspec.io/assets/og.png">
+<link rel="canonical" href="https://guardspec.io/vi/docs/operations/siem/">
+<link rel="alternate" hreflang="en" href="https://guardspec.io/docs/operations/siem/">
+<link rel="alternate" hreflang="vi" href="https://guardspec.io/vi/docs/operations/siem/">
+<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="docs-body">
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="/vi/"><img src="/assets/logo.svg" alt="" width="28" height="28"><span>Guard Spec</span></a>
+    <nav class="links">
+      <a href="/vi/docs/" class="on">Tài liệu</a>
+    </nav>
+    <div class="nav-end">
+      <div class="lang"><a href="/docs/operations/siem/" class="">EN</a><a href="/vi/docs/operations/siem/" class="on">VI</a></div>
+      <a class="btn btn-sm btn-ghost-dark" href="https://github.com/guard-spec/guard-spec"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /> <path d="M9 18c-4.51 2-5-2-7-2" /> </svg><span>GitHub</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap docs">
+  <details class="docs-menu">
+    <summary><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" /> </svg><span>Tài liệu</span></summary>
+    <nav class="docs-nav" aria-label="Tài liệu"><ul><li class=""><a href="/vi/docs/quickstart/">Bắt đầu nhanh</a></li><li class="child"><a href="/vi/docs/quickstart/integrations/">Tích hợp</a></li><li class="child"><a href="/vi/docs/quickstart/examples/">Ví dụ</a></li><li class=""><a href="/vi/docs/deploy/">Triển khai</a></li><li class="child"><a href="/vi/docs/deploy/production-compose/">Compose cho production</a></li><li class="child"><a href="/vi/docs/deploy/managed-postgres/">PostgreSQL được quản lý</a></li><li class="child"><a href="/vi/docs/deploy/airgapped/">Mạng cô lập</a></li><li class="child"><a href="/docs/deploy/aws/">AWS <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/docs/deploy/terraform-aws/">Terraform cho AWS <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/docs/deploy/on-premise/">Hạ tầng riêng <span class="en">(tiếng Anh)</span></a></li><li class=""><a href="/vi/docs/configuration/">Cấu hình</a></li><li class="child"><a href="/docs/configuration/routing/">Định tuyến <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/configuration/apis/">API</a></li><li class=""><a href="/docs/operations/">Vận hành <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/operations/alerts/">Cảnh báo và thông báo</a></li><li class="child"><a href="/docs/operations/admin-ui/">Giao diện quản trị <span class="en">(tiếng Anh)</span></a></li><li class="child on"><a href="/vi/docs/operations/siem/">Xuất sang SIEM</a></li><li class="child"><a href="/vi/docs/operations/sizing/">Định cỡ và chọn lớp</a></li><li class=""><a href="/vi/docs/upgrade/">Nâng cấp</a></li><li class=""><a href="/vi/docs/models/">Model</a></li><li class="child"><a href="/vi/docs/models/versions/">Phiên bản, ghim và quay lui</a></li><li class="child"><a href="/vi/docs/models/benchmark/">Benchmark</a></li><li class=""><a href="/vi/docs/security/">Bảo mật</a></li><li class="child"><a href="/docs/security/verifying-releases/">Kiểm tra bản phát hành <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/security/vulnerabilities/">Quản lý lỗ hổng</a></li><li class="child"><a href="/vi/docs/security/risks/">Rủi ro và gia cố</a></li><li class="child"><a href="/docs/security/policy/">Báo lỗ hổng <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/security/red-team/">Báo cáo red-team</a></li></ul></nav>
+  </details>
+  <aside class="docs-side">
+    <nav class="docs-nav" aria-label="Tài liệu"><ul><li class=""><a href="/vi/docs/quickstart/">Bắt đầu nhanh</a></li><li class="child"><a href="/vi/docs/quickstart/integrations/">Tích hợp</a></li><li class="child"><a href="/vi/docs/quickstart/examples/">Ví dụ</a></li><li class=""><a href="/vi/docs/deploy/">Triển khai</a></li><li class="child"><a href="/vi/docs/deploy/production-compose/">Compose cho production</a></li><li class="child"><a href="/vi/docs/deploy/managed-postgres/">PostgreSQL được quản lý</a></li><li class="child"><a href="/vi/docs/deploy/airgapped/">Mạng cô lập</a></li><li class="child"><a href="/docs/deploy/aws/">AWS <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/docs/deploy/terraform-aws/">Terraform cho AWS <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/docs/deploy/on-premise/">Hạ tầng riêng <span class="en">(tiếng Anh)</span></a></li><li class=""><a href="/vi/docs/configuration/">Cấu hình</a></li><li class="child"><a href="/docs/configuration/routing/">Định tuyến <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/configuration/apis/">API</a></li><li class=""><a href="/docs/operations/">Vận hành <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/operations/alerts/">Cảnh báo và thông báo</a></li><li class="child"><a href="/docs/operations/admin-ui/">Giao diện quản trị <span class="en">(tiếng Anh)</span></a></li><li class="child on"><a href="/vi/docs/operations/siem/">Xuất sang SIEM</a></li><li class="child"><a href="/vi/docs/operations/sizing/">Định cỡ và chọn lớp</a></li><li class=""><a href="/vi/docs/upgrade/">Nâng cấp</a></li><li class=""><a href="/vi/docs/models/">Model</a></li><li class="child"><a href="/vi/docs/models/versions/">Phiên bản, ghim và quay lui</a></li><li class="child"><a href="/vi/docs/models/benchmark/">Benchmark</a></li><li class=""><a href="/vi/docs/security/">Bảo mật</a></li><li class="child"><a href="/docs/security/verifying-releases/">Kiểm tra bản phát hành <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/security/vulnerabilities/">Quản lý lỗ hổng</a></li><li class="child"><a href="/vi/docs/security/risks/">Rủi ro và gia cố</a></li><li class="child"><a href="/docs/security/policy/">Báo lỗ hổng <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/security/red-team/">Báo cáo red-team</a></li></ul></nav>
+  </aside>
+  <main class="doc">
+    <h1>Xuất sang SIEM</h1>
+
+<blockquote>
+<p>English: <a href="/docs/operations/siem/">siem.md</a>.</p>
+</blockquote>
+<p>Guard Spec gửi các sự kiện của một tổ chức tới SIEM của bạn dưới dạng bản ghi
+<a href="https://schema.ocsf.io/1.9.0/">OCSF 1.9.0</a>: phát hiện prompt injection, đăng
+nhập thất bại, đổi vai trò và 2FA, đổi policy và upstream, cùng mọi thao tác
+quản trị khác. Bản ghi chỉ chứa metadata (id, loại, điểm, quyết định, địa chỉ
+đã hash), không bao giờ có prompt, câu trả lời hay secret.</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Đích</th>
+  <th>Cách gửi</th>
+  <th>Secret</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Splunk</td>
+  <td>HTTP Event Collector (<code>/services/collector/event</code>)</td>
+  <td>HEC token</td>
+</tr>
+<tr>
+  <td>Elasticsearch / OpenSearch</td>
+  <td><code>_bulk</code>, mỗi bản ghi một <code>create</code>, <code>_id</code> = <code>metadata.uid</code> của bản ghi</td>
+  <td>API key (<code>base64(id:key)</code>)</td>
+</tr>
+<tr>
+  <td>Microsoft Sentinel</td>
+  <td>Azure Monitor Logs Ingestion API (data collection rule)</td>
+  <td>Client secret của Entra ID</td>
+</tr>
+<tr>
+  <td>Syslog qua TLS</td>
+  <td>Thông điệp RFC 5424, khung octet-counting (RFC 6587), TLS (RFC 5425); CEF hoặc OCSF JSON</td>
+  <td>không (TLS)</td>
+</tr>
+<tr>
+  <td>HTTP</td>
+  <td><code>POST</code> một mảng JSON các bản ghi</td>
+  <td>bearer token tuỳ chọn</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="cài-đặt">Cài đặt<a class="anchor" href="#cài-đặt" aria-hidden="true">#</a></h2>
+<ol>
+<li>Người vận hành đặt secret vào một biến <code>SIEM_*</code> của control plane (hoặc file
+/ tham chiếu Vault, <a href="/vi/docs/security/#secret-lấy-từ-đâu">secret</a>) và cho
+phép tổ chức dùng nó trong <code>ALERTS_SECRET_ORGS</code>: <code>SIEM_SPLUNK_TOKEN=siem:&lt;org-id&gt;</code>
+(hoặc <code>siem:*</code>). SIEM trong mạng nội bộ cần thêm tổ chức trong
+<code>ALERTS_PRIVATE_ORGS</code>.</li>
+<li>Admin thêm đích ở <strong>Cảnh báo → Xuất sang SIEM</strong>: loại đích, cấu hình, tên
+biến, tuỳ chọn loại sự kiện (<code>detection.</code>, <code>security.login_failed</code>, ...) và
+mức độ thấp nhất. <strong>Gửi thử</strong> gửi một bản ghi <code>alert.test</code>.</li>
+<li>Đích bắt đầu với các sự kiện xảy ra sau khi được thêm.</li>
+</ol>
+<p>API: <code>GET|POST /v1/organizations/{org}/siem-sinks</code>,
+<code>PUT|DELETE .../siem-sinks/{id}</code>, <code>POST .../siem-sinks/{id}/test</code> (admin).</p>
+<h2 id="cách-gửi">Cách gửi<a class="anchor" href="#cách-gửi" aria-hidden="true">#</a></h2>
+<ul>
+<li>Control plane kiểm tra các đích mỗi <code>SIEM_EXPORT_INTERVAL</code> (mặc định <code>5s</code>),
+gửi tối đa 200 sự kiện một lần cho mỗi đích, khoảng 10 giây sau khi sự kiện
+xảy ra (để không bỏ sót batch commit muộn).</li>
+<li><strong>Ít nhất một lần.</strong> Batch lỗi được gửi lại; SIEM có thể bỏ trùng theo
+<code>metadata.uid</code> (Elasticsearch tự làm: đó là id của tài liệu).</li>
+<li>Đích bị lỗi chờ 10 giây, nhân đôi tới tối đa 30 phút, rồi gửi bù từ chỗ đã
+dừng. Trang quản trị hiện lỗi và số lần. Sự kiện được giữ 30 ngày; đích ngừng
+lâu hơn sẽ mất các sự kiện cũ nhất.</li>
+<li>Nhiều bản control plane chia việc: mỗi đích chỉ được giao cho một bản tại một
+thời điểm.</li>
+<li>URL được kiểm tra như webhook cảnh báo: chỉ https, không địa chỉ link-local
+hay metadata, không địa chỉ nội bộ nếu không có <code>ALERTS_PRIVATE_ORGS</code> và
+<code>allow_private</code>.</li>
+</ul>
+<h2 id="bản-ghi">Bản ghi<a class="anchor" href="#bản-ghi" aria-hidden="true">#</a></h2>
+<p>Ánh xạ sự kiện sang class OCSF (Detection Finding 2004, Authentication 3002,
+Account Change 3001, API Activity 6003), các truy vấn mẫu cho Splunk, Kibana,
+Sentinel (KQL), bảng tuỳ chỉnh của Sentinel và định dạng CEF có ở
+<a href="/docs/operations/siem/#records">bản tiếng Anh</a>.</p>
+<h2 id="đã-kiểm-tra">Đã kiểm tra<a class="anchor" href="#đã-kiểm-tra" aria-hidden="true">#</a></h2>
+<p>Bản ghi được đối chiếu với các thuộc tính bắt buộc và giá trị hợp lệ của class
+và object OCSF 1.9.0 chính thức (<code>internal/siem/testdata/ocsf-1.9.0-required.json</code>).
+Việc gửi được thử với server giả của Splunk HEC, Elasticsearch, Logs Ingestion
+API và syslog TLS, và với Elasticsearch 8.17 thật (<code>SIEM_LIVE_ELASTIC_URL</code>, test
+<code>TestLiveElasticsearch</code>).</p>
+
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/1d90ccd5ad476c4cd2f55f7d50c1aee822a57355/docs/siem.vi.md">docs/siem.vi.md</a> @ <code>1d90ccd5ad47</code></p>
+  </main>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div class="brand"><img src="/assets/logo.svg" alt="" width="22" height="22"><span>Guard Spec</span></div>
+    <nav>
+      <a href="https://github.com/guard-spec/guard-spec">GitHub</a>
+      <a href="/docs/security/">Bảo mật</a>
+      <a href="https://github.com/guard-spec/guard-spec/blob/main/CONTRIBUTING.md">Đóng góp</a>
+      <a href="https://github.com/guard-spec/guard-spec/blob/main/LICENSE">Apache-2.0</a>
+    </nav>
+    <p>© The Guard Spec Authors. Tác giả: <a href="https://github.com/giaplee">@giaplee</a>.</p>
+  </div>
+</footer>
+
+</body>
+</html>

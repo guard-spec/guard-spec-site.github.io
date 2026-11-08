@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIEM export · Guard Spec</title>
+<meta name="description" content="Tiếng Việt: siem.vi.md. Guard Spec sends an organization&#x27;s events to your SIEM as OCSF 1.9.0 records: prompt-injection detections, failed logins, role and ">
+<meta property="og:title" content="SIEM export · Guard Spec">
+<meta property="og:description" content="Tiếng Việt: siem.vi.md. Guard Spec sends an organization&#x27;s events to your SIEM as OCSF 1.9.0 records: prompt-injection detections, failed logins, role and ">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://guardspec.io/assets/og.png">
+<link rel="canonical" href="https://guardspec.io/docs/operations/siem/">
+<link rel="alternate" hreflang="en" href="https://guardspec.io/docs/operations/siem/">
+<link rel="alternate" hreflang="vi" href="https://guardspec.io/vi/docs/operations/siem/">
+<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="docs-body">
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="/"><img src="/assets/logo.svg" alt="" width="28" height="28"><span>Guard Spec</span></a>
+    <nav class="links">
+      <a href="/docs/" class="on">Docs</a>
+    </nav>
+    <div class="nav-end">
+      <div class="lang"><a href="/docs/operations/siem/" class="on">EN</a><a href="/vi/docs/operations/siem/" class="">VI</a></div>
+      <a class="btn btn-sm btn-ghost-dark" href="https://github.com/guard-spec/guard-spec"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /> <path d="M9 18c-4.51 2-5-2-7-2" /> </svg><span>GitHub</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap docs">
+  <details class="docs-menu">
+    <summary><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" /> </svg><span>Documentation</span></summary>
+    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class="child"><a href="/docs/quickstart/integrations/">Integrations</a></li><li class="child"><a href="/docs/quickstart/examples/">Examples</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child"><a href="/docs/deploy/production-compose/">Production compose</a></li><li class="child"><a href="/docs/deploy/managed-postgres/">Managed PostgreSQL</a></li><li class="child"><a href="/docs/deploy/airgapped/">Air-gapped</a></li><li class="child"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/terraform-aws/">Terraform for AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class="child on"><a href="/docs/operations/siem/">SIEM export</a></li><li class="child"><a href="/docs/operations/sizing/">Sizing and layers</a></li><li class=""><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class="child"><a href="/docs/models/benchmark/">Benchmark</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child"><a href="/docs/security/verifying-releases/">Verifying a release</a></li><li class="child"><a href="/docs/security/vulnerabilities/">Vulnerability management</a></li><li class="child"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li><li class="child"><a href="/docs/security/red-team/">Red-team reports</a></li></ul></nav>
+  </details>
+  <aside class="docs-side">
+    <nav class="docs-nav" aria-label="Documentation"><ul><li class=""><a href="/docs/quickstart/">Quick start</a></li><li class="child"><a href="/docs/quickstart/integrations/">Integrations</a></li><li class="child"><a href="/docs/quickstart/examples/">Examples</a></li><li class=""><a href="/docs/deploy/">Deploy</a></li><li class="child"><a href="/docs/deploy/production-compose/">Production compose</a></li><li class="child"><a href="/docs/deploy/managed-postgres/">Managed PostgreSQL</a></li><li class="child"><a href="/docs/deploy/airgapped/">Air-gapped</a></li><li class="child"><a href="/docs/deploy/aws/">AWS</a></li><li class="child"><a href="/docs/deploy/terraform-aws/">Terraform for AWS</a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud</a></li><li class="child"><a href="/docs/deploy/on-premise/">On-premise</a></li><li class=""><a href="/docs/configuration/">Configuration</a></li><li class="child"><a href="/docs/configuration/routing/">Routing</a></li><li class="child"><a href="/docs/configuration/apis/">APIs</a></li><li class=""><a href="/docs/operations/">Operations</a></li><li class="child"><a href="/docs/operations/alerts/">Alerts and notifications</a></li><li class="child"><a href="/docs/operations/admin-ui/">Admin UI</a></li><li class="child on"><a href="/docs/operations/siem/">SIEM export</a></li><li class="child"><a href="/docs/operations/sizing/">Sizing and layers</a></li><li class=""><a href="/docs/upgrade/">Upgrade</a></li><li class=""><a href="/docs/models/">Models</a></li><li class="child"><a href="/docs/models/versions/">Versions, pinning and rollback</a></li><li class="child"><a href="/docs/models/benchmark/">Benchmark</a></li><li class=""><a href="/docs/security/">Security</a></li><li class="child"><a href="/docs/security/verifying-releases/">Verifying a release</a></li><li class="child"><a href="/docs/security/vulnerabilities/">Vulnerability management</a></li><li class="child"><a href="/docs/security/risks/">Risks and hardening</a></li><li class="child"><a href="/docs/security/policy/">Reporting a vulnerability</a></li><li class="child"><a href="/docs/security/red-team/">Red-team reports</a></li></ul></nav>
+  </aside>
+  <main class="doc">
+    <h1>SIEM export</h1>
+
+<blockquote>
+<p>Tiếng Việt: <a href="/vi/docs/operations/siem/">siem.vi.md</a>.</p>
+</blockquote>
+<p>Guard Spec sends an organization's events to your SIEM as
+<a href="https://schema.ocsf.io/1.9.0/">OCSF 1.9.0</a> records: prompt-injection
+detections, failed logins, role and 2FA changes, policy and upstream changes
+and every other admin action. A record holds metadata only (ids, categories,
+scores, decisions, hashed addresses), never a prompt, an answer or a secret.</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Destination</th>
+  <th>How</th>
+  <th>Secret</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Splunk</td>
+  <td>HTTP Event Collector (<code>/services/collector/event</code>)</td>
+  <td>HEC token</td>
+</tr>
+<tr>
+  <td>Elasticsearch / OpenSearch</td>
+  <td><code>_bulk</code>, one <code>create</code> per record, <code>_id</code> = the record's <code>metadata.uid</code></td>
+  <td>API key (<code>base64(id:key)</code>)</td>
+</tr>
+<tr>
+  <td>Microsoft Sentinel</td>
+  <td>Azure Monitor Logs Ingestion API (data collection rule)</td>
+  <td>Entra ID client secret</td>
+</tr>
+<tr>
+  <td>Syslog over TLS</td>
+  <td>RFC 5424 messages, octet-counting framing (RFC 6587), TLS (RFC 5425); CEF or OCSF JSON</td>
+  <td>none (TLS)</td>
+</tr>
+<tr>
+  <td>HTTP</td>
+  <td><code>POST</code> of a JSON array of records</td>
+  <td>optional bearer token</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="setting-up">Setting up<a class="anchor" href="#setting-up" aria-hidden="true">#</a></h2>
+<ol>
+<li>The operator puts the secret in a <code>SIEM_*</code> variable of the control plane
+(or a file / Vault reference, <a href="/docs/security/#where-secrets-come-from">secrets</a>)
+and grants it to the organization in <code>ALERTS_SECRET_ORGS</code>:
+<code>SIEM_SPLUNK_TOKEN=siem:&lt;org-id&gt;</code> (or <code>siem:*</code>). A SIEM on a private network
+also needs the organization in <code>ALERTS_PRIVATE_ORGS</code>.</li>
+<li>An admin adds a sink in <strong>Alerts → SIEM export</strong>: the destination, its
+settings, the variable name, optionally the event types (<code>detection.</code>,
+<code>security.login_failed</code>, ...) and the lowest severity. <strong>Send test</strong> sends one
+<code>alert.test</code> record.</li>
+<li>The sink starts with the events that happen after it was added.</li>
+</ol>
+<p>API: <code>GET|POST /v1/organizations/{org}/siem-sinks</code>,
+<code>PUT|DELETE .../siem-sinks/{id}</code>, <code>POST .../siem-sinks/{id}/test</code> (admin).</p>
+<h2 id="delivery">Delivery<a class="anchor" href="#delivery" aria-hidden="true">#</a></h2>
+<ul>
+<li>The control plane checks the sinks every <code>SIEM_EXPORT_INTERVAL</code> (default
+<code>5s</code>) and sends up to 200 events a sink at a time, about 10 seconds after
+they happen (an event batch that commits late is not skipped).</li>
+<li><strong>At least once.</strong> A batch that fails is sent again; the SIEM can drop
+duplicates on <code>metadata.uid</code> (Elasticsearch does: it is the document id).</li>
+<li>A failing sink waits 10 s, doubling up to 30 minutes, then catches up from
+where it stopped. The page shows the error and the count. Events are kept 30
+days; a sink down longer loses the oldest.</li>
+<li>Several control plane replicas share the work: a sink is leased to one of
+them at a time.</li>
+<li>URLs are checked like alert webhooks: https only, no link-local or metadata
+addresses, no private ones without <code>ALERTS_PRIVATE_ORGS</code> and <code>allow_private</code>.</li>
+</ul>
+<h2 id="records">Records<a class="anchor" href="#records" aria-hidden="true">#</a></h2>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Event</th>
+  <th>OCSF class</th>
+  <th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>detection.blocked</code>, <code>detection.flagged</code></td>
+  <td>Detection Finding (2004)</td>
+  <td><code>disposition</code> Blocked, Allowed or Corrected (redacted); <code>finding_info.types</code> the categories, <code>analytic.name</code> the layer, <code>confidence_score</code> the score × 100, <code>related_events[0].uid</code> the request id</td>
+</tr>
+<tr>
+  <td><code>security.login_failed</code></td>
+  <td>Authentication (3002), Logon, Failure</td>
+  <td><code>user.uid_alt</code> is the hash of the address, <code>src_endpoint.ip</code></td>
+</tr>
+<tr>
+  <td><code>security.mfa_locked</code></td>
+  <td>Account Change (3001), Lock</td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>security.role_changed</code>, <code>security.owner_added</code></td>
+  <td>Account Change (3001), Attach Policy</td>
+  <td></td>
+</tr>
+<tr>
+  <td><code>upstream.error</code></td>
+  <td>API Activity (6003), Failure</td>
+  <td><code>status_code</code>, <code>status_detail</code></td>
+</tr>
+<tr>
+  <td><code>config.*</code>, <code>security.sso_changed</code>, <code>activity.*</code>, <code>alert.test</code></td>
+  <td>API Activity (6003)</td>
+  <td>Create, Read, Update, Delete or Other</td>
+</tr>
+</tbody>
+</table></div>
+<p>Every record has <code>metadata.product.name</code> &quot;Guard Spec&quot;, <code>metadata.tenant_uid</code>
+(the organization), <code>metadata.event_code</code> (the Guard Spec event type) and
+<code>unmapped</code> with the event's own attributes. <code>severity_id</code>: info 1, warning 3,
+critical 5.</p>
+<h3 id="splunk">Splunk<a class="anchor" href="#splunk" aria-hidden="true">#</a></h3>
+<pre><code>index=security sourcetype=&quot;ocsf:guard-spec&quot; class_uid=2004 disposition=Blocked
+| stats count by finding_info.analytic.name, unmapped.model
+</code></pre>
+<h3 id="elasticsearch--kibana">Elasticsearch / Kibana<a class="anchor" href="#elasticsearch--kibana" aria-hidden="true">#</a></h3>
+<p>Index <code>guard-spec-ocsf</code> by default; <code>@timestamp</code> is the event time.
+<code>class_uid : 2004 and disposition : &quot;Blocked&quot;</code>.</p>
+<h3 id="microsoft-sentinel">Microsoft Sentinel<a class="anchor" href="#microsoft-sentinel" aria-hidden="true">#</a></h3>
+<p>Create a data collection endpoint, a custom table <code>GuardSpecOCSF_CL</code> with
+<code>TimeGenerated</code> (datetime), <code>ClassUid</code> (int), <code>SeverityId</code> (int), <code>EventType</code>
+(string) and <code>Event</code> (dynamic), a data collection rule with the stream
+<code>Custom-GuardSpecOCSF_CL</code> writing to it, and an Entra ID app with the role
+<em>Monitoring Metrics Publisher</em> on the rule. The sink takes the endpoint, the
+rule's immutable id, the stream, the tenant and client ids, and the client
+secret variable. <code>authority</code> changes the Entra ID host for sovereign clouds.</p>
+<pre><code class="language-kusto">GuardSpecOCSF_CL
+| where ClassUid == 2004 and tostring(Event.disposition) == &quot;Blocked&quot;
+| summarize count() by tostring(Event.finding_info.analytic.name), bin(TimeGenerated, 1h)
+</code></pre>
+<h3 id="syslog">Syslog<a class="anchor" href="#syslog" aria-hidden="true">#</a></h3>
+<p><code>address</code> is <code>host:port</code> of a TLS receiver (rsyslog <code>imtcp</code> with TLS,
+syslog-ng <code>network(transport(&quot;tls&quot;))</code>, a SIEM collector). <code>format</code> is <code>cef</code>
+(default: <code>CEF:0|Guard Spec|Guard Spec|&lt;version&gt;|&lt;event type&gt;|&lt;title&gt;|&lt;severity&gt;|...</code>)
+or <code>json</code> (the OCSF record). <code>ca_pem</code> holds the CA certificate when it is not
+a public one. Facility local0; severity from the event.</p>
+<h2 id="checked">Checked<a class="anchor" href="#checked" aria-hidden="true">#</a></h2>
+<p>The records are checked against the required attributes and values of the
+official OCSF 1.9.0 classes and objects
+(<code>internal/siem/testdata/ocsf-1.9.0-required.json</code>). Delivery is tested
+against fake Splunk HEC, Elasticsearch, Logs Ingestion API and TLS syslog
+servers, and against Elasticsearch 8.17 (<code>SIEM_LIVE_ELASTIC_URL</code>, test
+<code>TestLiveElasticsearch</code>).</p>
+
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/1d90ccd5ad476c4cd2f55f7d50c1aee822a57355/docs/siem.md">docs/siem.md</a> @ <code>1d90ccd5ad47</code></p>
+  </main>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div class="brand"><img src="/assets/logo.svg" alt="" width="22" height="22"><span>Guard Spec</span></div>
+    <nav>
+      <a href="https://github.com/guard-spec/guard-spec">GitHub</a>
+      <a href="/docs/security/">Security</a>
+      <a href="https://github.com/guard-spec/guard-spec/blob/main/CONTRIBUTING.md">Contributing</a>
+      <a href="https://github.com/guard-spec/guard-spec/blob/main/LICENSE">Apache-2.0</a>
+    </nav>
+    <p>© The Guard Spec Authors. Created by <a href="https://github.com/giaplee">@giaplee</a>.</p>
+  </div>
+</footer>
+
+</body>
+</html>
