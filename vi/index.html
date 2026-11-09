@@ -42,7 +42,7 @@
 <section class="hero">
   <div class="wrap hero-in">
     <div class="hero-copy">
-      <a class="new-pill" href="#whats-new"><b>Có gì mới trong v0.4.0</b><span>Bảo vệ dữ liệu, tích hợp SIEM và công cụ trực sự cố, image không còn CVE đã biết</span><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /> </svg></a>
+      <a class="new-pill" href="#whats-new"><b>Có gì mới trong v0.4.1</b><span>Vá bảo mật: giữ giới hạn phương thức đăng nhập khi lưu</span><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /> </svg></a>
       <div class="kicker">Mã nguồn mở · Tự host</div>
       <h1>Chặn prompt injection <em>trước khi</em> nó tới LLM của bạn</h1>
       <p class="lead">Guard Spec là gateway đặt giữa ứng dụng của bạn và mọi API tương thích OpenAI. Nó kiểm tra prompt, tài liệu truy xuất, kết quả tool và MCP tool ở chiều vào, và câu trả lời của model ở chiều ra. Prompt không bao giờ rời khỏi hạ tầng của bạn.</p>
@@ -51,7 +51,7 @@
         <a class="btn btn-ghost-dark" href="https://github.com/guard-spec/guard-spec"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /> <path d="M9 18c-4.51 2-5-2-7-2" /> </svg>Xem trên GitHub</a>
       </div>
       <ul class="badges">
-        <li>Apache-2.0</li><li>Go</li><li>English · Tiếng Việt</li><li><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.4.0">v0.4.0 · trước 1.0</a></li><li><a href="https://www.bestpractices.dev/projects/16421">OpenSSF Best Practices · passing</a></li>
+        <li>Apache-2.0</li><li>Go</li><li>English · Tiếng Việt</li><li><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.4.1">v0.4.1 · trước 1.0</a></li><li><a href="https://www.bestpractices.dev/projects/16421">OpenSSF Best Practices · passing</a></li>
       </ul>
     </div>
     <div class="hero-code">
@@ -205,27 +205,21 @@ client = OpenAI(
 <section class="section alt" id="whats-new">
   <div class="wrap">
     <div class="eyebrow">Có gì mới</div>
-    <h2>Có gì mới trong v0.4.0</h2>
-    <p class="sub">Phát hành ngày <time datetime="2026-11-08">2026-11-08</time>. Khi nâng cấp: migration 021 đến 024; sao lưu database trước. Image không còn shell hay curl: file compose, Helm chart và module Terraform của bản này đã dùng <code>gateway health</code>, <code>models init</code> và <code>doctor copy-migrations</code>; bỏ <code>gateway.image.shell</code> khỏi values Helm. Danh sách request không còn trả nội dung. Tính năng mới tắt cho tới khi được cấu hình.</p>
+    <h2>Có gì mới trong v0.4.1</h2>
+    <p class="sub">Phát hành ngày <time datetime="2026-11-09">2026-11-09</time>. Khi nâng cấp: không có migration, không đổi cấu hình. Sau khi nâng cấp, mở trang Bảo mật của từng tổ chức có giới hạn phương thức đăng nhập (ví dụ chỉ SSO) và đặt lại giới hạn nếu một lần lưu trên v0.4.0 trở về trước đã xoá nó.</p>
     <ul class="grid3 wn-list">
-      <li class="card"><h3>Image không còn CVE đã biết</h3><p>Image gateway và control plane build trên Wolfi, không có shell, curl hay trình quản lý gói: image gateway v0.3.1 có 327 lỗ hổng gói hệ điều hành đã biết, bản mới không còn. Mọi pull request, <code>main</code> và image đã phát hành được quét hằng ngày.</p></li>
-      <li class="card"><h3>Mã hoá nội dung lưu trữ</h3><p>Prompt và câu trả lời được mã hoá bằng khoá dữ liệu riêng mỗi tổ chức, bọc bởi khoá từ biến môi trường, file hoặc Vault Transit, có lệnh xoay khoá và mã hoá lại.</p></li>
-      <li class="card"><h3>Giữ dữ liệu cá nhân khỏi model</h3><p>Email, số điện thoại, số giấy tờ và số thẻ trong request có thể được thay bằng token trước khi tới nhà cung cấp model rồi trả lại trong câu trả lời, hoặc bị che, hoặc dùng làm tín hiệu cho policy.</p></li>
-      <li class="card"><h3>Quyền xem nội dung và nhật ký chống sửa</h3><p>Xem nội dung đã lưu là quyền riêng và phải nêu lý do. Nhật ký hoạt động là chuỗi hash có mốc ký, kiểm bằng <code>control-plane audit verify</code>.</p></li>
-      <li class="card"><h3>Xuất sang SIEM chuẩn OCSF</h3><p>Sự kiện phát hiện, bảo mật và quản trị được gửi tới Splunk, Elasticsearch, Microsoft Sentinel, syslog qua TLS hoặc HTTP dưới dạng bản ghi OCSF 1.9.0, ít nhất một lần, gửi bù sau khi đích phục hồi.</p></li>
-      <li class="card"><h3>PagerDuty và Opsgenie</h3><p>Cảnh báo kích hoạt mở incident hoặc alert Opsgenie, không mở trùng cho cùng một cảnh báo, và tự đóng khi cảnh báo hết.</p></li>
-      <li class="card"><h3>Secret từ file và Vault, mTLS</h3><p>Mọi secret có thể lấy từ file hoặc Vault KV, và control plane có thể gọi API quản trị của gateway qua mutual TLS.</p></li>
+      <li class="card"><h3>Giữ giới hạn phương thức đăng nhập khi lưu</h3><p>Trên v0.4.0 trở về trước, lưu bất kỳ cài đặt bảo mật nào khác của tổ chức (2FA, thời hạn phiên, tham gia theo tên miền) từ giao diện quản trị làm mất giới hạn phương thức đăng nhập, nên tổ chức chỉ cho SSO lại cho đăng nhập bằng mật khẩu. Giờ lần lưu giữ nguyên giới hạn đã lưu; chỉ gửi rõ <code>null</code> mới bỏ giới hạn.</p></li>
     </ul>
     <div class="ctas wn-links">
-      <a class="btn btn-primary" href="https://github.com/guard-spec/guard-spec/releases/tag/v0.4.0">Ghi chú phát hành<svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /> </svg></a>
-      <a class="btn wn-btn" href="https://github.com/guard-spec/guard-spec/blob/v0.4.0/CHANGELOG.md#040---2026-11-08"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 12h-5" /> <path d="M15 8h-5" /> <path d="M19 17V5a2 2 0 0 0-2-2H4" /> <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" /> </svg>Nhật ký thay đổi</a>
+      <a class="btn btn-primary" href="https://github.com/guard-spec/guard-spec/releases/tag/v0.4.1">Ghi chú phát hành<svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /> </svg></a>
+      <a class="btn wn-btn" href="https://github.com/guard-spec/guard-spec/blob/v0.4.1/CHANGELOG.md#041---2026-11-09"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 12h-5" /> <path d="M15 8h-5" /> <path d="M19 17V5a2 2 0 0 0-2-2H4" /> <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" /> </svg>Nhật ký thay đổi</a>
     </div>
     <h3 class="wn-earlier">Các bản trước</h3>
     <ul class="wn-prev">
+      <li><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.4.0">v0.4.0</a><time datetime="2026-11-08">2026-11-08</time><span>Image không còn CVE đã biết, mã hoá nội dung lưu trữ theo tổ chức, giữ dữ liệu cá nhân khỏi model, quyền xem nội dung và nhật ký chống sửa, xuất SIEM dạng OCSF, PagerDuty và Opsgenie, secret từ file và Vault.</span></li>
       <li><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.3.1">v0.3.1</a><time datetime="2026-11-07">2026-11-07</time><span>Vá bảo mật output guard: thẻ HTML trỏ tới hoặc tải URL ngoài allowlist bị xoá, stream nhanh hơn, và dữ liệu cá nhân bị markup chia đôi được phát hiện.</span></li>
       <li><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.3.0">v0.3.0</a><time datetime="2026-11-07">2026-11-07</time><span>OpenAI Responses API và embeddings, chấm điểm tấn công chia nhỏ qua nhiều lượt, cache kết quả quét dùng chung cho nhiều bản sao, mẫu báo cáo red-team, benchmark công khai và ví dụ chạy được.</span></li>
       <li><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.2.1">v0.2.1</a><time datetime="2026-11-07">2026-11-07</time><span>Luật tiếng Việt cho câu lệnh "bỏ qua quy tắc" và ngưỡng sàn L1 khi gộp điểm, web search của Claude Code, lưu giữ nhật ký hoạt động và phiên, Policy flow sửa được kèm trợ giúp ngay chỗ, provenance SLSA đầy đủ cho image control plane.</span></li>
-      <li><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.2.0">v0.2.0</a><time datetime="2026-11-06">2026-11-06</time><span>Anthropic Messages API cho Claude Code, chế độ shadow và nạp lại model khi đang chạy, Helm chart cho production, lệnh doctor, compose cho production và trang tài liệu này.</span></li>
     </ul>
   </div>
 </section>
