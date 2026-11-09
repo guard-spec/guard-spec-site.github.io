@@ -158,6 +158,11 @@ in a second table.</p>
   <td>What happens to a tool result or document over the threshold: <code>block</code> refuses the request; <code>redact</code> replaces that block with <code>[removed by Guard Spec: prompt injection detected in tool output]</code> (<code>is_error: true</code> on a <code>tool_result</code>) and lets the request go on, with <code>input:redacted=&lt;n&gt;</code> in the audit row and a <code>detection.flagged</code> event (<code>decision: redact</code>). Tool descriptions always block. An org can override it (<code>indirect_action</code> in guard settings)</td>
 </tr>
 <tr>
+  <td><code>TOOL_CODE_CORROBORATION</code></td>
+  <td><code>on</code></td>
+  <td>Tool results and documents that look like source code, configuration, a diff, a stack trace or a log (six or more lines, 60% of them code-like) are blocked only when L1 (a rule, not just keywords) or L3 agrees with the classifier (L2), which over-scores such text. <code>off</code> lets L2 alone block them again, as before 0.4.2. User, system and tool-description text is never affected; without the model layers it changes nothing. See <a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/README.md#security-model-and-limitations">Security model</a></td>
+</tr>
+<tr>
   <td><code>SCAN_HISTORY</code></td>
   <td><code>latest</code></td>
   <td><code>/v1/messages</code> and <code>/v1/responses</code>: <code>latest</code> classifies the trailing turn (after the last assistant message, or the last item the model produced), takes earlier tool results from the scan cache, and does not classify earlier user text again; <code>full</code> classifies every turn. Chat completions always classify every turn</td>
@@ -165,7 +170,7 @@ in a second table.</p>
 <tr>
   <td><code>RESPONSES_SERVER_STATE</code></td>
   <td><code>refuse</code></td>
-  <td><code>/v1/responses</code> requests that refer to conversation state the upstream keeps (<code>previous_response_id</code>, <code>conversation</code>, <code>item_reference</code> input items) carry turns the gateway never sees in the request and cannot scan again: <code>refuse</code> answers them with 400 (<code>server_state_refused</code>); <code>allow</code> passes them and tags the audit row <code>input:server_state=1</code>. See <a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/README.md#security-model-and-limitations">Security model</a></td>
+  <td><code>/v1/responses</code> requests that refer to conversation state the upstream keeps (<code>previous_response_id</code>, <code>conversation</code>, <code>item_reference</code> input items) carry turns the gateway never sees in the request and cannot scan again: <code>refuse</code> answers them with 400 (<code>server_state_refused</code>); <code>allow</code> passes them and tags the audit row <code>input:server_state=1</code>. See <a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/README.md#security-model-and-limitations">Security model</a></td>
 </tr>
 <tr>
   <td><code>EMBEDDINGS_SCAN</code></td>
@@ -547,7 +552,7 @@ URL tried before Hugging Face: <code>&lt;mirror&gt;/&lt;name&gt;/&lt;version&gt;
 </tr>
 <tr>
   <td><code>GUARDSPEC_VERSION</code></td>
-  <td><code>0.4.1</code></td>
+  <td><code>0.4.2</code></td>
   <td>Tag of the <code>ghcr.io/guard-spec/guard-spec-*</code> images in <code>docker-compose.yml</code> (the dev override builds from source instead)</td>
 </tr>
 <tr>
@@ -563,7 +568,7 @@ URL tried before Hugging Face: <code>&lt;mirror&gt;/&lt;name&gt;/&lt;version&gt;
 </tbody>
 </table></div>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/README.md#configuration">README.md#configuration</a> @ <code>8aa928543b18</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/README.md#configuration">README.md#configuration</a> @ <code>1437b0d32003</code></p>
   </main>
 </div>
 

@@ -88,9 +88,9 @@ This page says how that is checked and what to do with a finding.</p>
 </tr>
 </tbody>
 </table></div>
-<p><a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/.github/workflows/vuln-scan.yml"><code>.github/workflows/vuln-scan.yml</code></a>
+<p><a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/.github/workflows/vuln-scan.yml"><code>.github/workflows/vuln-scan.yml</code></a>
 runs the Trivy scans; Trivy is installed by
-<a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/scripts/install-trivy.sh"><code>scripts/install-trivy.sh</code></a> at a pinned
+<a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/scripts/install-trivy.sh"><code>scripts/install-trivy.sh</code></a> at a pinned
 version whose archive SHA-256 was checked against Trivy's cosign-signed
 checksums.</p>
 <ul>
@@ -171,7 +171,7 @@ a released image). Check whether it affects Guard Spec. Remove the
 component if it is not needed.</p>
 </li>
 <li><p><strong>It does not affect Guard Spec.</strong> Add an OpenVEX statement with the
-reason to <a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/.vex/guard-spec.openvex.json"><code>.vex/guard-spec.openvex.json</code></a>;
+reason to <a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/.vex/guard-spec.openvex.json"><code>.vex/guard-spec.openvex.json</code></a>;
 every scan reads that file. Example:</p>
 <pre><code class="language-json">{
   &quot;vulnerability&quot;: {&quot;name&quot;: &quot;CVE-2026-00000&quot;},
@@ -196,7 +196,7 @@ mirror of <code>https://api.github.com/repos/guard-spec/guard-spec/security-advi
 <pre><code class="language-bash">trivy image ghcr.io/guard-spec/guard-spec-gateway:&lt;version&gt;
 </code></pre>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/docs/security/vulnerabilities.md">docs/security/vulnerabilities.md</a> @ <code>8aa928543b18</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/docs/security/vulnerabilities.md">docs/security/vulnerabilities.md</a> @ <code>1437b0d32003</code></p>
   </main>
 </div>
 

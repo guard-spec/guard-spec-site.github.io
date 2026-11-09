@@ -88,9 +88,9 @@ Trang này nói cách kiểm tra và cách xử lý khi phát hiện.</p>
 </tr>
 </tbody>
 </table></div>
-<p><a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/.github/workflows/vuln-scan.yml"><code>.github/workflows/vuln-scan.yml</code></a>
+<p><a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/.github/workflows/vuln-scan.yml"><code>.github/workflows/vuln-scan.yml</code></a>
 chạy Trivy; Trivy được cài bằng
-<a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/scripts/install-trivy.sh"><code>scripts/install-trivy.sh</code></a> ở một phiên bản
+<a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/scripts/install-trivy.sh"><code>scripts/install-trivy.sh</code></a> ở một phiên bản
 pin, SHA-256 của gói đã đối chiếu với checksum có chữ ký cosign của Trivy.</p>
 <ul>
 <li><strong>Gate.</strong> Lỗ hổng đã có bản vá làm job thất bại, ở mọi mức độ. Lỗ hổng
@@ -167,7 +167,7 @@ phát hành, ra bản patch trong thời hạn ở SECURITY.md.</li>
 image đã phát hành). Kiểm tra có ảnh hưởng tới Guard Spec không; bỏ thành
 phần đó nếu không cần.</li>
 <li><strong>Không ảnh hưởng tới Guard Spec.</strong> Thêm một statement OpenVEX kèm lý do
-vào <a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/.vex/guard-spec.openvex.json"><code>.vex/guard-spec.openvex.json</code></a>;
+vào <a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/.vex/guard-spec.openvex.json"><code>.vex/guard-spec.openvex.json</code></a>;
 mọi lần quét đều đọc tệp này. Ví dụ ở bản tiếng Anh. Statement được xem
 lại mỗi lần phát hành và bỏ đi khi dependency đã cập nhật.</li>
 </ol>
@@ -182,7 +182,7 @@ của <code>https://api.github.com/repos/guard-spec/guard-spec/security-advisori
 <pre><code class="language-bash">trivy image ghcr.io/guard-spec/guard-spec-gateway:&lt;version&gt;
 </code></pre>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/docs/security/vulnerabilities.vi.md">docs/security/vulnerabilities.vi.md</a> @ <code>8aa928543b18</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/docs/security/vulnerabilities.vi.md">docs/security/vulnerabilities.vi.md</a> @ <code>1437b0d32003</code></p>
   </main>
 </div>
 
