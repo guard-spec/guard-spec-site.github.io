@@ -456,11 +456,11 @@ is single-turn, so the window does not change its numbers (L1: FPR 0.1 %,
 L1+L2+L3: FPR 1.4 % at the gateway decision, as before).</p>
 <p><strong>Latency.</strong> One more detector run per request that has a new window, and a
 cache lookup otherwise (<code>BenchmarkConversationWindow</code>, see
-<a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>).</p>
 <h2 id="personal-data-in-requests">Personal data in requests<a class="anchor" href="#personal-data-in-requests" aria-hidden="true">#</a></h2>
 <p>An organization can have the gateway count the personal data in each request
 and give the result to its policy rules
-(<a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>). It is <strong>off by
+(<a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>). It is <strong>off by
 default</strong>; turn it on with <code>input_pii: true</code> in the org's guard settings
 (<code>PUT /v1/organizations/:orgId/guard-settings</code>, or admin UI: Guard settings →
 Detect personal data in requests). The setting is read per request, so a
@@ -518,7 +518,7 @@ with an e-mail address and a phone number): the check adds about 11 µs to
 a 2 KB request (sanitize step 148 → 159 µs) and about 57 µs to a 20 KB one
 (1.62 → 1.68 ms); end to end with L1 the p50 goes from 1.18 to 1.20 ms
 (2 KB) and from 11.08 to 11.19 ms (20 KB). With the setting off nothing
-runs. See <a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>.</li>
+runs. See <a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>.</li>
 </ul>
 <h2 id="per-organization-exemplars">Per-organization exemplars<a class="anchor" href="#per-organization-exemplars" aria-hidden="true">#</a></h2>
 <p><code>/v1/organizations/:orgId/exemplars</code> stores <code>{&quot;label&quot;: &quot;block&quot;|&quot;allow&quot;, &quot;text&quot;: &quot;...&quot;, &quot;source&quot;: &quot;...&quot;}</code> (at most 1,000 per org, 4,000 characters
@@ -866,7 +866,7 @@ and <code>dbRoles</code> hooks, network policies, and EN / VI injections blocked
 L1 only.</li>
 </ul>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/README.md#operations">README.md#operations</a> @ <code>8aa928543b18</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/1437b0d3200366a8fd3e993554929ea22d7ee9b7/README.md#operations">README.md#operations</a> @ <code>1437b0d32003</code></p>
   </main>
 </div>
 

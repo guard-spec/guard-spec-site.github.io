@@ -1,36 +1,61 @@
 {
   "_comment": "The current release, shown on the landing page (hero badge, 'New in' link, What's new section). On each release: update this file, bump ref in src/docs.json, run build.py, run check_site.py --external. Text may hold inline HTML (<code>). 'previous' lists the newest first; keep about four.",
-  "version": "v0.4.1",
+  "version": "v0.4.2",
   "date": "2026-11-09",
-  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.4.1",
-  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.4.1/CHANGELOG.md#041---2026-11-09",
+  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.4.2",
+  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.4.2/CHANGELOG.md#042---2026-11-09",
   "status": {
     "en": "pre-1.0",
     "vi": "trước 1.0"
   },
   "tagline": {
-    "en": "Security fix: login method restrictions kept on save",
-    "vi": "Vá bảo mật: giữ giới hạn phương thức đăng nhập khi lưu"
+    "en": "Fewer false positives on code and logs in tool output",
+    "vi": "Giảm chặn nhầm code và log trong tool output"
   },
   "upgrade": {
-    "en": "Upgrading: no migrations, no configuration change. After upgrading, open the Security page of each organization that limits login methods (for example SSO only) and set the restriction again if a save on v0.4.0 or earlier removed it.",
-    "vi": "Khi nâng cấp: không có migration, không đổi cấu hình. Sau khi nâng cấp, mở trang Bảo mật của từng tổ chức có giới hạn phương thức đăng nhập (ví dụ chỉ SSO) và đặt lại giới hạn nếu một lần lưu trên v0.4.0 trở về trước đã xoá nó."
+    "en": "Upgrading: no migrations. Code-like tool output now needs L1 or L3 to agree with the classifier before it blocks; set <code>TOOL_CODE_CORROBORATION=off</code> to keep 0.4.1 behaviour. For coding agents, <code>INDIRECT_ACTION=redact</code> keeps a session going when a tool result is still flagged.",
+    "vi": "Khi nâng cấp: không có migration. Tool output dạng code giờ chỉ bị chặn khi L1 hoặc L3 cùng xác nhận với classifier; đặt <code>TOOL_CODE_CORROBORATION=off</code> để giữ hành vi 0.4.1. Với coding agent, <code>INDIRECT_ACTION=redact</code> giúp phiên làm việc tiếp tục khi một tool result vẫn bị gắn cờ."
   },
   "highlights": {
     "en": [
       {
-        "title": "Login method restrictions kept on save",
-        "text": "On v0.4.0 and earlier, saving any other security setting of an organization (2FA, session lifetime, domain join) from the admin UI lifted its login method restriction, so an SSO-only organization allowed passwords again. A save now keeps the stored restriction; only an explicit <code>null</code> lifts it."
+        "title": "Code and logs blocked far less often",
+        "text": "With the model layers, 35% of benign code, config, diff and log tool results were blocked; now 15% (Vietnamese logs 72% → 22%). Detection on the evaluation set is unchanged at the block threshold."
+      },
+      {
+        "title": "Corroboration for code-like tool output",
+        "text": "A tool result or document that looks like code or logs keeps a high classifier score only when the rules or the similarity layer agree. Injections hidden in code that only the classifier catches are the trade-off (about 3 to 6 points); <code>TOOL_CODE_CORROBORATION=off</code> turns it off."
+      },
+      {
+        "title": "Code and log regression set",
+        "text": "310 benign code and log samples are now checked in CI, so a future model or rule change cannot bring the false positives back unnoticed."
       }
     ],
     "vi": [
       {
-        "title": "Giữ giới hạn phương thức đăng nhập khi lưu",
-        "text": "Trên v0.4.0 trở về trước, lưu bất kỳ cài đặt bảo mật nào khác của tổ chức (2FA, thời hạn phiên, tham gia theo tên miền) từ giao diện quản trị làm mất giới hạn phương thức đăng nhập, nên tổ chức chỉ cho SSO lại cho đăng nhập bằng mật khẩu. Giờ lần lưu giữ nguyên giới hạn đã lưu; chỉ gửi rõ <code>null</code> mới bỏ giới hạn."
+        "title": "Code và log bị chặn nhầm ít hơn nhiều",
+        "text": "Khi có các lớp model, 35% tool result sạch là code, cấu hình, diff, log bị chặn; nay còn 15% (log tiếng Việt từ 72% xuống 22%). Khả năng phát hiện trên tập đánh giá không đổi ở ngưỡng chặn."
+      },
+      {
+        "title": "Cần xác nhận với tool output dạng code",
+        "text": "Tool result hoặc tài liệu trông giống code hay log chỉ giữ điểm classifier cao khi rule hoặc lớp so khớp cùng đồng ý. Đánh đổi là injection giấu trong code mà chỉ classifier bắt được (khoảng 3 đến 6 điểm); <code>TOOL_CODE_CORROBORATION=off</code> để tắt."
+      },
+      {
+        "title": "Tập kiểm thử hồi quy code và log",
+        "text": "310 mẫu code và log sạch được kiểm tra trong CI, để thay đổi model hay rule sau này không làm chặn nhầm quay lại mà không ai biết."
       }
     ]
   },
   "previous": [
+    {
+      "version": "v0.4.1",
+      "date": "2026-11-09",
+      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.4.1",
+      "summary": {
+        "en": "Security fix: saving an organization's security settings no longer lifts its login method restriction.",
+        "vi": "Vá bảo mật: lưu cài đặt bảo mật của tổ chức không còn làm mất giới hạn phương thức đăng nhập."
+      }
+    },
     {
       "version": "v0.4.0",
       "date": "2026-11-08",
@@ -56,15 +81,6 @@
       "summary": {
         "en": "OpenAI Responses API and embeddings, split multi-turn attacks scored together, a shared scan cache for several replicas, red-team report forms, a public benchmark and runnable examples.",
         "vi": "OpenAI Responses API và embeddings, chấm điểm tấn công chia nhỏ qua nhiều lượt, cache kết quả quét dùng chung cho nhiều bản sao, mẫu báo cáo red-team, benchmark công khai và ví dụ chạy được."
-      }
-    },
-    {
-      "version": "v0.2.1",
-      "date": "2026-11-07",
-      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.2.1",
-      "summary": {
-        "en": "Vietnamese override rules and an L1 floor in the fusion, Claude Code web search, retention of activity and sessions, an editable Policy flow with contextual help, full SLSA provenance for the control-plane image.",
-        "vi": "Luật tiếng Việt cho câu lệnh \"bỏ qua quy tắc\" và ngưỡng sàn L1 khi gộp điểm, web search của Claude Code, lưu giữ nhật ký hoạt động và phiên, Policy flow sửa được kèm trợ giúp ngay chỗ, provenance SLSA đầy đủ cho image control plane."
       }
     }
   ]
