@@ -219,7 +219,7 @@ first). The attestation is signed through Sigstore, stored in the
 repository's <a href="https://github.com/guard-spec/guard-spec/attestations">attestations</a>
 and attached to the release as <code>guard-spec_&lt;version&gt;.intoto.jsonl</code>, a
 Sigstore bundle on one JSON line. v0.3.0 and earlier have none.</p>
-<pre><code class="language-bash">VERSION=0.4.0
+<pre><code class="language-bash">VERSION=0.4.1
 gh release download &quot;v$VERSION&quot; -R guard-spec/guard-spec \
   -p &quot;guard-spec_${VERSION}.intoto.jsonl&quot; -p &quot;guard-spec_${VERSION}_linux_amd64.tar.gz&quot;
 gh attestation verify &quot;guard-spec_${VERSION}_linux_amd64.tar.gz&quot; -R guard-spec/guard-spec \
@@ -265,7 +265,7 @@ independent rebuild yet.</li>
 deploy the digest you verified.</li>
 </ul>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/1d90ccd5ad476c4cd2f55f7d50c1aee822a57355/docs/security/verifying-releases.md">docs/security/verifying-releases.md</a> @ <code>1d90ccd5ad47</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/docs/security/verifying-releases.md">docs/security/verifying-releases.md</a> @ <code>8aa928543b18</code></p>
   </main>
 </div>
 

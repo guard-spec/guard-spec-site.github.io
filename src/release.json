@@ -1,84 +1,45 @@
 {
   "_comment": "The current release, shown on the landing page (hero badge, 'New in' link, What's new section). On each release: update this file, bump ref in src/docs.json, run build.py, run check_site.py --external. Text may hold inline HTML (<code>). 'previous' lists the newest first; keep about four.",
-  "version": "v0.4.0",
-  "date": "2026-11-08",
-  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.4.0",
-  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.4.0/CHANGELOG.md#040---2026-11-08",
+  "version": "v0.4.1",
+  "date": "2026-11-09",
+  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.4.1",
+  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.4.1/CHANGELOG.md#041---2026-11-09",
   "status": {
     "en": "pre-1.0",
     "vi": "trước 1.0"
   },
   "tagline": {
-    "en": "Data protection, SIEM and on-call integrations, images with no known CVE",
-    "vi": "Bảo vệ dữ liệu, tích hợp SIEM và công cụ trực sự cố, image không còn CVE đã biết"
+    "en": "Security fix: login method restrictions kept on save",
+    "vi": "Vá bảo mật: giữ giới hạn phương thức đăng nhập khi lưu"
   },
   "upgrade": {
-    "en": "Upgrading: migrations 021 to 024; back up the database first. The images have no shell or curl any more: the compose files, Helm chart and Terraform module of this release already use <code>gateway health</code>, <code>models init</code> and <code>doctor copy-migrations</code>; remove <code>gateway.image.shell</code> from your Helm values. The request list no longer returns content. New features are off until configured.",
-    "vi": "Khi nâng cấp: migration 021 đến 024; sao lưu database trước. Image không còn shell hay curl: file compose, Helm chart và module Terraform của bản này đã dùng <code>gateway health</code>, <code>models init</code> và <code>doctor copy-migrations</code>; bỏ <code>gateway.image.shell</code> khỏi values Helm. Danh sách request không còn trả nội dung. Tính năng mới tắt cho tới khi được cấu hình."
+    "en": "Upgrading: no migrations, no configuration change. After upgrading, open the Security page of each organization that limits login methods (for example SSO only) and set the restriction again if a save on v0.4.0 or earlier removed it.",
+    "vi": "Khi nâng cấp: không có migration, không đổi cấu hình. Sau khi nâng cấp, mở trang Bảo mật của từng tổ chức có giới hạn phương thức đăng nhập (ví dụ chỉ SSO) và đặt lại giới hạn nếu một lần lưu trên v0.4.0 trở về trước đã xoá nó."
   },
   "highlights": {
     "en": [
       {
-        "title": "Images with no known CVE",
-        "text": "The gateway and control-plane images are built on Wolfi, with no shell, curl or package manager: 327 known OS-package vulnerabilities in the v0.3.1 gateway image, none now. Every pull request, <code>main</code> and the released images are scanned daily."
-      },
-      {
-        "title": "Stored content encrypted",
-        "text": "Prompts and answers are sealed with a data key per organization, wrapped by a key from the environment, a file or Vault Transit, with rotation and re-encryption commands."
-      },
-      {
-        "title": "Personal data kept from the model",
-        "text": "E-mails, phone numbers, IDs and cards in a request can be replaced by tokens before it reaches the model provider and put back in the answer, or redacted, or used as a policy signal."
-      },
-      {
-        "title": "Content access and a tamper-evident log",
-        "text": "Reading stored content is a permission of its own and needs a reason. The activity log is a hash chain with signed anchors that <code>control-plane audit verify</code> checks."
-      },
-      {
-        "title": "SIEM export as OCSF",
-        "text": "Detections, security and admin events go to Splunk, Elasticsearch, Microsoft Sentinel, syslog over TLS or HTTP as OCSF 1.9.0 records, at least once, with catch-up after an outage."
-      },
-      {
-        "title": "PagerDuty and Opsgenie",
-        "text": "A firing alert opens an incident or an Opsgenie alert, never a second one for the same alert, and its resolution closes it."
-      },
-      {
-        "title": "Secrets from files and Vault, mutual TLS",
-        "text": "Every secret can come from a file or Vault KV, and the control plane can reach the gateway's admin API over mutual TLS."
+        "title": "Login method restrictions kept on save",
+        "text": "On v0.4.0 and earlier, saving any other security setting of an organization (2FA, session lifetime, domain join) from the admin UI lifted its login method restriction, so an SSO-only organization allowed passwords again. A save now keeps the stored restriction; only an explicit <code>null</code> lifts it."
       }
     ],
     "vi": [
       {
-        "title": "Image không còn CVE đã biết",
-        "text": "Image gateway và control plane build trên Wolfi, không có shell, curl hay trình quản lý gói: image gateway v0.3.1 có 327 lỗ hổng gói hệ điều hành đã biết, bản mới không còn. Mọi pull request, <code>main</code> và image đã phát hành được quét hằng ngày."
-      },
-      {
-        "title": "Mã hoá nội dung lưu trữ",
-        "text": "Prompt và câu trả lời được mã hoá bằng khoá dữ liệu riêng mỗi tổ chức, bọc bởi khoá từ biến môi trường, file hoặc Vault Transit, có lệnh xoay khoá và mã hoá lại."
-      },
-      {
-        "title": "Giữ dữ liệu cá nhân khỏi model",
-        "text": "Email, số điện thoại, số giấy tờ và số thẻ trong request có thể được thay bằng token trước khi tới nhà cung cấp model rồi trả lại trong câu trả lời, hoặc bị che, hoặc dùng làm tín hiệu cho policy."
-      },
-      {
-        "title": "Quyền xem nội dung và nhật ký chống sửa",
-        "text": "Xem nội dung đã lưu là quyền riêng và phải nêu lý do. Nhật ký hoạt động là chuỗi hash có mốc ký, kiểm bằng <code>control-plane audit verify</code>."
-      },
-      {
-        "title": "Xuất sang SIEM chuẩn OCSF",
-        "text": "Sự kiện phát hiện, bảo mật và quản trị được gửi tới Splunk, Elasticsearch, Microsoft Sentinel, syslog qua TLS hoặc HTTP dưới dạng bản ghi OCSF 1.9.0, ít nhất một lần, gửi bù sau khi đích phục hồi."
-      },
-      {
-        "title": "PagerDuty và Opsgenie",
-        "text": "Cảnh báo kích hoạt mở incident hoặc alert Opsgenie, không mở trùng cho cùng một cảnh báo, và tự đóng khi cảnh báo hết."
-      },
-      {
-        "title": "Secret từ file và Vault, mTLS",
-        "text": "Mọi secret có thể lấy từ file hoặc Vault KV, và control plane có thể gọi API quản trị của gateway qua mutual TLS."
+        "title": "Giữ giới hạn phương thức đăng nhập khi lưu",
+        "text": "Trên v0.4.0 trở về trước, lưu bất kỳ cài đặt bảo mật nào khác của tổ chức (2FA, thời hạn phiên, tham gia theo tên miền) từ giao diện quản trị làm mất giới hạn phương thức đăng nhập, nên tổ chức chỉ cho SSO lại cho đăng nhập bằng mật khẩu. Giờ lần lưu giữ nguyên giới hạn đã lưu; chỉ gửi rõ <code>null</code> mới bỏ giới hạn."
       }
     ]
   },
   "previous": [
+    {
+      "version": "v0.4.0",
+      "date": "2026-11-08",
+      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.4.0",
+      "summary": {
+        "en": "Images with no known CVE, stored content encrypted per organization, personal data kept from the model, content access with a tamper-evident log, SIEM export as OCSF, PagerDuty and Opsgenie, secrets from files and Vault.",
+        "vi": "Image không còn CVE đã biết, mã hoá nội dung lưu trữ theo tổ chức, giữ dữ liệu cá nhân khỏi model, quyền xem nội dung và nhật ký chống sửa, xuất SIEM dạng OCSF, PagerDuty và Opsgenie, secret từ file và Vault."
+      }
+    },
     {
       "version": "v0.3.1",
       "date": "2026-11-07",
@@ -104,15 +65,6 @@
       "summary": {
         "en": "Vietnamese override rules and an L1 floor in the fusion, Claude Code web search, retention of activity and sessions, an editable Policy flow with contextual help, full SLSA provenance for the control-plane image.",
         "vi": "Luật tiếng Việt cho câu lệnh \"bỏ qua quy tắc\" và ngưỡng sàn L1 khi gộp điểm, web search của Claude Code, lưu giữ nhật ký hoạt động và phiên, Policy flow sửa được kèm trợ giúp ngay chỗ, provenance SLSA đầy đủ cho image control plane."
-      }
-    },
-    {
-      "version": "v0.2.0",
-      "date": "2026-11-06",
-      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.2.0",
-      "summary": {
-        "en": "Anthropic Messages API for Claude Code, shadow mode and model hot reload, a production Helm chart, the doctor command, a production compose and this docs site.",
-        "vi": "Anthropic Messages API cho Claude Code, chế độ shadow và nạp lại model khi đang chạy, Helm chart cho production, lệnh doctor, compose cho production và trang tài liệu này."
       }
     }
   ]

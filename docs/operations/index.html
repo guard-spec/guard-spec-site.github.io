@@ -456,11 +456,11 @@ is single-turn, so the window does not change its numbers (L1: FPR 0.1 %,
 L1+L2+L3: FPR 1.4 % at the gateway decision, as before).</p>
 <p><strong>Latency.</strong> One more detector run per request that has a new window, and a
 cache lookup otherwise (<code>BenchmarkConversationWindow</code>, see
-<a href="https://github.com/guard-spec/guard-spec/blob/1d90ccd5ad476c4cd2f55f7d50c1aee822a57355/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>).</p>
 <h2 id="personal-data-in-requests">Personal data in requests<a class="anchor" href="#personal-data-in-requests" aria-hidden="true">#</a></h2>
 <p>An organization can have the gateway count the personal data in each request
 and give the result to its policy rules
-(<a href="https://github.com/guard-spec/guard-spec/blob/1d90ccd5ad476c4cd2f55f7d50c1aee822a57355/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>). It is <strong>off by
+(<a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>). It is <strong>off by
 default</strong>; turn it on with <code>input_pii: true</code> in the org's guard settings
 (<code>PUT /v1/organizations/:orgId/guard-settings</code>, or admin UI: Guard settings →
 Detect personal data in requests). The setting is read per request, so a
@@ -518,7 +518,7 @@ with an e-mail address and a phone number): the check adds about 11 µs to
 a 2 KB request (sanitize step 148 → 159 µs) and about 57 µs to a 20 KB one
 (1.62 → 1.68 ms); end to end with L1 the p50 goes from 1.18 to 1.20 ms
 (2 KB) and from 11.08 to 11.19 ms (20 KB). With the setting off nothing
-runs. See <a href="https://github.com/guard-spec/guard-spec/blob/1d90ccd5ad476c4cd2f55f7d50c1aee822a57355/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>.</li>
+runs. See <a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>.</li>
 </ul>
 <h2 id="per-organization-exemplars">Per-organization exemplars<a class="anchor" href="#per-organization-exemplars" aria-hidden="true">#</a></h2>
 <p><code>/v1/organizations/:orgId/exemplars</code> stores <code>{&quot;label&quot;: &quot;block&quot;|&quot;allow&quot;, &quot;text&quot;: &quot;...&quot;, &quot;source&quot;: &quot;...&quot;}</code> (at most 1,000 per org, 4,000 characters
@@ -655,8 +655,8 @@ user belongs to (403 <code>not_sole_authority</code> otherwise).</p>
 (<code>{&quot;mfa_enroll_required&quot;: true, &quot;mfa_token&quot;}</code>; that token can only call the 2FA
 setup endpoints) and refuses existing sessions without 2FA (403
 <code>mfa_required</code>); <code>sso_satisfies_mfa</code> lets SSO sessions pass;
-<code>allowed_login_methods</code> (<code>password</code>, <code>google</code>, <code>oidc:&lt;provider id&gt;</code>; unset
-allows all) refuses sessions of other methods (403
+<code>allowed_login_methods</code> (<code>password</code>, <code>google</code>, <code>oidc:&lt;provider id&gt;</code>; null
+allows all, and a body without the field keeps the stored value) refuses sessions of other methods (403
 <code>login_method_not_allowed</code>); <code>session_lifetime_hours</code> (1-12) shortens
 sessions for this org; <code>domain_join</code> adds SSO users of a verified email domain
 on first login, with a role up to admin. A domain can be joined only if the
@@ -866,7 +866,7 @@ and <code>dbRoles</code> hooks, network policies, and EN / VI injections blocked
 L1 only.</li>
 </ul>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/1d90ccd5ad476c4cd2f55f7d50c1aee822a57355/README.md#operations">README.md#operations</a> @ <code>1d90ccd5ad47</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/8aa928543b18e96daa25d8cf2ec61347fdc4c980/README.md#operations">README.md#operations</a> @ <code>8aa928543b18</code></p>
   </main>
 </div>
 
