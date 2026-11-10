@@ -82,8 +82,10 @@ def release_values(release, lang):
         "release_upgrade": release["upgrade"][lang],
         "release_highlights": highlights,
         "release_previous": previous,
-        "release_also": (f'    <p class="sub wn-also">{release["also"][lang]}</p>\n'
-                         if release.get("also") else ""),
+        "release_also": (
+            f'    <div class="wn-also"><span class="wn-tag">{esc(release["also"]["label"][lang])}</span>'
+            f'<p>{release["also"]["text"][lang]}</p></div>\n'
+            if release.get("also") else ""),
     }
 
 
