@@ -82,6 +82,8 @@ def release_values(release, lang):
         "release_upgrade": release["upgrade"][lang],
         "release_highlights": highlights,
         "release_previous": previous,
+        "release_also": (f'    <p class="sub wn-also">{release["also"][lang]}</p>\n'
+                         if release.get("also") else ""),
     }
 
 
