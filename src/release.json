@@ -1,5 +1,5 @@
 {
-  "_comment": "The current release, shown on the landing page (hero badge, 'New in' link, What's new section). On each release: update this file, bump ref in src/docs.json, run build.py, run check_site.py --external. Text may hold inline HTML (<code>). 'previous' lists the newest first; keep about four. Optional 'also': one line under What's new for a release that is not a gateway version (for example a model candidate); remove it when the next gateway release covers it.",
+  "_comment": "The current release, shown on the landing page (hero badge, 'New in' link, What's new section). On each release: update this file, bump ref in src/docs.json, run build.py, run check_site.py --external. Text may hold inline HTML (<code>). 'previous' lists the newest first; keep about four. Optional 'also' (label, text): a highlighted note at the top of What's new for a release that is not a gateway version (for example a model candidate); remove it when the next gateway release covers it.",
   "version": "v0.4.2",
   "date": "2026-11-09",
   "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.4.2",
@@ -47,8 +47,14 @@
     ]
   },
   "also": {
-    "en": "Also released on 2026-11-10: <a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v5\">classifier v5</a>, a shadow-mode candidate trained on code, logs and long documents (signed; Hugging Face branch <code>v5</code>). On held-out benign code and logs its false positives drop from 21% to 0.6%; v3b stays the default while v5 is compared in shadow mode.",
-    "vi": "Cũng phát hành ngày 2026-11-10: <a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v5\">classifier v5</a>, bản ứng viên chạy shadow mode, train thêm trên code, log và tài liệu dài (đã ký; Hugging Face nhánh <code>v5</code>). Trên code và log sạch của tập holdout, tỉ lệ chặn nhầm giảm từ 21% xuống 0,6%; v3b vẫn là mặc định trong lúc so sánh v5 ở shadow mode."
+    "label": {
+      "en": "New model",
+      "vi": "Model mới"
+    },
+    "text": {
+      "en": "Also released on 2026-11-10: <a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v5\">classifier v5</a>, a shadow-mode candidate trained on code, logs and long documents (signed; Hugging Face branch <code>v5</code>). On held-out benign code and logs its false positives drop from 21% to 0.6%; v3b stays the default while v5 is compared in shadow mode.",
+      "vi": "Cũng phát hành ngày 2026-11-10: <a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v5\">classifier v5</a>, bản ứng viên chạy shadow mode, train thêm trên code, log và tài liệu dài (đã ký; Hugging Face nhánh <code>v5</code>). Trên code và log sạch của tập holdout, tỉ lệ chặn nhầm giảm từ 21% xuống 0,6%; v3b vẫn là mặc định trong lúc so sánh v5 ở shadow mode."
+    }
   },
   "previous": [
     {

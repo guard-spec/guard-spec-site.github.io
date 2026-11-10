@@ -119,6 +119,11 @@ h2 { font-size: 38px; line-height: 1.15; letter-spacing: -.9px; margin: 10px 0 1
 .wn-list h3 { margin-top: 0; }
 .wn-list code, .wn-prev code, #whats-new .sub code { font: .88em "JetBrains Mono", ui-monospace, Menlo, monospace; overflow-wrap: anywhere; }
 .wn-links { margin-top: 28px; }
+.wn-also { display: flex; gap: 14px; align-items: flex-start; max-width: 900px; margin: -20px 0 36px; padding: 16px 20px; background: var(--card); border: 1px solid var(--blue); border-radius: var(--radius); box-shadow: var(--shadow); }
+.wn-also p { margin: 0; font-size: 15.5px; color: var(--ink); }
+.wn-also code { font: .88em "JetBrains Mono", ui-monospace, Menlo, monospace; }
+.wn-tag { flex: none; font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); }
+@media (max-width: 640px) { .wn-also { flex-direction: column; gap: 8px; } }
 .wn-btn { color: var(--ink); border: 1px solid var(--line); background: var(--card); }
 .wn-btn:hover { border-color: var(--blue); color: var(--blue); }
 .wn-earlier { margin: 56px 0 8px; font-size: 13px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
