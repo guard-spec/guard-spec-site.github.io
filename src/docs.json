@@ -1,7 +1,7 @@
 {
   "_comment": "Pages of guardspec.io/docs, built by build.py from the Markdown of the main repository at the pinned ref. Each language lists candidate sources: the first one that exists at the ref is used; a page with none is skipped (build.py prints it). A page without a Vietnamese source links to the English page in the Vietnamese navigation, labelled (tiếng Anh). To update the docs: set ref to a newer commit or tag of guard-spec/guard-spec, run build.py, commit.",
   "repo": "guard-spec/guard-spec",
-  "ref": "1437b0d3200366a8fd3e993554929ea22d7ee9b7",
+  "ref": "89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb",
   "pages": [
     {
       "slug": "quickstart",
@@ -406,6 +406,24 @@
       "vi": [
         {
           "file": "docs/security/README.vi.md"
+        }
+      ]
+    },
+    {
+      "slug": "security/sso",
+      "parent": "security",
+      "title": {
+        "en": "SSO and SCIM",
+        "vi": "SSO và SCIM"
+      },
+      "en": [
+        {
+          "file": "docs/sso.md"
+        }
+      ],
+      "vi": [
+        {
+          "file": "docs/sso.vi.md"
         }
       ]
     },
