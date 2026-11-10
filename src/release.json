@@ -1,48 +1,48 @@
 {
   "_comment": "The current release, shown on the landing page (hero badge, 'New in' link, What's new section). On each release: update this file, bump ref in src/docs.json, run build.py, run check_site.py --external. Text may hold inline HTML (<code>). 'previous' lists the newest first; keep about four. Optional 'also' (label, text): a highlighted note at the top of What's new for a release that is not a gateway version (for example a model candidate); remove it when the next gateway release covers it.",
-  "version": "v0.4.2",
-  "date": "2026-11-09",
-  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.4.2",
-  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.4.2/CHANGELOG.md#042---2026-11-09",
+  "version": "v0.5.0",
+  "date": "2026-11-10",
+  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.5.0",
+  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.5.0/CHANGELOG.md#050---2026-11-10",
   "status": {
     "en": "pre-1.0",
     "vi": "trước 1.0"
   },
   "tagline": {
-    "en": "Fewer false positives on code and logs in tool output",
-    "vi": "Giảm chặn nhầm code và log trong tool output"
+    "en": "Large inputs, SAML and SCIM, and a classifier cap for tool output",
+    "vi": "Input lớn, SAML và SCIM, và trần classifier cho tool output"
   },
   "upgrade": {
-    "en": "Upgrading: no migrations. Code-like tool output now needs L1 or L3 to agree with the classifier before it blocks; set <code>TOOL_CODE_CORROBORATION=off</code> to keep 0.4.1 behaviour. For coding agents, <code>INDIRECT_ACTION=redact</code> keeps a session going when a tool result is still flagged.",
-    "vi": "Khi nâng cấp: không có migration. Tool output dạng code giờ chỉ bị chặn khi L1 hoặc L3 cùng xác nhận với classifier; đặt <code>TOOL_CODE_CORROBORATION=off</code> để giữ hành vi 0.4.1. Với coding agent, <code>INDIRECT_ACTION=redact</code> giúp phiên làm việc tiếp tục khi một tool result vẫn bị gắn cờ."
+    "en": "Upgrading: migration 025 (SAML and SCIM tables) runs at start. Detection defaults are unchanged: v3b stays the classifier, and <code>MAX_SCAN_TOKENS</code> and <code>UNSCANNED_PARTS</code> keep 0.4.2 behaviour until you set them. SAML and SCIM need <code>PUBLIC_BASE_URL</code>.",
+    "vi": "Khi nâng cấp: migration 025 (bảng SAML và SCIM) chạy lúc khởi động. Mặc định phát hiện không đổi: classifier vẫn là v3b, còn <code>MAX_SCAN_TOKENS</code> và <code>UNSCANNED_PARTS</code> giữ hành vi 0.4.2 cho tới khi bạn đặt chúng. SAML và SCIM cần <code>PUBLIC_BASE_URL</code>."
   },
   "highlights": {
     "en": [
       {
-        "title": "Code and logs blocked far less often",
-        "text": "With the model layers, 35% of benign code, config, diff and log tool results were blocked; now 15% (Vietnamese logs 72% → 22%). Detection on the evaluation set is unchanged at the block threshold."
+        "title": "Large inputs, every token scanned",
+        "text": "<code>MAX_SCAN_TOKENS</code> lets the gateway take requests far past the old limits, up to hundreds of thousands of tokens, without scanning less. Large requests wait in a lane of their own and get 429 with <code>Retry-After</code> when it is full."
       },
       {
-        "title": "Corroboration for code-like tool output",
-        "text": "A tool result or document that looks like code or logs keeps a high classifier score only when the rules or the similarity layer agree. Injections hidden in code that only the classifier catches are the trade-off (about 3 to 6 points); <code>TOOL_CODE_CORROBORATION=off</code> turns it off."
+        "title": "SAML single sign-on and SCIM",
+        "text": "Sign in through any SAML 2.0 identity provider, provision users and groups with SCIM 2.0 from Okta or Microsoft Entra ID, and map identity provider groups to roles."
       },
       {
-        "title": "Code and log regression set",
-        "text": "310 benign code and log samples are now checked in CI, so a future model or rule change cannot bring the false positives back unnoticed."
+        "title": "Unscanned content and a classifier cap",
+        "text": "Images, files and audio in a request are now recorded, and <code>UNSCANNED_PARTS=block</code> refuses them. A calibration can cap the classifier on tool results and documents, so the rules or similarity layer must agree before such text is blocked."
       }
     ],
     "vi": [
       {
-        "title": "Code và log bị chặn nhầm ít hơn nhiều",
-        "text": "Khi có các lớp model, 35% tool result sạch là code, cấu hình, diff, log bị chặn; nay còn 15% (log tiếng Việt từ 72% xuống 22%). Khả năng phát hiện trên tập đánh giá không đổi ở ngưỡng chặn."
+        "title": "Input lớn, quét đủ mọi token",
+        "text": "<code>MAX_SCAN_TOKENS</code> cho gateway nhận request vượt xa giới hạn cũ, tới hàng trăm nghìn token, mà không quét thiếu. Request lớn chờ trong làn riêng và nhận 429 kèm <code>Retry-After</code> khi làn đầy."
       },
       {
-        "title": "Cần xác nhận với tool output dạng code",
-        "text": "Tool result hoặc tài liệu trông giống code hay log chỉ giữ điểm classifier cao khi rule hoặc lớp so khớp cùng đồng ý. Đánh đổi là injection giấu trong code mà chỉ classifier bắt được (khoảng 3 đến 6 điểm); <code>TOOL_CODE_CORROBORATION=off</code> để tắt."
+        "title": "Đăng nhập một lần SAML và SCIM",
+        "text": "Đăng nhập qua bất kỳ identity provider SAML 2.0 nào, cấp phát user và group bằng SCIM 2.0 từ Okta hay Microsoft Entra ID, và gán role theo group của identity provider."
       },
       {
-        "title": "Tập kiểm thử hồi quy code và log",
-        "text": "310 mẫu code và log sạch được kiểm tra trong CI, để thay đổi model hay rule sau này không làm chặn nhầm quay lại mà không ai biết."
+        "title": "Nội dung không quét được và trần classifier",
+        "text": "Ảnh, file và audio trong request giờ được ghi lại, và <code>UNSCANNED_PARTS=block</code> từ chối chúng. Calibration có thể đặt trần cho classifier trên tool result và tài liệu, để rule hoặc lớp tương đồng phải cùng xác nhận trước khi chặn."
       }
     ]
   },
@@ -52,11 +52,20 @@
       "vi": "Model mới"
     },
     "text": {
-      "en": "Also released on 2026-11-10: <a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v5\">classifier v5</a>, a shadow-mode candidate trained on code, logs and long documents (signed; Hugging Face branch <code>v5</code>). On held-out benign code and logs its false positives drop from 21% to 0.6%; v3b stays the default while v5 is compared in shadow mode.",
-      "vi": "Cũng phát hành ngày 2026-11-10: <a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v5\">classifier v5</a>, bản ứng viên chạy shadow mode, train thêm trên code, log và tài liệu dài (đã ký; Hugging Face nhánh <code>v5</code>). Trên code và log sạch của tập holdout, tỉ lệ chặn nhầm giảm từ 21% xuống 0,6%; v3b vẫn là mặc định trong lúc so sánh v5 ở shadow mode."
+      "en": "Also released: <a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v5\">classifier v5</a>, a shadow-mode candidate trained on code, logs and long documents (signed; Hugging Face branch <code>v5</code>). On held-out benign code and logs its false positives drop from 21% to 0.6%; its calibration sets the classifier cap, which gateways from 0.5.0 apply. v3b stays the default; the decision is planned for v0.6.0.",
+      "vi": "Cũng đã phát hành: <a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v5\">classifier v5</a>, bản ứng viên chạy shadow mode, train thêm trên code, log và tài liệu dài (đã ký; Hugging Face nhánh <code>v5</code>). Trên code và log sạch của tập holdout, tỉ lệ chặn nhầm giảm từ 21% xuống 0,6%; calibration của nó đặt trần classifier, mà gateway từ 0.5.0 áp dụng. v3b vẫn là mặc định; dự kiến quyết định ở v0.6.0."
     }
   },
   "previous": [
+    {
+      "version": "v0.4.2",
+      "date": "2026-11-09",
+      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.4.2",
+      "summary": {
+        "en": "Fewer false positives on code and logs in tool output: code-like tool results need L1 or L3 to agree with the classifier before they are blocked.",
+        "vi": "Giảm chặn nhầm code và log trong tool output: tool result dạng code chỉ bị chặn khi L1 hoặc L3 cùng xác nhận với classifier."
+      }
+    },
     {
       "version": "v0.4.1",
       "date": "2026-11-09",
@@ -82,15 +91,6 @@
       "summary": {
         "en": "Output guard security fixes: HTML tags that link to or load a URL off the allowlist are removed, streams are faster, and personal data split by markup is caught.",
         "vi": "Vá bảo mật output guard: thẻ HTML trỏ tới hoặc tải URL ngoài allowlist bị xoá, stream nhanh hơn, và dữ liệu cá nhân bị markup chia đôi được phát hiện."
-      }
-    },
-    {
-      "version": "v0.3.0",
-      "date": "2026-11-07",
-      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.3.0",
-      "summary": {
-        "en": "OpenAI Responses API and embeddings, split multi-turn attacks scored together, a shared scan cache for several replicas, red-team report forms, a public benchmark and runnable examples.",
-        "vi": "OpenAI Responses API và embeddings, chấm điểm tấn công chia nhỏ qua nhiều lượt, cache kết quả quét dùng chung cho nhiều bản sao, mẫu báo cáo red-team, benchmark công khai và ví dụ chạy được."
       }
     }
   ]

@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SSO và SCIM · Guard Spec</title>
+<meta name="description" content="English: sso.md. Hướng dẫn này thiết lập đăng nhập một lần (SSO) bằng SAML 2.0 và cấp phát tài khoản bằng SCIM 2.0 cho Okta, Microsoft Entra ID, Google Wor">
+<meta property="og:title" content="SSO và SCIM · Guard Spec">
+<meta property="og:description" content="English: sso.md. Hướng dẫn này thiết lập đăng nhập một lần (SSO) bằng SAML 2.0 và cấp phát tài khoản bằng SCIM 2.0 cho Okta, Microsoft Entra ID, Google Wor">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://guardspec.io/assets/og.png">
+<link rel="canonical" href="https://guardspec.io/vi/docs/security/sso/">
+<link rel="alternate" hreflang="en" href="https://guardspec.io/docs/security/sso/">
+<link rel="alternate" hreflang="vi" href="https://guardspec.io/vi/docs/security/sso/">
+<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="docs-body">
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="/vi/"><img src="/assets/logo.svg" alt="" width="28" height="28"><span>Guard Spec</span></a>
+    <nav class="links">
+      <a href="/vi/docs/" class="on">Tài liệu</a>
+    </nav>
+    <div class="nav-end">
+      <div class="lang"><a href="/docs/security/sso/" class="">EN</a><a href="/vi/docs/security/sso/" class="on">VI</a></div>
+      <a class="btn btn-sm btn-ghost-dark" href="https://github.com/guard-spec/guard-spec"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /> <path d="M9 18c-4.51 2-5-2-7-2" /> </svg><span>GitHub</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap docs">
+  <details class="docs-menu">
+    <summary><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <line x1="4" x2="20" y1="12" y2="12" /> <line x1="4" x2="20" y1="6" y2="6" /> <line x1="4" x2="20" y1="18" y2="18" /> </svg><span>Tài liệu</span></summary>
+    <nav class="docs-nav" aria-label="Tài liệu"><ul><li class=""><a href="/vi/docs/quickstart/">Bắt đầu nhanh</a></li><li class="child"><a href="/vi/docs/quickstart/integrations/">Tích hợp</a></li><li class="child"><a href="/vi/docs/quickstart/examples/">Ví dụ</a></li><li class=""><a href="/vi/docs/deploy/">Triển khai</a></li><li class="child"><a href="/vi/docs/deploy/production-compose/">Compose cho production</a></li><li class="child"><a href="/vi/docs/deploy/managed-postgres/">PostgreSQL được quản lý</a></li><li class="child"><a href="/vi/docs/deploy/airgapped/">Mạng cô lập</a></li><li class="child"><a href="/docs/deploy/aws/">AWS <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/docs/deploy/terraform-aws/">Terraform cho AWS <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/docs/deploy/on-premise/">Hạ tầng riêng <span class="en">(tiếng Anh)</span></a></li><li class=""><a href="/vi/docs/configuration/">Cấu hình</a></li><li class="child"><a href="/docs/configuration/routing/">Định tuyến <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/configuration/apis/">API</a></li><li class=""><a href="/docs/operations/">Vận hành <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/operations/alerts/">Cảnh báo và thông báo</a></li><li class="child"><a href="/docs/operations/admin-ui/">Giao diện quản trị <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/operations/siem/">Xuất sang SIEM</a></li><li class="child"><a href="/vi/docs/operations/sizing/">Định cỡ và chọn lớp</a></li><li class=""><a href="/vi/docs/upgrade/">Nâng cấp</a></li><li class=""><a href="/vi/docs/models/">Model</a></li><li class="child"><a href="/vi/docs/models/versions/">Phiên bản, ghim và quay lui</a></li><li class="child"><a href="/vi/docs/models/benchmark/">Benchmark</a></li><li class=""><a href="/vi/docs/security/">Bảo mật</a></li><li class="child on"><a href="/vi/docs/security/sso/">SSO và SCIM</a></li><li class="child"><a href="/docs/security/verifying-releases/">Kiểm tra bản phát hành <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/security/vulnerabilities/">Quản lý lỗ hổng</a></li><li class="child"><a href="/vi/docs/security/risks/">Rủi ro và gia cố</a></li><li class="child"><a href="/docs/security/policy/">Báo lỗ hổng <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/security/red-team/">Báo cáo red-team</a></li></ul></nav>
+  </details>
+  <aside class="docs-side">
+    <nav class="docs-nav" aria-label="Tài liệu"><ul><li class=""><a href="/vi/docs/quickstart/">Bắt đầu nhanh</a></li><li class="child"><a href="/vi/docs/quickstart/integrations/">Tích hợp</a></li><li class="child"><a href="/vi/docs/quickstart/examples/">Ví dụ</a></li><li class=""><a href="/vi/docs/deploy/">Triển khai</a></li><li class="child"><a href="/vi/docs/deploy/production-compose/">Compose cho production</a></li><li class="child"><a href="/vi/docs/deploy/managed-postgres/">PostgreSQL được quản lý</a></li><li class="child"><a href="/vi/docs/deploy/airgapped/">Mạng cô lập</a></li><li class="child"><a href="/docs/deploy/aws/">AWS <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/docs/deploy/terraform-aws/">Terraform cho AWS <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/docs/deploy/gcp/">Google Cloud <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/docs/deploy/on-premise/">Hạ tầng riêng <span class="en">(tiếng Anh)</span></a></li><li class=""><a href="/vi/docs/configuration/">Cấu hình</a></li><li class="child"><a href="/docs/configuration/routing/">Định tuyến <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/configuration/apis/">API</a></li><li class=""><a href="/docs/operations/">Vận hành <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/operations/alerts/">Cảnh báo và thông báo</a></li><li class="child"><a href="/docs/operations/admin-ui/">Giao diện quản trị <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/operations/siem/">Xuất sang SIEM</a></li><li class="child"><a href="/vi/docs/operations/sizing/">Định cỡ và chọn lớp</a></li><li class=""><a href="/vi/docs/upgrade/">Nâng cấp</a></li><li class=""><a href="/vi/docs/models/">Model</a></li><li class="child"><a href="/vi/docs/models/versions/">Phiên bản, ghim và quay lui</a></li><li class="child"><a href="/vi/docs/models/benchmark/">Benchmark</a></li><li class=""><a href="/vi/docs/security/">Bảo mật</a></li><li class="child on"><a href="/vi/docs/security/sso/">SSO và SCIM</a></li><li class="child"><a href="/docs/security/verifying-releases/">Kiểm tra bản phát hành <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/security/vulnerabilities/">Quản lý lỗ hổng</a></li><li class="child"><a href="/vi/docs/security/risks/">Rủi ro và gia cố</a></li><li class="child"><a href="/docs/security/policy/">Báo lỗ hổng <span class="en">(tiếng Anh)</span></a></li><li class="child"><a href="/vi/docs/security/red-team/">Báo cáo red-team</a></li></ul></nav>
+  </aside>
+  <main class="doc">
+    <h1>SSO và SCIM</h1>
+
+<blockquote>
+<p>English: <a href="/docs/security/sso/">sso.md</a>.</p>
+</blockquote>
+<p>Hướng dẫn này thiết lập đăng nhập một lần (SSO) bằng SAML 2.0 và cấp phát
+tài khoản bằng SCIM 2.0 cho Okta, Microsoft Entra ID, Google Workspace và
+Keycloak. Tài liệu tham chiếu (mọi trường, mọi bước kiểm tra và endpoint) nằm
+ở README tiếng Anh, mục
+<a href="/docs/operations/#identity-sso-and-two-factor-authentication">Identity, SSO and two-factor authentication</a>.
+Nhà cung cấp OpenID Connect cũng được thiết lập như mô tả ở đó.</p>
+<p>Ai làm gì:</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Bước</th>
+  <th>Ai</th>
+  <th>Ở đâu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Thêm nhà cung cấp SAML (dùng chung cả instance)</td>
+  <td>quản trị viên instance</td>
+  <td><code>/v1/admin/identity-providers</code>, hoặc trang Identity providers → Add SAML provider</td>
+</tr>
+<tr>
+  <td>Giới hạn cách đăng nhập, nhận tên miền (<code>domain_join</code>), <code>scim_revoke_keys</code></td>
+  <td>owner của tổ chức</td>
+  <td><code>PUT /v1/organizations/:orgId/security</code>, hoặc trang Security của tổ chức</td>
+</tr>
+<tr>
+  <td>Token SCIM</td>
+  <td>owner (admin xem được danh sách)</td>
+  <td><code>/v1/organizations/:orgId/scim/tokens</code>, hoặc trang Security của tổ chức → SCIM</td>
+</tr>
+<tr>
+  <td>Ánh xạ nhóm sang role</td>
+  <td>owner (admin xem được)</td>
+  <td><code>/v1/organizations/:orgId/group-roles</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="mục-lục">Mục lục<a class="anchor" href="#mục-lục" aria-hidden="true">#</a></h2>
+<ul>
+<li><a href="#trước-khi-bắt-đầu">Trước khi bắt đầu</a></li>
+<li><a href="#1-thêm-nhà-cung-cấp-saml">1. Thêm nhà cung cấp SAML</a></li>
+<li><a href="#2-cấu-hình-identity-provider">2. Cấu hình identity provider</a><ul>
+<li><a href="#okta">Okta</a></li>
+<li><a href="#microsoft-entra-id">Microsoft Entra ID</a></li>
+<li><a href="#google-workspace">Google Workspace</a></li>
+<li><a href="#keycloak">Keycloak</a></li>
+</ul>
+</li>
+<li><a href="#3-thiết-lập-của-tổ-chức">3. Thiết lập của tổ chức</a></li>
+<li><a href="#4-cấp-phát-bằng-scim">4. Cấp phát bằng SCIM</a><ul>
+<li><a href="#cấp-phát-với-okta">Cấp phát với Okta</a></li>
+<li><a href="#cấp-phát-với-entra-id">Cấp phát với Entra ID</a></li>
+<li><a href="#đăng-nhập-cho-người-dùng-do-scim-tạo">Đăng nhập cho người dùng do SCIM tạo</a></li>
+</ul>
+</li>
+<li><a href="#5-role-theo-nhóm">5. Role theo nhóm</a></li>
+<li><a href="#xử-lý-sự-cố">Xử lý sự cố</a></li>
+<li><a href="#lưu-ý-bảo-mật">Lưu ý bảo mật</a></li>
+</ul>
+<h2 id="trước-khi-bắt-đầu">Trước khi bắt đầu<a class="anchor" href="#trước-khi-bắt-đầu" aria-hidden="true">#</a></h2>
+<ul>
+<li>Đặt <code>PUBLIC_BASE_URL</code> của control plane là địa chỉ <code>https://</code> bên ngoài, ví
+dụ <code>https://guard.example.com</code>. Mọi URL cấu hình ở identity provider đều suy
+ra từ biến này; không có nó thì SAML không dùng được, và đổi nó về sau nghĩa
+là phải sửa lại cấu hình ở identity provider.</li>
+<li>Trình duyệt phải vào control plane đúng địa chỉ đó: cookie đăng nhập được
+đặt cho địa chỉ này.</li>
+<li>Đồng hồ: khoảng hiệu lực của assertion được kiểm tra với độ lệch 2 phút, chỉ
+cho <code>NotBefore</code>. Hãy chạy NTP trên máy chủ control plane.</li>
+</ul>
+<h2 id="1-thêm-nhà-cung-cấp-saml">1. Thêm nhà cung cấp SAML<a class="anchor" href="#1-thêm-nhà-cung-cấp-saml" aria-hidden="true">#</a></h2>
+<p>Tải <strong>metadata XML</strong> của identity provider (mỗi mục bên dưới nói lấy ở đâu).
+Metadata phải có một <code>SingleSignOnService</code> với binding HTTP-Redirect và một
+chứng chỉ ký; Guard Spec gửi AuthnRequest theo binding đó, và đọc chứng chỉ
+cùng entity id từ metadata.</p>
+<pre><code class="language-bash">CP=https://guard.example.com/v1
+AUTH=&quot;Authorization: Bearer $ADMIN_TOKEN&quot;   # quản trị viên instance
+jq -n --rawfile md idp-metadata.xml '{
+  type: &quot;saml&quot;, display_name: &quot;Okta&quot;, saml_metadata: $md,
+  allowed_domains: [&quot;example.com&quot;], auto_provision: true,
+  trust_email_for_linking: false, saml_groups_attribute: &quot;groups&quot;
+}' | curl -s $CP/admin/identity-providers -H &quot;$AUTH&quot; -H 'Content-Type: application/json' -d @- | jq '{id, saml_sp}'
+# {&quot;id&quot;: &quot;6f1c…&quot;, &quot;saml_sp&quot;: {&quot;entity_id&quot;: &quot;https://guard.example.com/v1/auth/saml/6f1c…/metadata&quot;,
+#   &quot;acs_url&quot;: &quot;https://guard.example.com/v1/auth/saml/6f1c…/acs&quot;, &quot;metadata_url&quot;: &quot;https://guard.example.com/v1/auth/saml/6f1c…/metadata&quot;}}
+</code></pre>
+<p>Identity provider cần id của nhà cung cấp trước, nên thứ tự thường là: tạo
+app SAML ở IdP với URL tạm, tải metadata của nó, thêm nhà cung cấp ở Guard
+Spec, rồi điền <code>entity_id</code> và <code>acs_url</code> thật vào app ở IdP. Một số IdP nhập
+được thẳng <code>&lt;PUBLIC_BASE_URL&gt;/v1/auth/saml/&lt;id&gt;/metadata</code>.</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Giá trị</th>
+  <th>Điền vào đâu ở identity provider</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>entity_id</code></td>
+  <td>Audience, SP entity id, Identifier, Client ID (Keycloak)</td>
+</tr>
+<tr>
+  <td><code>acs_url</code></td>
+  <td>Single sign-on URL, Reply URL, ACS URL, Recipient và Destination</td>
+</tr>
+<tr>
+  <td>NameID</td>
+  <td>Một giá trị ổn định, duy nhất cho mỗi người; identity được so khớp theo nó. Chọn định dạng persistent nếu được (AuthnRequest của Guard Spec yêu cầu định dạng này)</td>
+</tr>
+<tr>
+  <td>email</td>
+  <td>Attribute tên <code>email</code> (hoặc một tên thông dụng, hoặc đặt <code>saml_email_attribute</code>); khi không có attribute, NameID được dùng nếu nó là email</td>
+</tr>
+<tr>
+  <td>tên hiển thị</td>
+  <td>Tuỳ chọn: <code>displayName</code> (hoặc <code>saml_name_attribute</code>)</td>
+</tr>
+<tr>
+  <td>nhóm</td>
+  <td>Tuỳ chọn, cho <a href="#5-role-theo-nhóm">role theo nhóm</a>: <code>groups</code> (hoặc <code>saml_groups_attribute</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Guard Spec không ký AuthnRequest và không nhận assertion mã hoá: hãy tắt &quot;yêu
+cầu request có ký&quot; và mã hoá assertion ở identity provider. Response hoặc
+assertion phải được ký.</p>
+<p><code>auto_provision</code> tạo tài khoản ở lần đăng nhập đầu cho email mới thuộc
+<code>allowed_domains</code>; <code>trust_email_for_linking</code> cho phép một lần đăng nhập nhận
+một tài khoản đã có nhưng chưa có mật khẩu và chưa có identity nào, đúng là
+trường hợp của tài khoản do SCIM tạo (<a href="#đăng-nhập-cho-người-dùng-do-scim-tạo">bên dưới</a>).</p>
+<h2 id="2-cấu-hình-identity-provider">2. Cấu hình identity provider<a class="anchor" href="#2-cấu-hình-identity-provider" aria-hidden="true">#</a></h2>
+<h3 id="okta">Okta<a class="anchor" href="#okta" aria-hidden="true">#</a></h3>
+<ol>
+<li><strong>Applications → Create App Integration → SAML 2.0</strong>.</li>
+<li>General settings: đặt tên; rồi <strong>Configure SAML</strong>:<ul>
+<li>Single sign-on URL: <code>acs_url</code>; giữ ô <strong>Use this for Recipient URL and
+Destination URL</strong>.</li>
+<li>Audience URI (SP Entity ID): <code>entity_id</code>.</li>
+<li>Name ID format: Persistent; Application username: Okta username hoặc
+Email.</li>
+<li>Attribute Statements: <code>email</code> → <code>user.email</code>; <code>displayName</code> →
+<code>user.displayName</code> (hoặc <code>user.firstName + &quot; &quot; + user.lastName</code>).</li>
+<li>Group Attribute Statements (cho role): tên <code>groups</code>, bộ lọc <strong>Matches
+regex</strong> <code>.*</code>, hoặc <strong>Starts with</strong> một tiền tố như <code>guardspec-</code> để chỉ
+gửi các nhóm có ánh xạ.</li>
+</ul>
+</li>
+<li>Hoàn tất, rồi ở <strong>Sign On</strong> mở metadata URL (hoặc <strong>View SAML setup
+instructions</strong> → IDP metadata) và lưu XML. Metadata của Okta có binding
+HTTP-Redirect.</li>
+<li><strong>Assignments</strong>: gán người hoặc nhóm được đăng nhập.</li>
+</ol>
+<h3 id="microsoft-entra-id">Microsoft Entra ID<a class="anchor" href="#microsoft-entra-id" aria-hidden="true">#</a></h3>
+<ol>
+<li><strong>Enterprise applications → New application → Create your own
+application</strong> → &quot;Integrate any other application you don't find in the
+gallery (Non-gallery)&quot;.</li>
+<li><strong>Single sign-on → SAML → Basic SAML Configuration</strong>:<ul>
+<li>Identifier (Entity ID): <code>entity_id</code>.</li>
+<li>Reply URL (Assertion Consumer Service URL): <code>acs_url</code>.</li>
+<li>Để trống Sign on URL, Relay State và Logout URL.</li>
+</ul>
+</li>
+<li><strong>Attributes &amp; Claims</strong>: các claim mặc định đã có
+<code>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress</code>
+(<code>user.mail</code>) và <code>.../claims/name</code>, Guard Spec đọc được. Bảo đảm mọi người
+dùng đều có <code>user.mail</code>, hoặc đổi nguồn của claim sang
+<code>user.userprincipalname</code> khi UPN chính là email.</li>
+<li>Nhóm (cho role): <strong>Add a group claim</strong> → &quot;Groups assigned to the
+application&quot;; source attribute <strong>Group ID</strong>. Tên claim
+<code>http://schemas.microsoft.com/ws/2008/06/identity/claims/groups</code> là một
+tên Guard Spec đọc mặc định. Entra gửi object id của nhóm, nên <code>group_key</code>
+của ánh xạ là object id. Khi người dùng ở trong hơn 150 nhóm, Entra gửi một
+đường link thay cho danh sách nhóm và Guard Spec không đi theo link đó:
+chọn &quot;Groups assigned to the application&quot; để danh sách ngắn.</li>
+<li><strong>SAML Certificates → Federation Metadata XML</strong>: tải về. Cách ký mặc định
+(ký assertion) được chấp nhận.</li>
+<li><strong>Users and groups</strong>: gán người được đăng nhập.</li>
+</ol>
+<h3 id="google-workspace">Google Workspace<a class="anchor" href="#google-workspace" aria-hidden="true">#</a></h3>
+<ol>
+<li>Admin console → <strong>Apps → Web and mobile apps → Add app → Add custom SAML
+app</strong>.</li>
+<li>Google Identity Provider details: <strong>Download metadata</strong> (cách 1).</li>
+<li>Service provider details:<ul>
+<li>ACS URL: <code>acs_url</code>.</li>
+<li>Entity ID: <code>entity_id</code>.</li>
+<li><strong>Signed response</strong> bật hay tắt đều được (assertion luôn được ký).</li>
+<li>Name ID format: PERSISTENT; Name ID: Basic Information → Primary email.</li>
+</ul>
+</li>
+<li>Attribute mapping: Primary email → <code>email</code>. Google không có trường họ tên
+đầy đủ; ánh xạ First name sang <code>displayName</code> hoặc bỏ qua tên (tài khoản khi
+đó không có tên hiển thị cho tới khi có người đặt).</li>
+<li>Nhóm (cho role): <strong>Group membership</strong> → chọn các nhóm, app attribute
+<code>groups</code>. Google gửi tên các nhóm đã chọn mà người dùng thuộc về; dùng các
+tên đó làm <code>group_key</code>.</li>
+<li><strong>User access</strong>: bật app cho các organizational unit hoặc nhóm được đăng
+nhập.</li>
+</ol>
+<p>Google Workspace không cấp phát qua SCIM cho custom SAML app: hãy tạo người
+dùng bằng <code>auto_provision</code> và <code>domain_join</code>, hoặc bằng lời mời.</p>
+<h3 id="keycloak">Keycloak<a class="anchor" href="#keycloak" aria-hidden="true">#</a></h3>
+<ol>
+<li>Trong realm: <strong>Clients → Create client</strong>, client type <strong>SAML</strong>, Client ID
+= <code>entity_id</code>.</li>
+<li>Settings:<ul>
+<li>Valid redirect URIs: <code>acs_url</code>.</li>
+<li>Name ID format: <code>persistent</code> (hoặc <code>email</code>); tắt <strong>Force name ID format</strong>.</li>
+<li>Bật <strong>Sign documents</strong> (hoặc bật Sign assertions).</li>
+</ul>
+</li>
+<li><strong>Keys</strong>: tắt <strong>Client signature required</strong> (AuthnRequest của Guard Spec
+không ký); tắt <strong>Encrypt assertions</strong>.</li>
+<li><strong>Advanced → Assertion Consumer Service POST Binding URL</strong>: <code>acs_url</code>.</li>
+<li><strong>Client scopes → <client>-dedicated → Add mapper → By configuration</strong>:<ul>
+<li>User Property <code>email</code>, SAML Attribute Name <code>email</code>.</li>
+<li>Tuỳ chọn: User Property <code>firstName</code> (hoặc một User Attribute), SAML
+Attribute Name <code>displayName</code>.</li>
+<li>Nhóm (cho role): Group list, Group attribute name <code>groups</code>, bật
+<strong>Single Group Attribute</strong>, tắt <strong>Full group path</strong>.</li>
+</ul>
+</li>
+<li>Metadata: <code>https://&lt;keycloak&gt;/realms/&lt;realm&gt;/protocol/saml/descriptor</code>.</li>
+</ol>
+<p>Keycloak không có sẵn SCIM client; một plugin SCIM có thể đẩy dữ liệu tới
+endpoint SCIM của Guard Spec như bên dưới.</p>
+<p>Một bộ Keycloak để thử toàn bộ luồng (<code>make sso-e2e</code>) đang được bổ sung; xem
+Makefile khi đã có.</p>
+<h2 id="3-thiết-lập-của-tổ-chức">3. Thiết lập của tổ chức<a class="anchor" href="#3-thiết-lập-của-tổ-chức" aria-hidden="true">#</a></h2>
+<p>Owner của tổ chức, ở trang Security của tổ chức hoặc bằng
+<code>PUT /v1/organizations/:orgId/security</code>:</p>
+<ul>
+<li><code>allowed_login_methods</code>: thêm <code>saml:&lt;provider id&gt;</code>, và bỏ <code>password</code> nếu
+muốn chỉ đăng nhập bằng SSO (giữ một cách vào cho chính mình tới khi SSO
+chạy; request bị từ chối nếu nó khoá chính bạn ra ngoài).</li>
+<li><code>sso_satisfies_mfa</code>: phiên SAML được tính là SSO.</li>
+<li><code>domain_join</code>: <code>{&quot;domain&quot;:&quot;example.com&quot;,&quot;provider_id&quot;:&quot;&lt;SAML provider id&gt;&quot;,&quot;role&quot;:&quot;member&quot;}</code>
+thêm người dùng SSO mới của tên miền vào tổ chức. Tên miền phải nằm trong
+<code>allowed_domains</code> của nhà cung cấp. Tên miền đã nhận cũng cho SCIM liên kết
+tài khoản sẵn có của tên miền đó và vô hiệu hoá chúng khi deactivate (xem
+bên dưới).</li>
+<li><code>scim_revoke_keys</code> (mặc định bật): thu hồi API key người dùng đã tạo khi
+SCIM deactivate họ.</li>
+</ul>
+<h2 id="4-cấp-phát-bằng-scim">4. Cấp phát bằng SCIM<a class="anchor" href="#4-cấp-phát-bằng-scim" aria-hidden="true">#</a></h2>
+<ol>
+<li><p>Owner tạo token, ở trang Security của tổ chức → SCIM, hoặc:</p>
+<pre><code class="language-bash">curl -s $CP/organizations/$ORG/scim/tokens -H &quot;$AUTH&quot; -H 'Content-Type: application/json' \
+  -d '{&quot;name&quot;:&quot;Okta&quot;,&quot;expires_at&quot;:&quot;2027-11-01T00:00:00Z&quot;}' | jq -r .token
+# gss_…   (chỉ hiện một lần; Guard Spec chỉ giữ SHA-256 của nó)
+</code></pre>
+</li>
+<li><p>Identity provider nhận base URL <code>&lt;PUBLIC_BASE_URL&gt;/v1/scim/v2</code> và token
+dưới dạng bearer token. Base URL giống nhau cho mọi tổ chức; token cho biết
+là tổ chức nào.</p>
+</li>
+<li><p>Xoay vòng: tạo token thứ hai, chuyển identity provider sang token mới, rồi
+thu hồi token cũ (<code>DELETE .../scim/tokens/:id</code>). Tối đa 20 token còn hiệu
+lực.</p>
+</li>
+</ol>
+<p>Thao tác ở identity provider làm gì ở Guard Spec:</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Thao tác ở IdP</th>
+  <th>Guard Spec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Gán một người</td>
+  <td><code>POST /Users</code>: tài khoản mới không có mật khẩu, hoặc liên kết với tài khoản sẵn có đã là thành viên hay thuộc tên miền tổ chức đã nhận; vào với role <code>member</code></td>
+</tr>
+<tr>
+  <td>Cập nhật một người</td>
+  <td>Email (chỉ với tài khoản do SCIM tạo), tên hiển thị, external id</td>
+</tr>
+<tr>
+  <td>Bỏ gán hoặc tạm ngưng</td>
+  <td><code>active: false</code>: gỡ membership (giữ lại role), thu hồi API key người đó tạo (<code>scim_revoke_keys</code>), và với tài khoản thuộc tổ chức thì thu hồi phiên và vô hiệu hoá tài khoản nếu nó không ở tổ chức nào khác</td>
+</tr>
+<tr>
+  <td>Gán lại</td>
+  <td><code>active: true</code>: trả lại membership với role theo nhóm hoặc role trước đó</td>
+</tr>
+<tr>
+  <td>Xoá</td>
+  <td><code>DELETE /Users/:id</code>: deactivate, rồi xoá bản ghi SCIM; tài khoản không bị xoá</td>
+</tr>
+<tr>
+  <td>Đẩy nhóm</td>
+  <td>Nhóm và thành viên, cho <a href="#5-role-theo-nhóm">role theo nhóm</a></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="cấp-phát-với-okta">Cấp phát với Okta<a class="anchor" href="#cấp-phát-với-okta" aria-hidden="true">#</a></h3>
+<ol>
+<li>Trong app SAML: <strong>General → App Settings → Edit → Provisioning: SCIM</strong>,
+lưu.</li>
+<li><strong>Provisioning → Integration → Edit</strong>:<ul>
+<li>SCIM connector base URL: <code>&lt;PUBLIC_BASE_URL&gt;/v1/scim/v2</code>.</li>
+<li>Unique identifier field for users: <code>userName</code>.</li>
+<li>Supported provisioning actions: Push New Users, Push Profile Updates,
+Push Groups.</li>
+<li>Authentication Mode: <strong>HTTP Header</strong>; Authorization: token <code>gss_…</code>.</li>
+<li><strong>Test Connector Configuration</strong>, lưu.</li>
+</ul>
+</li>
+<li><strong>Provisioning → To App → Edit</strong>: bật Create Users, Update User
+Attributes, Deactivate Users.</li>
+<li><strong>Push Groups</strong>: đẩy các nhóm có ánh xạ role (theo tên).</li>
+</ol>
+<p>Okta deactivate chứ không xoá người dùng (<code>PATCH</code> với <code>active: false</code>), gửi
+PATCH không có path khi đổi hồ sơ, và gỡ thành viên nhóm bằng
+<code>members[value eq &quot;&lt;id&gt;&quot;]</code>; Guard Spec nhận được tất cả các dạng này.</p>
+<h3 id="cấp-phát-với-entra-id">Cấp phát với Entra ID<a class="anchor" href="#cấp-phát-với-entra-id" aria-hidden="true">#</a></h3>
+<ol>
+<li>Trong enterprise app: <strong>Provisioning → Get started</strong> (hoặc New
+configuration), Provisioning Mode <strong>Automatic</strong>.</li>
+<li>Admin Credentials: Tenant URL <code>&lt;PUBLIC_BASE_URL&gt;/v1/scim/v2</code>, Secret Token
+là token <code>gss_…</code>; <strong>Test Connection</strong>.</li>
+<li><strong>Mappings → Provision Microsoft Entra ID Users</strong>: <code>userName</code> phải là
+email (mặc định <code>userPrincipalName</code> khi UPN là email; nếu không thì ánh xạ
+<code>mail</code>). Ánh xạ <code>active</code> mặc định
+(<code>Switch([IsSoftDeleted], , &quot;False&quot;, &quot;True&quot;, &quot;True&quot;, &quot;False&quot;)</code>) là thứ làm
+deactivate. Các attribute mặc định khác được nhận và bỏ qua.</li>
+<li><strong>Mappings → Provision Microsoft Entra ID Groups</strong>: giữ <code>displayName</code>,
+<code>externalId</code> và <code>members</code>. Kiểm tra attribute nguồn của <code>externalId</code>: khi
+đó là <code>objectId</code>, <code>group_key</code> của ánh xạ SCIM có thể chính là object id mà
+claim nhóm của SAML gửi.</li>
+<li>Settings: Scope <strong>Sync only assigned users and groups</strong>; đặt Provisioning
+Status <strong>On</strong>. Dùng <strong>Provision on demand</strong> để thử với một người.</li>
+</ol>
+<p>Entra ID gửi <code>active</code> dạng chuỗi <code>&quot;True&quot;</code> / <code>&quot;False&quot;</code>, op PATCH viết hoa
+(<code>Replace</code>, <code>Add</code>, <code>Remove</code>) và danh sách thành viên trong giá trị PATCH;
+Guard Spec nhận được tất cả các dạng này. Người dùng bị soft-delete được
+deactivate; Entra xoá hẳn họ (<code>DELETE /Users/:id</code>) sau đó.</p>
+<h3 id="đăng-nhập-cho-người-dùng-do-scim-tạo">Đăng nhập cho người dùng do SCIM tạo<a class="anchor" href="#đăng-nhập-cho-người-dùng-do-scim-tạo" aria-hidden="true">#</a></h3>
+<p>Tài khoản do SCIM tạo chưa có mật khẩu và chưa có identity SSO. Lần đăng
+nhập SSO đầu tiên chỉ liên kết identity theo email khi nhà cung cấp bật
+<code>trust_email_for_linking</code>; nếu không, đăng nhập bị từ chối với
+<code>account_exists</code>. Vì vậy, với nhà cung cấp người dùng đăng nhập qua:</p>
+<ul>
+<li>bật <code>trust_email_for_linking</code>, và</li>
+<li>đặt <code>allowed_domains</code> là các tên miền của bạn, để chỉ email do IdP của bạn
+quản lý mới liên kết được.</li>
+</ul>
+<p>Tài khoản sẵn có mà SCIM liên kết (đã là thành viên, hoặc thuộc tên miền đã
+nhận) giữ nguyên mật khẩu và email. Nếu tài khoản có mật khẩu, đăng nhập SAML
+cùng email bị từ chối với <code>account_exists</code>: người dùng đăng nhập bằng mật
+khẩu một lần rồi liên kết nhà cung cấp ở <strong>Tài khoản của tôi</strong> (như với
+OIDC). Từ đó, SAML đăng nhập vào đúng tài khoản này.</p>
+<h2 id="5-role-theo-nhóm">5. Role theo nhóm<a class="anchor" href="#5-role-theo-nhóm" aria-hidden="true">#</a></h2>
+<p><code>PUT /v1/organizations/:orgId/group-roles</code> (owner) thay toàn bộ ánh xạ của
+tổ chức:</p>
+<pre><code class="language-bash">curl -s -X PUT $CP/organizations/$ORG/group-roles -H &quot;$AUTH&quot; -H 'Content-Type: application/json' -d '{&quot;items&quot;:[
+  {&quot;provider_id&quot;: null,           &quot;group_key&quot;: &quot;guardspec-admins&quot;,  &quot;role&quot;: &quot;admin&quot;},
+  {&quot;provider_id&quot;: null,           &quot;group_key&quot;: &quot;guardspec-viewers&quot;, &quot;role&quot;: &quot;viewer&quot;},
+  {&quot;provider_id&quot;: &quot;&lt;SAML id&gt;&quot;,    &quot;group_key&quot;: &quot;guardspec-admins&quot;,  &quot;role&quot;: &quot;admin&quot;}
+]}'
+</code></pre>
+<ul>
+<li><code>provider_id</code> null: nhóm SCIM của tổ chức này, so khớp theo display name
+hoặc external id.</li>
+<li><code>provider_id</code> là một nhà cung cấp SAML: giá trị của attribute nhóm của nó
+(tên nhóm với Okta, Google và Keycloak; object id với Entra ID).</li>
+<li><code>role</code>: <code>viewer</code>, <code>member</code> hoặc <code>admin</code>. Role owner không bao giờ được cấp
+hay thay đổi qua nhóm. So khớp không phân biệt hoa thường; role cao nhất
+khớp được sẽ thắng.</li>
+</ul>
+<p>Khi tổ chức đã có ánh xạ nhóm, identity provider quyết định role:</p>
+<ul>
+<li>SCIM: role của người dùng SCIM đang active là role cao nhất mà các nhóm của
+họ được ánh xạ, hoặc <code>member</code> khi không nhóm nào khớp; role đổi ngay khi
+thành viên nhóm, tên nhóm hoặc ánh xạ thay đổi.</li>
+<li>SAML: ở mỗi lần đăng nhập qua nhà cung cấp, trong mỗi tổ chức người dùng đã
+là thành viên và có ánh xạ ít nhất một nhóm của nhà cung cấp đó, role trở
+thành role cao nhất khớp với assertion, hoặc <code>member</code> khi không nhóm nào
+khớp hoặc assertion không có nhóm. Đăng nhập không bao giờ thêm membership:
+membership đến từ lời mời, <code>domain_join</code> hoặc SCIM.</li>
+<li>Tổ chức không có ánh xạ (cho SCIM, hoặc cho nhà cung cấp SAML đó) giữ
+nguyên role đặt tay.</li>
+</ul>
+<p>Role đặt tay trong tổ chức có ánh xạ sẽ bị ghi đè ở lần đồng bộ hoặc đăng
+nhập kế tiếp, kể cả khi bị hạ xuống.</p>
+<h2 id="xử-lý-sự-cố">Xử lý sự cố<a class="anchor" href="#xử-lý-sự-cố" aria-hidden="true">#</a></h2>
+<p>Đăng nhập SAML bị từ chối sẽ về <code>/ui/#/auth/callback?error=&lt;code&gt;</code>. Control
+plane ghi lý do vào log (<code>saml login refused</code>, với <code>provider</code>, <code>code</code> và
+<code>reason</code>), và nhật ký hoạt động của instance có <code>login.failed</code> kèm mã lỗi.</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Mã</th>
+  <th>Ý nghĩa</th>
+  <th>Kiểm tra gì</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>sso_unavailable</code></td>
+  <td>Nhà cung cấp bị tắt, đã xoá hoặc không phải SAML, chưa đặt <code>PUBLIC_BASE_URL</code>, hoặc không đọc được metadata</td>
+  <td><code>enabled</code> của nhà cung cấp; <code>PUBLIC_BASE_URL</code>; dán lại metadata. <code>GET .../start</code> trả 404 cho nhà cung cấp không tồn tại hoặc đã tắt, và 503 <code>sso_unavailable</code> cho nhà cung cấp cấu hình sai</td>
+</tr>
+<tr>
+  <td><code>invalid_response</code></td>
+  <td>Chữ ký, issuer, <code>Destination</code>, <code>Recipient</code>, audience, status, số assertion, thiếu <code>AudienceRestriction</code>, thời gian hiệu lực không đọc được, <code>SubjectConfirmationData</code> hết hạn, hoặc NameID rỗng hay quá dài</td>
+  <td>Chứng chỉ ký của IdP có trong metadata (dán lại sau khi IdP đổi chứng chỉ); entity id và ACS URL ở IdP đúng y như <code>saml_sp</code> (scheme, host, không có dấu <code>/</code> cuối); đã tắt mã hoá assertion; người dùng đã được gán vào app (IdP trả status lỗi cũng rơi vào đây)</td>
+</tr>
+<tr>
+  <td><code>expired</code></td>
+  <td>Assertion nằm ngoài khoảng <code>NotBefore</code> / <code>NotOnOrAfter</code></td>
+  <td>Đồng hồ của IdP và control plane</td>
+</tr>
+<tr>
+  <td><code>email_not_verified</code></td>
+  <td>Assertion không có email</td>
+  <td>Attribute email (hoặc <code>saml_email_attribute</code>); người dùng có email ở IdP</td>
+</tr>
+<tr>
+  <td><code>invalid_state</code></td>
+  <td><code>InResponseTo</code> không khớp request nào đang chờ (quá 10 phút, đã dùng, nhà cung cấp khác), hoặc đăng nhập bắt đầu ở trình duyệt khác (thiếu cookie <code>gs_saml</code>)</td>
+  <td>Bắt đầu lại từ Guard Spec; trình duyệt vào control plane đúng <code>PUBLIC_BASE_URL</code>; với http thường, cookie là SameSite=Lax và bị bỏ nếu IdP không cùng site, nên hãy dùng https</td>
+</tr>
+<tr>
+  <td><code>idp_initiated_disabled</code></td>
+  <td>Response không có <code>InResponseTo</code>: đăng nhập bắt đầu từ dashboard của IdP</td>
+  <td>Bắt đầu từ trang đăng nhập Guard Spec, hoặc bật <code>saml_allow_idp_initiated</code> (xem <a href="#lưu-ý-bảo-mật">lưu ý bảo mật</a>)</td>
+</tr>
+<tr>
+  <td><code>replayed</code></td>
+  <td>Assertion này đã được dùng</td>
+  <td>Nút back hoặc form bị gửi lại; bắt đầu lại</td>
+</tr>
+<tr>
+  <td><code>domain_not_allowed</code></td>
+  <td>Tên miền của email không nằm trong <code>allowed_domains</code></td>
+  <td><code>allowed_domains</code> của nhà cung cấp</td>
+</tr>
+<tr>
+  <td><code>account_exists</code></td>
+  <td>Đã có tài khoản với email này và không liên kết được (có mật khẩu hoặc identity khác, hoặc <code>trust_email_for_linking</code> tắt)</td>
+  <td><a href="#đăng-nhập-cho-người-dùng-do-scim-tạo">Đăng nhập cho người dùng do SCIM tạo</a></td>
+</tr>
+<tr>
+  <td><code>account_disabled</code></td>
+  <td>Tài khoản bị vô hiệu hoá (bởi quản trị viên, hoặc bởi SCIM deactivate)</td>
+  <td>Kích hoạt lại ở IdP (SCIM) hoặc bằng quản trị viên instance</td>
+</tr>
+<tr>
+  <td><code>not_provisioned</code></td>
+  <td>Không có tài khoản cho email này và <code>auto_provision</code> tắt</td>
+  <td>Bật <code>auto_provision</code>, mời người đó, hoặc cấp phát bằng SCIM</td>
+</tr>
+</tbody>
+</table></div>
+<p>Sau callback, <code>POST /v1/auth/oidc/exchange</code> có thể trả <code>invalid_code</code> (mã
+dùng một lần sống 60 giây), và tổ chức có thể từ chối phiên với
+<code>login_method_not_allowed</code> (thêm <code>saml:&lt;id&gt;</code> vào <code>allowed_login_methods</code>) hoặc
+<code>mfa_required</code>.</p>
+<p>Lỗi SCIM là body lỗi SCIM (<code>status</code>, <code>scimType</code>, <code>detail</code>):</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Status, <code>scimType</code></th>
+  <th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>401</td>
+  <td>Thiếu token, token lạ, đã thu hồi hoặc hết hạn (header phải là <code>Authorization: Bearer gss_…</code>)</td>
+</tr>
+<tr>
+  <td>409 <code>uniqueness</code></td>
+  <td><code>userName</code> hoặc tên nhóm đã có trong tổ chức, tài khoản đã được cấp phát, tài khoản khác đang dùng email mới, hoặc &quot;an account with this email exists outside this organization&quot;: hãy mời người đó, hoặc nhận tên miền bằng <code>domain_join</code></td>
+</tr>
+<tr>
+  <td>409 <code>mutability</code></td>
+  <td>Deactivate owner duy nhất của tổ chức: thêm owner khác trước</td>
+</tr>
+<tr>
+  <td>400 <code>invalidFilter</code></td>
+  <td>Chỉ hỗ trợ <code>attribute eq &quot;value&quot;</code> trên các attribute đã liệt kê</td>
+</tr>
+<tr>
+  <td>400 <code>invalidValue</code></td>
+  <td>Thiếu hoặc sai <code>userName</code> / <code>displayName</code>, <code>active</code> không phải boolean, thành viên không phải người dùng SCIM của tổ chức, giá trị quá dài</td>
+</tr>
+<tr>
+  <td>400 <code>invalidSyntax</code>, <code>invalidPath</code>, <code>tooMany</code></td>
+  <td>Không phải body SCIM hay PatchOp, path PATCH nhóm không hỗ trợ, quá 1000 thành viên trong một request</td>
+</tr>
+<tr>
+  <td>429</td>
+  <td>Quá 600 request SCIM mỗi phút từ một địa chỉ</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="lưu-ý-bảo-mật">Lưu ý bảo mật<a class="anchor" href="#lưu-ý-bảo-mật" aria-hidden="true">#</a></h2>
+<ul>
+<li><strong>Đăng nhập khởi tạo từ IdP mặc định tắt</strong> (<code>saml_allow_idp_initiated</code>).
+Response không có <code>InResponseTo</code> không gắn được với trình duyệt nhận nó: ai
+có một response hợp lệ cho tài khoản của chính mình đều có thể gửi nó từ
+một trang mà nạn nhân mở, và đăng nhập nạn nhân vào tài khoản của kẻ tấn
+công (login CSRF), nơi mọi thứ nạn nhân làm đều rơi vào. Bộ nhớ chống
+replay vẫn chặn lần dùng thứ hai của cùng assertion. Chỉ bật khi người dùng
+buộc phải bắt đầu từ dashboard của IdP.</li>
+<li><strong><code>trust_email_for_linking</code></strong> cho phép ai kiểm soát một email ở identity
+provider nhận tài khoản có email đó mà chưa có mật khẩu và chưa có
+identity. Chỉ bật cho identity provider thật sự quản lý các địa chỉ đó, kèm
+<code>allowed_domains</code>.</li>
+<li><strong><code>PUBLIC_BASE_URL</code> phải là <code>https://</code></strong> khi chạy thật. Chỉ khi đó cookie
+đăng nhập mới là SameSite=None và Secure; SP entity id, ACS và base URL của
+SCIM đều suy ra từ nó.</li>
+<li><strong>Token SCIM</strong> tạo, sửa, deactivate và xoá được người dùng của tổ chức: chỉ
+owner tạo và thu hồi, token chỉ hiện một lần và được lưu dạng SHA-256; hãy
+đặt <code>expires_at</code> và xoay vòng. Mỗi lần dùng token đều được ghi lại
+(<code>last_used_at</code>, <code>scim_token_id</code> trong nhật ký hoạt động).</li>
+<li><strong>Nhận một tên miền</strong> bằng <code>domain_join</code> cũng cho SCIM client của tổ chức
+liên kết tài khoản sẵn có của tên miền đó, thu hồi phiên và vô hiệu hoá
+chúng khi tổ chức là nơi duy nhất họ thuộc về.</li>
+<li><strong>Deactivate và API key</strong>: khi bật <code>scim_revoke_keys</code>, các key người dùng
+đã tạo bị thu hồi cùng họ. Key tạo trước migration 025 không có người tạo
+nên vẫn còn; hãy rà soát chúng sau khi nâng cấp.</li>
+</ul>
+
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/docs/sso.vi.md">docs/sso.vi.md</a> @ <code>89173d0ba5c1</code></p>
+  </main>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div class="brand"><img src="/assets/logo.svg" alt="" width="22" height="22"><span>Guard Spec</span></div>
+    <nav>
+      <a href="https://github.com/guard-spec/guard-spec">GitHub</a>
+      <a href="/docs/security/">Bảo mật</a>
+      <a href="https://github.com/guard-spec/guard-spec/blob/main/CONTRIBUTING.md">Đóng góp</a>
+      <a href="https://github.com/guard-spec/guard-spec/blob/main/LICENSE">Apache-2.0</a>
+    </nav>
+    <p>© The Guard Spec Authors. Tác giả: <a href="https://github.com/giaplee">@giaplee</a>.</p>
+  </div>
+</footer>
+
+</body>
+</html>
