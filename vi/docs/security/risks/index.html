@@ -50,7 +50,7 @@
 <p>Trang này dành cho người triển khai và vận hành Guard Spec. Nó liệt kê những
 rủi ro vẫn còn khi Guard Spec đứng trước LLM của bạn và cách giảm từng rủi ro.
 Để biết gateway bảo vệ được gì và không bảo vệ được gì, hãy đọc
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/README.vi.md#m%C3%B4-h%C3%ACnh-b%E1%BA%A3o-m%E1%BA%ADt-v%C3%A0-gi%E1%BB%9Bi-h%E1%BA%A1n">Mô hình bảo mật và giới hạn</a> trước. Báo lỗ hổng theo
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.vi.md#m%C3%B4-h%C3%ACnh-b%E1%BA%A3o-m%E1%BA%ADt-v%C3%A0-gi%E1%BB%9Bi-h%E1%BA%A1n">Mô hình bảo mật và giới hạn</a> trước. Báo lỗ hổng theo
 <a href="/docs/security/policy/">SECURITY.md</a>.</p>
 <p>Guard Spec là một lớp phòng thủ. Nó giảm khả năng chỉ dẫn bị chèn đến được
 model và hạn chế những gì câu trả lời có thể làm lộ. Riêng nó không làm một ứng
@@ -99,8 +99,8 @@ dụng LLM trở nên an toàn.</p>
 <tr>
   <td>D4</td>
   <td>Injection gián tiếp trong phần không quét</td>
-  <td>Kết quả tool, system prompt, file hoặc ảnh không được kiểm</td>
-  <td><code>SCAN_ROLES</code>, <code>scan_roles</code> theo org, <code>SPOTLIGHT</code>, gửi văn bản đã trích, <code>UNSCANNED_PARTS=block</code></td>
+  <td>System prompt, ảnh, PDF scan hoặc PDF từ xa không được kiểm</td>
+  <td><code>SCAN_ROLES</code>, <code>scan_roles</code> theo org, <code>SPOTLIGHT</code>, <code>PDF_EXTRACT</code> (mặc định), gửi văn bản đã trích, <code>UNSCANNED_PARTS=block</code></td>
 </tr>
 <tr>
   <td>D5</td>
@@ -230,7 +230,7 @@ dụng LLM trở nên an toàn.</p>
 và tiếng Việt, kiểu mã hoá mà L1 chỉ giải được một phần (như base64) và tấn
 công nhiều lượt mà từng tin nhắn trông vô hại đều có thể lọt. Với các lớp model
 mặc định, bộ eval cho tỷ lệ bắt khoảng 0,93 ở ngưỡng chặn (xem
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/README.vi.md#benchmark">Benchmark</a>); phần còn lại đến được model.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.vi.md#benchmark">Benchmark</a>); phần còn lại đến được model.</p>
 <p>Nên làm:</p>
 <ul>
 <li>Thiết kế ứng dụng như thể một số injection sẽ đến được model: cấp cho tool
@@ -263,11 +263,17 @@ model, hoặc dùng image <code>gateway-full</code> có sẵn model.</li>
 <h3 id="d4-injection-gián-tiếp-trong-phần-không-quét">D4. Injection gián tiếp trong phần không quét<a class="anchor" href="#d4-injection-gián-tiếp-trong-phần-không-quét" aria-hidden="true">#</a></h3>
 <p>Mặc định gateway phân loại tin nhắn người dùng, kết quả tool và mô tả tool MCP
 (<code>SCAN_ROLES=user,tool,tool_descriptions</code>). System prompt và tham số tool call
-của model không được phân loại nếu bạn không thêm vào. Ảnh, file (PDF và các
-loại khác) và âm thanh trong request được chuyển tới model mà không được đọc:
-injection trong PDF hay ảnh không được chấm điểm. Với mặc định
+của model không được phân loại nếu bạn không thêm vào. PDF gửi kèm trong
+request được gateway đọc (<code>PDF_EXTRACT</code>, mặc định bật): văn bản của nó, kể cả
+chữ ẩn, chú thích và trường biểu mẫu, được quét như tài liệu. Những gì còn
+lại tới model mà không được đọc: ảnh và âm thanh, PDF không có lớp văn bản
+(bản scan; gateway không chạy OCR), PDF mã hoá hay hỏng, PDF vượt giới hạn
+(quá khoảng 30k token văn bản khi không đặt <code>MAX_SCAN_TOKENS</code>, hoặc quá
+<code>PDF_EXTRACT_MAX_*</code>), file mà nhà cung cấp tự tải bằng URL hay file id, và
+các loại file khác. Injection trong đó không được chấm điểm. Với mặc định
 <code>UNSCANNED_PARTS=log</code>, chúng được đếm trong dòng audit
-(<code>input:unscanned_&lt;loại&gt;=&lt;số&gt;</code>), để bạn thấy chúng đến từ đâu.</p>
+(<code>input:unscanned_&lt;loại&gt;=&lt;số&gt;</code>, <code>input:pdf_unscanned_&lt;lý do&gt;=&lt;số&gt;</code>), để bạn
+thấy chúng đến từ đâu.</p>
 <p>Nên làm:</p>
 <ul>
 <li>Nếu system prompt chứa văn bản do người dùng nhập hoặc lấy từ nguồn ngoài,
@@ -275,10 +281,15 @@ thêm <code>system</code> vào <code>SCAN_ROLES</code> hoặc bật theo tổ ch
 <li>Gửi tài liệu truy xuất qua <code>/guardrail/scan</code> với <code>documents[]</code> trước khi đưa
 vào prompt.</li>
 <li>Bật <code>SPOTLIGHT</code> (<code>delimit</code> hoặc <code>datamark</code>) để model phân biệt dữ liệu với chỉ dẫn.</li>
-<li>Để ứng dụng gửi văn bản của file (đã trích, OCR với bản scan) thay cho file,
-rồi đặt <code>UNSCANNED_PARTS=block</code> (hoặc <code>unscanned_parts</code> theo tổ chức, hoặc
-luật trên <code>input.unscanned.kinds</code>). Khi ngữ cảnh có ảnh không tin cậy, giới
-hạn tool của agent và xác nhận các thao tác rủi ro. Xem
+<li>Giữ <code>PDF_EXTRACT=on</code> và đặt <code>MAX_SCAN_TOKENS</code> đủ lớn cho tài liệu người
+dùng của bạn gửi, để PDF dài được quét thay vì thành <code>over_limit</code>; từ chối
+những gì gateway không đọc được bằng luật trên <code>input.pdf.reasons</code> (ví dụ
+<code>no_text</code>, <code>encrypted</code>, <code>remote</code>).</li>
+<li>Để ứng dụng gửi văn bản của những file gateway không đọc được (OCR với bản
+scan, văn bản đã trích với file nhà cung cấp đang giữ) thay cho file, rồi
+đặt <code>UNSCANNED_PARTS=block</code> (hoặc <code>unscanned_parts</code> theo tổ chức, hoặc luật
+trên <code>input.unscanned.kinds</code>). Khi ngữ cảnh có ảnh không tin cậy, giới hạn
+tool của agent và xác nhận các thao tác rủi ro. Xem
 <a href="/vi/docs/quickstart/integrations/#file-pdf-và-ảnh">File, PDF và ảnh</a>.</li>
 </ul>
 <h3 id="d5-lịch-sử-hội-thoại-bị-giả-mạo-trên-v1messages">D5. Lịch sử hội thoại bị giả mạo trên <code>/v1/messages</code><a class="anchor" href="#d5-lịch-sử-hội-thoại-bị-giả-mạo-trên-v1messages" aria-hidden="true">#</a></h3>
@@ -470,7 +481,7 @@ và cảnh báo theo tỷ lệ 503 và <code>/readyz</code>.</p>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>UPSTREAM_ALLOW_PRIVATE=false</code> và <code>UPSTREAM_KEY_ORGS</code> hẹp</li>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>TRUSTED_PROXIES</code> liệt kê đúng các proxy</li>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>SCAN_ROLES</code> bao mọi chỗ văn bản không tin cậy đi vào prompt</li>
-<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>File được gửi dưới dạng văn bản đã trích; <code>UNSCANNED_PARTS=block</code> nếu không ứng dụng nào cần gửi file, ảnh hay âm thanh</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>PDF_EXTRACT=on</code> và <code>MAX_SCAN_TOKENS</code> đặt theo cỡ tài liệu của bạn; file khác gửi dưới dạng văn bản đã trích; <code>UNSCANNED_PARTS=block</code> nếu không ứng dụng nào cần gửi file, ảnh hay âm thanh</li>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Allowlist link ngắn; UI không tự tạo link từ câu trả lời của model</li>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Tắt lưu nội dung; đã đặt <code>AUDIT_RETENTION_DAYS</code></li>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>SSO hoặc bắt buộc 2FA cho mọi người có quyền admin</li>
@@ -479,7 +490,7 @@ và cảnh báo theo tỷ lệ 503 và <code>/readyz</code>.</p>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Tool được kiểm quyền trong ứng dụng; hành động rủi ro có người xác nhận</li>
 </ul>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/docs/security-risks.vi.md">docs/security-risks.vi.md</a> @ <code>89173d0ba5c1</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/security-risks.vi.md">docs/security-risks.vi.md</a> @ <code>affcb7e33994</code></p>
   </main>
 </div>
 

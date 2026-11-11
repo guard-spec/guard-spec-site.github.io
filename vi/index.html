@@ -42,7 +42,7 @@
 <section class="hero">
   <div class="wrap hero-in">
     <div class="hero-copy">
-      <a class="new-pill" href="#whats-new"><b>Có gì mới trong v0.5.0</b><span>Input lớn, SAML và SCIM, và trần classifier cho tool output</span><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /> </svg></a>
+      <a class="new-pill" href="#whats-new"><b>Có gì mới trong v0.6.0</b><span>Đọc và quét PDF, và Go 1.26.11</span><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /> </svg></a>
       <div class="kicker">Mã nguồn mở · Tự host</div>
       <h1>Chặn prompt injection <em>trước khi</em> nó tới LLM của bạn</h1>
       <p class="lead">Guard Spec là gateway đặt giữa ứng dụng của bạn và mọi API tương thích OpenAI. Nó kiểm tra prompt, tài liệu truy xuất, kết quả tool và MCP tool ở chiều vào, và câu trả lời của model ở chiều ra. Prompt không bao giờ rời khỏi hạ tầng của bạn.</p>
@@ -51,7 +51,7 @@
         <a class="btn btn-ghost-dark" href="https://github.com/guard-spec/guard-spec"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /> <path d="M9 18c-4.51 2-5-2-7-2" /> </svg>Xem trên GitHub</a>
       </div>
       <ul class="badges">
-        <li>Apache-2.0</li><li>Go</li><li>English · Tiếng Việt</li><li><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.5.0">v0.5.0 · trước 1.0</a></li><li><a href="https://www.bestpractices.dev/projects/16421">OpenSSF Best Practices · passing</a></li>
+        <li>Apache-2.0</li><li>Go</li><li>English · Tiếng Việt</li><li><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.6.0">v0.6.0 · trước 1.0</a></li><li><a href="https://www.bestpractices.dev/projects/16421">OpenSSF Best Practices · passing</a></li>
       </ul>
     </div>
     <div class="hero-code">
@@ -205,24 +205,23 @@ client = OpenAI(
 <section class="section alt" id="whats-new">
   <div class="wrap">
     <div class="eyebrow">Có gì mới</div>
-    <h2>Có gì mới trong v0.5.0</h2>
-    <p class="sub">Phát hành ngày <time datetime="2026-11-10">2026-11-10</time>. Khi nâng cấp: migration 025 (bảng SAML và SCIM) chạy lúc khởi động. Mặc định phát hiện không đổi: classifier vẫn là v3b, còn <code>MAX_SCAN_TOKENS</code> và <code>UNSCANNED_PARTS</code> giữ hành vi 0.4.2 cho tới khi bạn đặt chúng. SAML và SCIM cần <code>PUBLIC_BASE_URL</code>.</p>
-    <div class="wn-also"><span class="wn-tag">Model mới</span><p>Cũng đã phát hành: <a href="https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v5">classifier v5</a>, bản ứng viên chạy shadow mode, train thêm trên code, log và tài liệu dài (đã ký; Hugging Face nhánh <code>v5</code>). Trên code và log sạch của tập holdout, tỉ lệ chặn nhầm giảm từ 21% xuống 0,6%; calibration của nó đặt trần classifier, mà gateway từ 0.5.0 áp dụng. v3b vẫn là mặc định; dự kiến quyết định ở v0.6.0.</p></div>
+    <h2>Có gì mới trong v0.6.0</h2>
+    <p class="sub">Phát hành ngày <time datetime="2026-11-11">2026-11-11</time>. Khi nâng cấp: không có migration. <code>PDF_EXTRACT</code> mặc định là <code>on</code>, nên PDF gửi kèm mà 0.5.0 chuyển đi không đọc giờ được quét và có thể bị chặn; ứng dụng nhiều tài liệu nên dùng <code>INDIRECT_ACTION=redact</code>, hoặc đặt <code>PDF_EXTRACT=off</code> để giữ hành vi 0.5.0. Classifier vẫn là v3b.</p>
     <ul class="grid3 wn-list">
-      <li class="card"><h3>Input lớn, quét đủ mọi token</h3><p><code>MAX_SCAN_TOKENS</code> cho gateway nhận request vượt xa giới hạn cũ, tới hàng trăm nghìn token, mà không quét thiếu. Request lớn chờ trong làn riêng và nhận 429 kèm <code>Retry-After</code> khi làn đầy.</p></li>
-      <li class="card"><h3>Đăng nhập một lần SAML và SCIM</h3><p>Đăng nhập qua bất kỳ identity provider SAML 2.0 nào, cấp phát user và group bằng SCIM 2.0 từ Okta hay Microsoft Entra ID, và gán role theo group của identity provider.</p></li>
-      <li class="card"><h3>Nội dung không quét được và trần classifier</h3><p>Ảnh, file và audio trong request giờ được ghi lại, và <code>UNSCANNED_PARTS=block</code> từ chối chúng. Calibration có thể đặt trần cho classifier trên tool result và tài liệu, để rule hoặc lớp tương đồng phải cùng xác nhận trước khi chặn.</p></li>
+      <li class="card"><h3>Trích văn bản PDF</h3><p>PDF gửi kèm trên <code>/v1/messages</code>, chat completions hay <code>/v1/responses</code> được PDFium chạy trong WebAssembly trích văn bản (không cgo, không dịch vụ ngoài) và quét như tài liệu, kể cả chữ ẩn: chữ trắng, chữ cực nhỏ, chữ ngoài trang, chú thích và trường form.</p></li>
+      <li class="card"><h3>Ghi lại phần không đọc được</h3><p>PDF dạng scan, có mật khẩu, hỏng, quá lớn hoặc gửi bằng URL vẫn là phần không quét dưới <code>UNSCANNED_PARTS</code>, kèm lý do trong audit log, trong rule (<code>input.pdf.*</code>) và metric. Chưa có OCR.</p></li>
+      <li class="card"><h3>Go 1.26.11</h3><p>Vá GO-2026-6859 trong <code>net/http</code> của thư viện chuẩn Go, bản mà image 0.5.0 dùng để build.</p></li>
     </ul>
     <div class="ctas wn-links">
-      <a class="btn btn-primary" href="https://github.com/guard-spec/guard-spec/releases/tag/v0.5.0">Ghi chú phát hành<svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /> </svg></a>
-      <a class="btn wn-btn" href="https://github.com/guard-spec/guard-spec/blob/v0.5.0/CHANGELOG.md#050---2026-11-10"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 12h-5" /> <path d="M15 8h-5" /> <path d="M19 17V5a2 2 0 0 0-2-2H4" /> <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" /> </svg>Nhật ký thay đổi</a>
+      <a class="btn btn-primary" href="https://github.com/guard-spec/guard-spec/releases/tag/v0.6.0">Ghi chú phát hành<svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /> </svg></a>
+      <a class="btn wn-btn" href="https://github.com/guard-spec/guard-spec/blob/v0.6.0/CHANGELOG.md#060---2026-11-11"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 12h-5" /> <path d="M15 8h-5" /> <path d="M19 17V5a2 2 0 0 0-2-2H4" /> <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" /> </svg>Nhật ký thay đổi</a>
     </div>
     <h3 class="wn-earlier">Các bản trước</h3>
     <ul class="wn-prev">
+      <li><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.5.0">v0.5.0</a><time datetime="2026-11-10">2026-11-10</time><span>Quét đủ input lớn, SAML và SCIM, ghi lại ảnh và file không quét được, trần classifier cho tool output; classifier v5 phát hành dạng ứng viên shadow mode.</span></li>
       <li><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.4.2">v0.4.2</a><time datetime="2026-11-09">2026-11-09</time><span>Giảm chặn nhầm code và log trong tool output: tool result dạng code chỉ bị chặn khi L1 hoặc L3 cùng xác nhận với classifier.</span></li>
       <li><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.4.1">v0.4.1</a><time datetime="2026-11-09">2026-11-09</time><span>Vá bảo mật: lưu cài đặt bảo mật của tổ chức không còn làm mất giới hạn phương thức đăng nhập.</span></li>
       <li><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.4.0">v0.4.0</a><time datetime="2026-11-08">2026-11-08</time><span>Image không còn CVE đã biết, mã hoá nội dung lưu trữ theo tổ chức, giữ dữ liệu cá nhân khỏi model, quyền xem nội dung và nhật ký chống sửa, xuất SIEM dạng OCSF, PagerDuty và Opsgenie, secret từ file và Vault.</span></li>
-      <li><a href="https://github.com/guard-spec/guard-spec/releases/tag/v0.3.1">v0.3.1</a><time datetime="2026-11-07">2026-11-07</time><span>Vá bảo mật output guard: thẻ HTML trỏ tới hoặc tải URL ngoài allowlist bị xoá, stream nhanh hơn, và dữ liệu cá nhân bị markup chia đôi được phát hiện.</span></li>
     </ul>
   </div>
 </section>

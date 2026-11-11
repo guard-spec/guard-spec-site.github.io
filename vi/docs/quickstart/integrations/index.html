@@ -279,7 +279,7 @@ try {
 <p>Các wrapper khác bọc quanh SDK này cũng chạy giống vậy khi chúng gọi chat
 completions. Provider OpenAI của Vercel AI SDK chạy được với
 <code>createOpenAI({ baseURL, apiKey }).chat(model)</code>
-(<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/examples/typescript/vercel-ai-sdk">examples/typescript/vercel-ai-sdk</a>):
+(<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/examples/typescript/vercel-ai-sdk">examples/typescript/vercel-ai-sdk</a>):
 model mặc định của nó, <code>openai(model)</code>, và <code>openai.responses(...)</code> gọi
 Responses API, mà gateway chỉ phục vụ khi upstream có API này (OpenAI, Azure
 OpenAI): nếu sau gateway là Ollama hoặc vLLM, hãy dùng <code>.chat</code>.</p>
@@ -347,7 +347,7 @@ trong chat request, nên chúng được quét cùng với text của người d
 điểm từng tài liệu một trước khi index hoặc trước khi đưa vào prompt, hãy gọi
 <code>POST /guardrail/scan</code> với <code>documents[]</code>
 (<a href="/docs/operations/#indirect-injection-and-tool-poisoning">README</a>).
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/examples/python/rag">examples/python/rag</a> làm cả hai: nó gửi các tài
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/examples/python/rag">examples/python/rag</a> làm cả hai: nó gửi các tài
 liệu truy xuất được dưới dạng kết quả tool, gateway chấm điểm từng cái rồi
 chặn hoặc che (<code>INDIRECT_ACTION</code>), và nó cũng quét chúng lúc ingest.</p>
 <h2 id="claude-code-đã-kiểm-tra-qua-gateway">Claude Code (đã kiểm tra qua gateway)<a class="anchor" href="#claude-code-đã-kiểm-tra-qua-gateway" aria-hidden="true">#</a></h2>
@@ -691,7 +691,7 @@ kết quả.</li>
 tin cậy hơn: định nghĩa tool MCP qua <code>POST /guardrail/scan/tools</code>, kết quả
 tool và tài liệu qua <code>POST /guardrail/scan</code>.</p>
 <h2 id="n8n-đã-kiểm-tra">n8n (đã kiểm tra)<a class="anchor" href="#n8n-đã-kiểm-tra" aria-hidden="true">#</a></h2>
-<p>Import <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/examples/n8n/guardspec-workflow.json">examples/n8n/guardspec-workflow.json</a>
+<p>Import <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/examples/n8n/guardspec-workflow.json">examples/n8n/guardspec-workflow.json</a>
 (đã kiểm tra với n8n 2.46.6). Workflow này gọi gateway bằng node HTTP Request
 (một credential Header Auth <code>Authorization: Bearer gs_...</code>, bật <em>Never Error</em>
 để một lần chặn vẫn tới được node kế tiếp) và bằng node OpenAI Chat Model (một
@@ -699,24 +699,36 @@ credential OpenAI có Base URL là gateway cộng thêm <code>/v1</code>, tắt 
 API</em>, cách này chạy với mọi upstream). Node OpenAI của n8n báo một lần chặn là
 &quot;Bad request - please check your parameters&quot; mà không kèm lý do của gateway;
 node HTTP Request thì giữ lại lý do đó.
-Các bước: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/examples/n8n/README.md">examples/n8n</a>.</p>
+Các bước: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/examples/n8n/README.md">examples/n8n</a>.</p>
 <h2 id="file-pdf-và-ảnh">File, PDF và ảnh<a class="anchor" href="#file-pdf-và-ảnh" aria-hidden="true">#</a></h2>
-<p>Bộ phát hiện của gateway chỉ đọc văn bản. Ảnh, PDF hay file khác, hoặc âm thanh
-trong request (<code>image_url</code>, <code>file</code>, <code>input_audio</code> trên chat completions; block
-<code>image</code> và <code>document</code> có source <code>base64</code>, <code>url</code> hoặc <code>file</code> trên
-<code>/v1/messages</code>; <code>input_image</code>, <code>input_file</code>, <code>input_audio</code> trên
-<code>/v1/responses</code>) được chuyển nguyên tới model, và model đọc được chúng: model
-vision đọc chữ trong ảnh, nhà cung cấp đưa văn bản của PDF cho model. Vì vậy
-một chỉ dẫn giấu trong những file đó không được chấm điểm. Gateway không trích
-văn bản PDF và không chạy OCR. Mặc định (<code>UNSCANNED_PARTS=log</code>) gateway cho
-các phần này qua và đếm chúng trong dòng audit (<code>input:unscanned_file=1</code>, ...),
-để bạn thấy ứng dụng nào gửi chúng; chi tiết ở
+<p>Bộ phát hiện của gateway chỉ đọc văn bản. PDF gửi kèm trong request (part
+<code>file</code> có <code>file_data</code> trên chat completions, block <code>document</code> nguồn <code>base64</code>
+trên <code>/v1/messages</code>, mục <code>input_file</code> có <code>file_data</code> trên <code>/v1/responses</code>)
+được chính gateway đọc nhờ <code>PDF_EXTRACT</code> (mặc định bật): văn bản của nó, kể
+cả chữ ẩn, chú thích và trường biểu mẫu, được quét như tài liệu không tin cậy
+và theo <code>INDIRECT_ACTION</code>, nên một chỉ dẫn giấu trong PDF có lớp văn bản được
+chấm điểm mà ứng dụng không phải đổi gì. PDF dài cần <code>MAX_SCAN_TOKENS</code> (quá
+khoảng 30k token văn bản thì là <code>over_limit</code> và không được quét), và
+<code>INDIRECT_ACTION=redact</code> là lựa chọn tốt hơn cho ứng dụng xử lý nhiều tài
+liệu khi classifier vẫn chặn nhầm một số tài liệu dài vô hại; giới hạn và thẻ
+audit ở <a href="/vi/docs/configuration/apis/#pdf">README: PDF</a>.</p>
+<p>Những gì gateway vẫn không đọc được thì được chuyển nguyên tới model, và model
+đọc được chúng: ảnh (<code>image_url</code>, <code>image</code>, <code>input_image</code>; model vision đọc
+chữ trong ảnh), âm thanh, PDF không có lớp văn bản (bản scan, ảnh chụp trang:
+gateway không chạy OCR), PDF mã hoá hay hỏng, PDF vượt giới hạn, và file mà
+nhà cung cấp tự tải bằng URL hay file id (<code>file_id</code>, <code>file_url</code>, nguồn <code>url</code>
+hay <code>file</code>), thứ gateway không bao giờ thấy. Chỉ dẫn giấu trong đó không
+được chấm điểm. Mặc định (<code>UNSCANNED_PARTS=log</code>) gateway cho các phần này
+qua và đếm chúng trong dòng audit (<code>input:unscanned_file=1</code>,
+<code>input:pdf_unscanned_no_text=1</code>, ...), để bạn thấy ứng dụng nào gửi chúng;
+chi tiết ở
 <a href="/vi/docs/configuration/apis/#phần-gateway-không-đọc-được">README: Phần gateway không đọc được</a>.
-Muốn nội dung được kiểm tra thì phải đổi thứ ứng dụng gửi đi:</p>
+Muốn nội dung đó được kiểm tra thì phải đổi thứ ứng dụng gửi đi:</p>
 <p><strong>1. Gửi văn bản đã trích, không gửi file.</strong> Trích văn bản trong ứng dụng
-(<code>pdftotext</code> hoặc <code>pdfplumber</code> cho PDF có lớp văn bản, OCR cho PDF scan và
-ảnh chụp) rồi gửi văn bản đó thay cho file. Giữ kèm những metadata model cần,
-như tên file, tiêu đề, số trang. Khi đó gateway quét đúng thứ model đọc. Trên
+(OCR cho PDF scan và ảnh chụp; <code>pdftotext</code> hoặc <code>pdfplumber</code> cho PDF mà
+gateway không thấy, như file đã tải lên nhà cung cấp và tham chiếu bằng id)
+rồi gửi văn bản đó thay cho file. Giữ kèm những metadata model cần, như tên
+file, tiêu đề, số trang. Khi đó gateway quét đúng thứ model đọc. Trên
 <code>/v1/messages</code>, block <code>document</code> có source dạng text được quét như tài liệu
 không tin cậy, giống kết quả tool:</p>
 <pre><code class="language-json">{&quot;type&quot;: &quot;document&quot;,
@@ -740,9 +752,10 @@ file lớn ra nhiều lần gọi), và từ chối hoặc cách ly file có tà
 </code></pre>
 <p>Cách này bắt được file bị cài cắm trước khi có người dùng tới, nhưng chỉ kiểm
 tra văn bản đã trích. Nếu ứng dụng vẫn gửi file gốc cho model, model có thể
-đọc được thứ mà bước trích bỏ sót (chữ trắng hoặc rất nhỏ, chữ trong ảnh nhúng
-trong PDF, nội dung mà một parser khác đọc ra khác). Khi điều đó quan trọng,
-hãy gửi chính văn bản đã quét (cách 1).</p>
+đọc được thứ mà bước trích bỏ sót (chữ trong ảnh nhúng trong PDF, nội dung mà
+một parser khác đọc ra khác); PDF gửi kèm trong request được gateway đọc lại,
+kể cả chữ trắng và chữ rất nhỏ, nhưng file gửi bằng id thì không. Khi điều đó
+quan trọng, hãy gửi chính văn bản đã quét (cách 1).</p>
 <p><strong>3. Ảnh.</strong> Khi ảnh mang chữ từ nguồn không tin cậy (ảnh chụp màn hình, biểu
 mẫu scan, ảnh từ web), chạy OCR rồi quét kết quả như trên. Cách này có ích
 nhưng chưa đủ: model vision đọc được chữ mờ, nhỏ hoặc cách điệu mà OCR bỏ sót,
@@ -753,11 +766,12 @@ quyền).</p>
 <p><strong>4. Bắt buộc áp dụng.</strong> Khi ứng dụng đã gửi văn bản, đặt
 <code>UNSCANNED_PARTS=block</code> trên gateway, hoặc <code>&quot;unscanned_parts&quot;: &quot;block&quot;</code> trong
 guard settings của tổ chức, để phần file, ảnh hay âm thanh bị từ chối (400
-<code>unscanned_content</code>) thay vì tới model mà không được đọc. Muốn chặt hơn chỉ
-cho một số ứng dụng, giữ <code>log</code> và thêm luật như
-<code>&quot;file&quot; in input.unscanned.kinds</code> với hành động <code>block</code> vào policy của project
-chứa key của các ứng dụng đó (ví dụ trong
-<a href="/vi/docs/configuration/apis/#phần-gateway-không-đọc-được">README</a>).</p>
+<code>unscanned_content</code>) thay vì tới model mà không được đọc; PDF gateway đã đọc
+không phải phần không quét, nên <code>block</code> chỉ từ chối những gì nó không đọc
+được. Muốn chặt hơn chỉ cho một số ứng dụng, giữ <code>log</code> và thêm luật như
+<code>&quot;file&quot; in input.unscanned.kinds</code> hay <code>&quot;no_text&quot; in input.pdf.reasons</code> với
+hành động <code>block</code> vào policy của project chứa key của các ứng dụng đó (ví dụ
+trong <a href="/vi/docs/configuration/apis/#phần-gateway-không-đọc-được">README</a>).</p>
 <h2 id="công-cụ-khác">Công cụ khác<a class="anchor" href="#công-cụ-khác" aria-hidden="true">#</a></h2>
 <p>Mọi client đều chạy được khi nó (1) cho phép bạn đặt base URL, (2) gửi key
 dưới dạng <code>Authorization: Bearer</code> hoặc <code>x-api-key</code>, và (3) chỉ dùng
@@ -768,7 +782,7 @@ state phía server), <code>/v1/embeddings</code>, <code>/v1/messages</code> (ups
 tài liệu của client, hoặc xem các request nó gửi qua một proxy ghi log như
 mitmproxy, trước khi bạn dựa vào nó.</p>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/docs/integrations.vi.md">docs/integrations.vi.md</a> @ <code>89173d0ba5c1</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/integrations.vi.md">docs/integrations.vi.md</a> @ <code>affcb7e33994</code></p>
   </main>
 </div>
 

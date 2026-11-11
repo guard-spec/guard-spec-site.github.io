@@ -129,7 +129,42 @@ dùng nhất:</p>
 <tr>
   <td><code>LARGE_SCAN_QUEUE_TIMEOUT</code></td>
   <td><code>30s</code></td>
-  <td>Thời gian request lớn chờ làn trước khi nhận 429 kèm <code>Retry-After</code></td>
+  <td>Thời gian request lớn chờ làn trước khi nhận 429 kèm <code>Retry-After</code>; cũng là thời gian request chờ một bộ trích xuất PDF rảnh (<code>PDF_EXTRACT</code>)</td>
+</tr>
+<tr>
+  <td><code>PDF_EXTRACT</code></td>
+  <td><code>on</code></td>
+  <td><code>on</code> hoặc <code>off</code>. <code>on</code>: văn bản của PDF gửi kèm trong request (khối <code>document</code> nguồn base64 trên <code>/v1/messages</code>, phần <code>file</code> có <code>file_data</code> trên chat completions, mục <code>input_file</code> có <code>file_data</code> trên <code>/v1/responses</code>) được trích xuất (kể cả chữ ẩn, chú thích và trường biểu mẫu) và quét như một tài liệu, nên <code>INDIRECT_ACTION</code> và <code>MAX_SCAN_TOKENS</code> áp dụng; body chuyển tiếp giữ nguyên, trừ khi <code>redact</code> thay phần đó bằng placeholder tài liệu. PDF không lấy được chữ (<code>no_text</code>, <code>encrypted</code>, <code>damaged</code>, <code>timeout</code>, <code>over_limit</code>, <code>internal</code>) hoặc gateway không tải được (url hay file id: <code>remote</code>) vẫn là phần không quét theo <code>UNSCANNED_PARTS</code>, với thẻ audit <code>input:pdf_scanned=&lt;số&gt;</code> và <code>input:pdf_unscanned_&lt;lý do&gt;=&lt;số&gt;</code> và các trường luật <code>input.pdf.count</code>, <code>input.pdf.scanned</code>, <code>input.pdf.reasons</code>. <code>off</code>: PDF là phần không quét như ở 0.5.0. Không có ghi đè theo tổ chức. Xem <a href="/vi/docs/configuration/apis/#pdf">PDF</a></td>
+</tr>
+<tr>
+  <td><code>PDF_EXTRACT_MAX_BYTES</code></td>
+  <td><code>33554432</code> (32 MiB)</td>
+  <td>PDF lớn nhất bộ trích xuất mở, tính bằng byte (<code>1024</code> đến <code>1073741824</code>); lớn hơn là <code>over_limit</code>. Giới hạn body áp dụng trước: PDF đến dưới dạng base64, nên PDF lớn nhất tới được gateway chỉ khoảng 3/4 <code>MAX_REQUEST_BYTES</code> (3 MiB theo mặc định). Log lúc khởi động ghi giới hạn hiệu lực và cảnh báo khi biến này được đặt cao hơn</td>
+</tr>
+<tr>
+  <td><code>PDF_EXTRACT_MAX_PAGES</code></td>
+  <td><code>600</code></td>
+  <td>Số trang tối đa trích xuất từ một PDF (<code>1</code> đến <code>100000</code>); nhiều hơn là <code>over_limit</code></td>
+</tr>
+<tr>
+  <td><code>PDF_EXTRACT_MAX_TEXT_BYTES</code></td>
+  <td><code>4194304</code> (4 MiB), hoặc 4 × <code>MAX_SCAN_TOKENS</code> nếu nhỏ hơn</td>
+  <td>Lượng chữ tối đa trích từ một PDF, tính bằng byte (<code>1024</code> đến <code>1073741824</code>); nhiều hơn là <code>over_limit</code>. Khi <code>MAX_SCAN_TOKENS</code> không đặt, chữ vượt 128 KiB tài liệu của đường ngắn cũng là <code>over_limit</code></td>
+</tr>
+<tr>
+  <td><code>PDF_EXTRACT_TIMEOUT</code></td>
+  <td><code>10s</code></td>
+  <td>Ngân sách thời gian cho một PDF (<code>100ms</code> đến <code>10m</code>), không tính thời gian chờ bộ trích xuất; quá thì PDF là <code>timeout</code></td>
+</tr>
+<tr>
+  <td><code>PDF_EXTRACT_MEMORY</code></td>
+  <td><code>536870912</code> (512 MiB)</td>
+  <td>Trần bộ nhớ của một phiên PDFium (bộ nhớ tuyến tính WebAssembly), tính bằng byte (<code>33554432</code>, 32 MiB, đến <code>4294967296</code>, 4 GiB); tài liệu cần nhiều hơn là <code>damaged</code></td>
+</tr>
+<tr>
+  <td><code>PDF_EXTRACT_MAX_CONCURRENCY</code></td>
+  <td>số CPU / 2 (ít nhất 1)</td>
+  <td>Số PDF trích xuất cùng lúc (<code>1</code> đến <code>1024</code>); các request khác chờ tối đa <code>LARGE_SCAN_QUEUE_TIMEOUT</code> rồi nhận 429 kèm <code>Retry-After</code></td>
 </tr>
 <tr>
   <td><code>MAX_REQUEST_BYTES</code></td>
@@ -164,7 +199,7 @@ dùng nhất:</p>
 </tbody>
 </table></div>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/README.vi.md#cấu-hình">README.vi.md#cấu-hình</a> @ <code>89173d0ba5c1</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.vi.md#cấu-hình">README.vi.md#cấu-hình</a> @ <code>affcb7e33994</code></p>
   </main>
 </div>
 

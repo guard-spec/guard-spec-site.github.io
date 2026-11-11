@@ -276,7 +276,7 @@ try {
 <p>Other wrappers around this SDK work the same way when they call chat
 completions. The Vercel AI SDK's OpenAI provider does with
 <code>createOpenAI({ baseURL, apiKey }).chat(model)</code>
-(<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/examples/typescript/vercel-ai-sdk">examples/typescript/vercel-ai-sdk</a>):
+(<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/examples/typescript/vercel-ai-sdk">examples/typescript/vercel-ai-sdk</a>):
 its default model, <code>openai(model)</code>, and <code>openai.responses(...)</code> call the
 Responses API, which the gateway serves only to an upstream that has it
 (OpenAI, Azure OpenAI): with Ollama or vLLM behind the gateway, use <code>.chat</code>.</p>
@@ -342,7 +342,7 @@ RAG pipeline the retrieved chunks reach the model inside the chat request, so
 they are scanned with the user text; to score documents one by one before
 indexing or before they are put in the prompt, call <code>POST /guardrail/scan</code>
 with <code>documents[]</code> (<a href="/docs/operations/#indirect-injection-and-tool-poisoning">README</a>).
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/examples/python/rag">examples/python/rag</a> does both: it sends retrieved
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/examples/python/rag">examples/python/rag</a> does both: it sends retrieved
 documents as tool results, which the gateway scores one by one and blocks or
 redacts (<code>INDIRECT_ACTION</code>), and scans them at ingest time.</p>
 <h2 id="claude-code-checked-through-the-gateway">Claude Code (checked through the gateway)<a class="anchor" href="#claude-code-checked-through-the-gateway" aria-hidden="true">#</a></h2>
@@ -684,31 +684,44 @@ with the results.</li>
 MCP tool definitions through <code>POST /guardrail/scan/tools</code>, tool results and
 documents through <code>POST /guardrail/scan</code>.</p>
 <h2 id="n8n-checked">n8n (checked)<a class="anchor" href="#n8n-checked" aria-hidden="true">#</a></h2>
-<p>Import <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/examples/n8n/guardspec-workflow.json">examples/n8n/guardspec-workflow.json</a>
+<p>Import <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/examples/n8n/guardspec-workflow.json">examples/n8n/guardspec-workflow.json</a>
 (checked with n8n 2.46.6). It calls the gateway with the HTTP Request node
 (a Header Auth credential <code>Authorization: Bearer gs_...</code>, <em>Never Error</em> on so
 a block reaches the next node) and with the OpenAI Chat Model node (an OpenAI
 credential whose Base URL is the gateway plus <code>/v1</code>, <em>Use Responses API</em>
 off, which works with any upstream). n8n's OpenAI node reports a block as &quot;Bad request - please check your
 parameters&quot; without the gateway's reason; the HTTP Request node keeps it.
-Steps: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/examples/n8n/README.md">examples/n8n</a>.</p>
+Steps: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/examples/n8n/README.md">examples/n8n</a>.</p>
 <h2 id="files-pdfs-and-images">Files, PDFs and images<a class="anchor" href="#files-pdfs-and-images" aria-hidden="true">#</a></h2>
-<p>The gateway's detector reads text. An image, a PDF or other file, or audio in
-a request (<code>image_url</code>, <code>file</code>, <code>input_audio</code> on chat completions; <code>image</code>
-and <code>document</code> blocks with a <code>base64</code>, <code>url</code> or <code>file</code> source on
-<code>/v1/messages</code>; <code>input_image</code>, <code>input_file</code>, <code>input_audio</code> on
-<code>/v1/responses</code>) goes to the model as it is, and the model reads it: a
-vision model reads the text in an image, and the provider gives the model a
-PDF's text. An instruction hidden in such a file is therefore not
-classified. The gateway does not extract PDF text or run OCR. By default
+<p>The gateway's detector reads text. A PDF sent inline (a <code>file</code> part with
+<code>file_data</code> on chat completions, a <code>document</code> block with a <code>base64</code> source
+on <code>/v1/messages</code>, an <code>input_file</code> item with <code>file_data</code> on <code>/v1/responses</code>)
+is read by the gateway itself with <code>PDF_EXTRACT</code> (on by default): its text,
+hidden text, annotations and form fields included, is scanned as an
+untrusted document and follows <code>INDIRECT_ACTION</code>, so an instruction hidden
+in a PDF with a text layer is classified without any change to the
+application. A long PDF needs <code>MAX_SCAN_TOKENS</code> (more than about 30k tokens
+of text is otherwise <code>over_limit</code> and not scanned), and
+<code>INDIRECT_ACTION=redact</code> is the better setting for document-heavy
+applications while the classifier still blocks some long benign documents;
+<a href="/docs/operations/#pdfs">README: PDFs</a> has the limits and the audit tags.</p>
+<p>What the gateway still cannot read goes to the model as it is, and the model
+reads it: an image (<code>image_url</code>, <code>image</code>, <code>input_image</code>; a vision model
+reads the text in it), audio, a PDF with no text layer (a scan, a photo of a
+page: the gateway does not run OCR), an encrypted or damaged PDF, a PDF over
+the limits, and a file the provider fetches by URL or file id (<code>file_id</code>,
+<code>file_url</code>, a <code>url</code> or <code>file</code> source), which the gateway never sees. An
+instruction hidden in those is not classified. By default
 (<code>UNSCANNED_PARTS=log</code>) it forwards these parts and counts them in the audit
-row (<code>input:unscanned_file=1</code>, ...), so you can see which applications send
-them; <a href="/docs/operations/#content-the-gateway-cannot-read">README: Content the gateway cannot read</a>
-has the details. To have the content checked, change what the application
+row (<code>input:unscanned_file=1</code>, <code>input:pdf_unscanned_no_text=1</code>, ...), so you
+can see which applications send them;
+<a href="/docs/operations/#content-the-gateway-cannot-read">README: Content the gateway cannot read</a>
+has the details. To have that content checked, change what the application
 sends:</p>
 <p><strong>1. Send the extracted text, not the file.</strong> Extract the text in your
-application (<code>pdftotext</code> or <code>pdfplumber</code> for PDFs with a text layer, OCR for
-scanned PDFs and photos) and send that text instead of the file. Keep the
+application (OCR for scanned PDFs and photos; <code>pdftotext</code> or <code>pdfplumber</code>
+for a PDF the gateway would not see, such as one uploaded to the provider
+and referenced by id) and send that text instead of the file. Keep the
 metadata the model needs, such as the file name, title and page numbers,
 with the text. The gateway then scans exactly what the model reads. On
 <code>/v1/messages</code>, a <code>document</code> block with a text source is scanned as an
@@ -735,9 +748,10 @@ whose document comes back <code>blocked</code>:</p>
 </code></pre>
 <p>This catches a poisoned file before anyone uses it, but it checks the
 extracted text only. If the application still sends the original file to the
-model, the model can read what the extraction missed (white or tiny text,
-text in images inside the PDF, content that another parser reads
-differently). Send the text you scanned (pattern 1) when that matters.</p>
+model, the model can read what the extraction missed (text in images inside
+the PDF, content that another parser reads differently); a PDF sent inline
+is read again by the gateway, white and tiny text included, but a file sent
+by id is not. Send the text you scanned (pattern 1) when that matters.</p>
 <p><strong>3. Images.</strong> When images carry text from untrusted sources (screenshots,
 scanned forms, images from the web), OCR them and scan the result as above.
 It helps, but it is not enough: a vision model reads faint, small or
@@ -748,9 +762,11 @@ risky actions (sending data out, payments, deleting, changing permissions).</p>
 <p><strong>4. Enforce it.</strong> Once the application sends text, set
 <code>UNSCANNED_PARTS=block</code> on the gateway, or <code>&quot;unscanned_parts&quot;: &quot;block&quot;</code> in an
 organization's guard settings, so that a file, image or audio part is refused
-(400 <code>unscanned_content</code>) instead of reaching the model unread. To be
-stricter for some applications only, keep <code>log</code> and add a rule such as
-<code>&quot;file&quot; in input.unscanned.kinds</code> with action <code>block</code> to a policy of the
+(400 <code>unscanned_content</code>) instead of reaching the model unread; a PDF the
+gateway read is not an unscanned part, so <code>block</code> refuses only what it could
+not read. To be stricter for some applications only, keep <code>log</code> and add a
+rule such as <code>&quot;file&quot; in input.unscanned.kinds</code> or
+<code>&quot;no_text&quot; in input.pdf.reasons</code> with action <code>block</code> to a policy of the
 project their keys belong to (example in the
 <a href="/docs/operations/#content-the-gateway-cannot-read">README</a>).</p>
 <h2 id="other-tools">Other tools<a class="anchor" href="#other-tools" aria-hidden="true">#</a></h2>
@@ -764,7 +780,7 @@ server-side state), <code>/v1/embeddings</code>, <code>/v1/messages</code> (Anth
 requests it sends through a logging proxy such as mitmproxy, before you rely
 on it.</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/docs/integrations.md">docs/integrations.md</a> @ <code>89173d0ba5c1</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/integrations.md">docs/integrations.md</a> @ <code>affcb7e33994</code></p>
   </main>
 </div>
 

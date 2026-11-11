@@ -243,7 +243,7 @@ nạp.</li>
 <h2 id="dataset-và-giấy-phép">Dataset và giấy phép<a class="anchor" href="#dataset-và-giấy-phép" aria-hidden="true">#</a></h2>
 <p>Mọi dataset đều được kiểm tra trên trang (card) Hugging Face ở commit đã ghim.
 Benchmark tải chúng khi chạy; repository này không lưu dòng nào của chúng ngoài
-những gì <code>eval/</code> vốn đã có (xem <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/eval/LICENSES.md">eval/LICENSES.md</a>).</p>
+những gì <code>eval/</code> vốn đã có (xem <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/eval/LICENSES.md">eval/LICENSES.md</a>).</p>
 <div class="table"><table>
 <thead>
 <tr>
@@ -308,7 +308,7 @@ những gì <code>eval/</code> vốn đã có (xem <a href="https://github.com/g
 <p><strong>Tiếng Việt.</strong> Chúng tôi không tìm được dataset prompt injection tiếng Việt
 nào vừa công khai vừa có giấy phép. Các dòng tiếng Việt duy nhất ở đây là của
 <code>eval/</code>, vốn là dữ liệu tổng hợp và được gán nhãn bởi AI agent (xem
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/eval/README.md">eval/README.md</a>).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/eval/README.md">eval/README.md</a>).</p>
 <p><strong>Cột ngôn ngữ.</strong> <code>eval/</code> gắn ngôn ngữ cho từng dòng (<code>en</code>, <code>vi</code>). Với các bộ
 công khai, dòng nào có dấu hiệu tiếng Đức, tiếng Tây Ban Nha hoặc chữ Cyrillic
 (theo rule của <code>eval/build/build.py</code>) được xếp vào <code>other</code>, còn lại là <code>en</code>.
@@ -317,7 +317,7 @@ Chỉ <code>deepset</code> có tỉ lệ <code>other</code> đáng kể.</p>
 <ul>
 <li>Classifier của Guard Spec (L2, v3b) được train trên split <code>train</code> của
 <code>deepset/prompt-injections</code>, <code>Lakera/gandalf_ignore_instructions</code> và
-<code>jackhhao/jailbreak-classification</code> (<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/train/DATA_LICENSES.md">train/DATA_LICENSES.md</a>).
+<code>jackhhao/jailbreak-classification</code> (<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/train/DATA_LICENSES.md">train/DATA_LICENSES.md</a>).
 Benchmark chỉ dùng split <code>test</code> của chúng, nhưng các split này có cùng phân
 phối, nên có lợi cho Guard Spec trên ba bộ này.</li>
 <li>ProtectAI v2 liệt kê <code>jackhhao/jailbreak-classification</code> trong các bộ dữ
@@ -326,7 +326,7 @@ nó ở bộ đó.</li>
 <li>Các dòng <code>test</code> tiếng Anh của <code>deepset</code> và <code>Gandalf</code> cũng nằm trong <code>eval/</code>
 (60 trên 116 và 111 trên 112 dòng).</li>
 <li>Các rule L1 của Guard Spec được tinh chỉnh bằng cách xem các lỗi trên nửa
-&quot;dev&quot; của <code>eval/</code> (<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/eval/README.md">eval/README.md</a>); số liệu L1 trên
+&quot;dev&quot; của <code>eval/</code> (<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/eval/README.md">eval/README.md</a>); số liệu L1 trên
 <code>eval/</code> vì vậy là lạc quan. L2, L3 và fusion chưa bao giờ được fit trên
 <code>eval/</code>.</li>
 <li>Không có gì trong benchmark này được dùng để thay đổi Guard Spec.</li>
@@ -1147,7 +1147,7 @@ của văn bản sẽ có nhiều cơ hội báo động hơn khi văn bản dà
 <p><strong>Cách đo.</strong> Corpus được dựng từ các nguồn công khai đã ghim phiên bản
 (Wikipedia EN/VI, Bộ luật Hoa Kỳ (U.S. Code), mã nguồn Go, văn học và văn bản
 luật tiếng Việt thuộc phạm vi công cộng từ vi.wikisource; giấy phép trong
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/bench/long/corpus.yaml"><code>bench/long/corpus.yaml</code></a>), cộng với log, JSON,
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/bench/long/corpus.yaml"><code>bench/long/corpus.yaml</code></a>), cộng với log, JSON,
 CSV, chuỗi email, đoạn chat và hard negative (văn bản lành tính nói về prompt
 injection) được sinh tổng hợp có seed. Văn bản cùng thể loại được nối thành
 20k, 50k, 100k, 200k và 500k token. Tài liệu tấn công đặt một payload lấy từ
@@ -1173,9 +1173,9 @@ Max, ONNX Runtime 1.31.1, <code>guardspec-classifier-v3b</code>, 2026-11-09, ch�
 thêm benchmark này; 26 tài liệu lành tính (0.86M token), 12 payload mỗi ngôn
 ngữ. Mẫu nhỏ: một tài liệu 100k mỗi ngôn ngữ, 12 tấn công mỗi ô (một tấn công
 là 8 điểm phần trăm). Bảng đầy đủ:
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/bench/results/long-m3max-local.md"><code>bench/results/long-m3max-local.md</code></a>.
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/bench/results/long-m3max-local.md"><code>bench/results/long-m3max-local.md</code></a>.
 Các lần chạy 4 vCPU và 2 vCPU trên runner của GitHub sẽ có từ
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/.github/workflows/bench-long.yml"><code>bench-long.yml</code></a> sau khi merge.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/.github/workflows/bench-long.yml"><code>bench-long.yml</code></a> sau khi merge.</p>
 <p>False positive trên văn bản lành tính ở threshold chặn 0.85 (<code>l1,l2</code>):</p>
 <div class="table"><table>
 <thead>
@@ -1299,7 +1299,7 @@ liệu của bạn.</p>
 <p>Kết quả cũng sẽ xuất hiện trên <a href="https://guardspec.io/docs/">guardspec.io/docs</a>,
 được build từ trang này.</p>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/docs/benchmark.vi.md">docs/benchmark.vi.md</a> @ <code>89173d0ba5c1</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/benchmark.vi.md">docs/benchmark.vi.md</a> @ <code>affcb7e33994</code></p>
   </main>
 </div>
 

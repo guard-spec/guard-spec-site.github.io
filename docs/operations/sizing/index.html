@@ -91,7 +91,7 @@ docker compose -f docker-compose.yml up -d
 <p><code>models-init</code> pulls only what the layers need, and <code>/readyz</code> shows the active
 layers (<code>&quot;layers&quot;:[&quot;l1&quot;,&quot;l2&quot;]</code>). What each layer detects and how they are
 fused: README, <a href="/docs/models/">Models</a> and
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/README.md#benchmarks">Benchmarks</a>.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#benchmarks">Benchmarks</a>.</p>
 <h2 id="measured-resource-use">Measured resource use<a class="anchor" href="#measured-resource-use" aria-hidden="true">#</a></h2>
 <p><strong>Source.</strong> Measured on 2026-11-06 by the maintainers on one machine: an
 Apple M3 Max (arm64) MacBook Pro, Docker Desktop 28.4 with a Linux VM of
@@ -279,9 +279,9 @@ queueing up behind the model layers.</li>
 memory limit) fit the full detector's measured peak; set
 <code>INFERENCE_MAX_CONCURRENCY</code> and <code>INFERENCE_INTRA_OP_THREADS</code> to the CPU
 limit as above (<code>gateway.env</code>), and scale with <code>gateway.autoscaling</code> (HPA). See
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/deploy/helm/guard-spec/values.yaml"><code>values.yaml</code></a>, the per-cloud
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/deploy/helm/guard-spec/values.yaml"><code>values.yaml</code></a>, the per-cloud
 examples in
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/deploy/helm/guard-spec/examples"><code>deploy/helm/guard-spec/examples/</code></a>
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/deploy/helm/guard-spec/examples"><code>deploy/helm/guard-spec/examples/</code></a>
 and <a href="/docs/operations/#kubernetes">README, Kubernetes</a>.</li>
 </ul>
 <h2 id="long-inputs">Long inputs<a class="anchor" href="#long-inputs" aria-hidden="true">#</a></h2>
@@ -393,9 +393,9 @@ wall time of one document, not its cost. A server scanning documents for
 several users at once gets the same total throughput from intra 1 and
 many concurrent runs as from fewer, wider runs.</li>
 <li>The full per-run tables (L2 alone, every K, wall time per document) are in
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/bench/results/long-m3max-local.md"><code>bench/results/long-m3max-local.md</code></a>,
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/bench/results/long-gh-ubuntu-24.04-4vcpu.md"><code>long-gh-ubuntu-24.04-4vcpu.md</code></a>
-and <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/bench/results/long-gh-ubuntu-24.04-2vcpu.md"><code>long-gh-ubuntu-24.04-2vcpu.md</code></a>.
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/bench/results/long-m3max-local.md"><code>bench/results/long-m3max-local.md</code></a>,
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/bench/results/long-gh-ubuntu-24.04-4vcpu.md"><code>long-gh-ubuntu-24.04-4vcpu.md</code></a>
+and <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/bench/results/long-gh-ubuntu-24.04-2vcpu.md"><code>long-gh-ubuntu-24.04-2vcpu.md</code></a>.
 The runner runs predate the 0.4.2 code/log fixes, so their false-positive
 tables show the 0.4.1 detector; latency is unaffected.</li>
 </ul>
@@ -411,6 +411,88 @@ Both write <code>bench/results/long-&lt;host&gt;.json</code> and <code>.md</code
 the score distribution, false positives and latency of your texts (it has no
 attacks, so no detection rate). Pin cores with <code>taskset -c 0,1</code> and set
 <code>INFERENCE_MAX_CONCURRENCY</code> to match, as the 2 vCPU row does.</p>
+<h3 id="pdf-documents">PDF documents<a class="anchor" href="#pdf-documents" aria-hidden="true">#</a></h3>
+<p>A PDF sent inline is read by the gateway (<code>PDF_EXTRACT</code>, on by default) and
+its text is scanned like any long document, so a PDF costs the extraction
+plus the scan of its text at the rates above. Measured with
+<code>BenchmarkPDFDocument</code> (L1 only) and <code>BenchmarkPDFDocumentML</code> (the models
+behind <code>ml.Live</code>, as the gateway runs them; <code>cmd/gateway/pdf_bench_test.go</code>):
+a generated 100-page PDF with about 840 KB of benign text (207,629 tokens;
+92 KiB of compressed PDF in base64) through the gateway to a fake upstream,
+on <code>/v1/messages</code>, chat completions and <code>/v1/responses</code>, with
+<code>MAX_SCAN_TOKENS=250000</code> and <code>INDIRECT_ACTION=redact</code> so that every window
+is scored, no scan cache, one request at a time, 3 requests per API shape.
+Apple M3 Max (14 cores, 36 GB), macOS 15.4.1, Go 1.26, commit e637c60,
+2026-11-11, local and indicative. Every number here is measured; nothing is
+estimated.</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Step</th>
+  <th style="text-align:right">L1 only</th>
+  <th style="text-align:right">With the models (L1+L2 on 256-token windows, <code>INFERENCE_INTRA_OP_THREADS=1</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Extract the text (PDFium in wazero)</td>
+  <td style="text-align:right">0.65 to 1.1 s</td>
+  <td style="text-align:right">0.95 to 1.2 s</td>
+</tr>
+<tr>
+  <td>Whole request (extract, sanitize, scan, forward)</td>
+  <td style="text-align:right">0.93 to 1.6 s</td>
+  <td style="text-align:right">41.5 to 47.2 s</td>
+</tr>
+<tr>
+  <td>Windows scored</td>
+  <td style="text-align:right">479 chunks of 2 KiB, 0 skipped</td>
+  <td style="text-align:right">1,093 windows, 0 skipped</td>
+</tr>
+<tr>
+  <td>Peak RSS growth over the 3 requests</td>
+  <td style="text-align:right">0.2 MB</td>
+  <td style="text-align:right">95 MB</td>
+</tr>
+<tr>
+  <td>Redacted (benign document taken for an injection)</td>
+  <td style="text-align:right">0 of 3</td>
+  <td style="text-align:right">0 of 3</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>The three API shapes give the same numbers within noise (with the models 41.5 s on <code>/v1/responses</code>, 45.8 s on <code>/v1/messages</code>, 47.2 s on chat completions; L1 only 1.52 to 1.61 s);
+the table shows <code>/v1/messages</code>.</li>
+<li>Cold start: compiling the PDFium WebAssembly module took 1.5 to 2.4 s and
+the first document through a fresh runtime 0.66 to 1.1 s, with 50 to 150 MB
+of resident memory for the runtime. The gateway compiles the module in the
+background at start-up (<code>/readyz</code> does not wait for it), so a request pays
+it only when it arrives before the compile is done.</li>
+<li>The scan dominates: extraction is 2 to 3% of the request with the models.
+The scan ran at about 4,500 tokens/s: the large-input lane's default of
+<code>INFERENCE_LARGE_MAX_CONCURRENCY</code> = CPUs / 4 (3 here) model runs at once,
+against K = 4 in the long-input table above; raise it to scan one document
+faster. On 2 to 4 cloud vCPUs expect 3 to 4 times longer per core, as that
+table says: a 200k-token PDF is minutes, not seconds, there.</li>
+<li>Run-to-run spread on this laptop was large (extraction 0.65 s in one run
+and 1.1 s in another, the same code and document); read every figure as a
+range, as the ones above are written.</li>
+<li>Memory: each document is parsed in a fresh PDFium instance whose linear
+memory (up to <code>PDF_EXTRACT_MEMORY</code>, 512 MiB) is returned afterwards; with a
+warm runtime the process grew by up to about 95 MB over the first three
+200k-token requests and not at all over the later ones (the Go runtime
+keeps the memory). Count <code>PDF_EXTRACT_MAX_CONCURRENCY</code> × <code>PDF_EXTRACT_MEMORY</code> as the
+worst case on top of the figures in &quot;Measured resource use&quot;.</li>
+<li>A long benign PDF may still be blocked by the classifier (long-document
+false positives, RF-895d3533); run document-heavy applications with
+<code>INDIRECT_ACTION=redact</code> until that lands.</li>
+</ul>
+<p>Reproduce (the second form needs the models and <code>make onnx-deps</code>):</p>
+<pre><code class="language-bash">go test ./cmd/gateway -run '^$' -bench 'PDFDocument$' -benchtime 3x
+CGO_ENABLED=1 CGO_LDFLAGS=-L$PWD/.onnx/lib ONNXRUNTIME_LIB=$PWD/.onnx/lib/libonnxruntime.dylib \
+  go test -tags onnx ./cmd/gateway -run '^$' -bench 'PDFDocumentML' -benchtime 3x
+</code></pre>
 <h2 id="disk">Disk<a class="anchor" href="#disk" aria-hidden="true">#</a></h2>
 <ul>
 <li>Models: about 135 MB (light) or 270 MB (full) per version kept, plus older
@@ -442,7 +524,7 @@ docker compose exec postgres psql -U ps -d guardspec -c \
 once per <code>DETECTOR_LAYERS</code> value you consider. Reports with other hardware
 are welcome in an issue.</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/docs/sizing.md">docs/sizing.md</a> @ <code>89173d0ba5c1</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/sizing.md">docs/sizing.md</a> @ <code>affcb7e33994</code></p>
   </main>
 </div>
 
