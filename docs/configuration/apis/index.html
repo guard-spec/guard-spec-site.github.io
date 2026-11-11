@@ -429,6 +429,10 @@ values of all kinds); both read <code>[]</code> and <code>0</code> unless the or
 <code>input.unscanned.count</code> (how many such parts, all kinds together) describe
 the parts the gateway forwards but cannot read, in the turns it scans; see
 <a href="/docs/operations/#content-the-gateway-cannot-read">Content the gateway cannot read</a>.
+<code>input.pdf.count</code> (PDF parts in those turns), <code>input.pdf.scanned</code> (how many
+of them were read with <code>PDF_EXTRACT</code>) and <code>input.pdf.reasons</code> (why the others
+were not: <code>no_text</code>, <code>encrypted</code>, <code>damaged</code>, <code>timeout</code>, <code>over_limit</code>,
+<code>internal</code>, <code>remote</code>) describe the PDFs. Example: <code>&quot;encrypted&quot; in input.pdf.reasons</code> with action <code>block</code>.
 <code>pii.entities</code>, <code>toxicity.score</code> and <code>topic.categories</code> were removed: new
 rules may not name them, and stored rules that do read <code>[]</code> or <code>0</code> as they
 always did. A policy holds at most 200 rules; each rule has a CEL
@@ -436,7 +440,7 @@ cost limit, the rules of one request share a cost budget and a timeout, and
 any of these limits fails closed with 503. Project policies run before the
 org-wide ones.</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/README.md#apis">README.md#apis</a> @ <code>89173d0ba5c1</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#apis">README.md#apis</a> @ <code>affcb7e33994</code></p>
   </main>
 </div>
 

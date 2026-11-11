@@ -466,11 +466,11 @@ is single-turn, so the window does not change its numbers (L1: FPR 0.1 %,
 L1+L2+L3: FPR 1.4 % at the gateway decision, as before).</p>
 <p><strong>Latency.</strong> One more detector run per request that has a new window, and a
 cache lookup otherwise (<code>BenchmarkConversationWindow</code>, see
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>).</p>
 <h2 id="personal-data-in-requests">Personal data in requests<a class="anchor" href="#personal-data-in-requests" aria-hidden="true">#</a></h2>
 <p>An organization can have the gateway count the personal data in each request
 and give the result to its policy rules
-(<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>). It is <strong>off by
+(<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>). It is <strong>off by
 default</strong>; turn it on with <code>input_pii: true</code> in the org's guard settings
 (<code>PUT /v1/organizations/:orgId/guard-settings</code>, or admin UI: Guard settings →
 Detect personal data in requests). The setting is read per request, so a
@@ -528,14 +528,16 @@ with an e-mail address and a phone number): the check adds about 11 µs to
 a 2 KB request (sanitize step 148 → 159 µs) and about 57 µs to a 20 KB one
 (1.62 → 1.68 ms); end to end with L1 the p50 goes from 1.18 to 1.20 ms
 (2 KB) and from 11.08 to 11.19 ms (20 KB). With the setting off nothing
-runs. See <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>.</li>
+runs. See <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>.</li>
 </ul>
 <h2 id="content-the-gateway-cannot-read">Content the gateway cannot read<a class="anchor" href="#content-the-gateway-cannot-read" aria-hidden="true">#</a></h2>
-<p>The detector reads text. Images, files and audio in a request are forwarded
-to the model, which can read them (a vision model reads text in an image, a
-PDF's text reaches the model), so an injection inside a PDF or an image is
-not classified. <code>UNSCANNED_PARTS</code> makes these parts visible and lets you
-refuse them.</p>
+<p>The detector reads text. Images, audio and files in a request are forwarded
+to the model, which can read them (a vision model reads text in an image, the
+provider gives the model a PDF's text), so an injection inside them is not
+classified. A PDF sent inline is the exception: with <code>PDF_EXTRACT=on</code> (the
+default) the gateway extracts its text and scans it as a document, see
+<a href="#pdfs">PDFs</a> below. <code>UNSCANNED_PARTS</code> makes the parts it still cannot read
+visible and lets you refuse them.</p>
 <ul>
 <li><p><strong>What counts.</strong> Chat completions: <code>image_url</code>, <code>file</code> (<code>file_data</code> or
 <code>file_id</code>) and <code>input_audio</code> content parts. <code>/v1/messages</code>: <code>image</code> blocks,
@@ -543,7 +545,8 @@ and <code>document</code> blocks whose <code>source</code> is <code>base64</code
 inside a <code>tool_result</code>. <code>/v1/responses</code>: <code>input_image</code>, <code>input_file</code> and
 <code>input_audio</code>. The kinds are <code>image</code>, <code>file</code>, <code>audio</code> and <code>other</code>: a part
 with no text of a type the gateway does not know, so a new provider part
-type is not missed.</p>
+type is not missed. A PDF whose text was extracted and scanned is not
+counted; one the gateway could not read (the reasons below) is a <code>file</code>.</p>
 </li>
 <li><p><strong>Not counted</strong>, because they are scanned or are not input: text parts,
 <code>document</code> blocks with <code>source</code> <code>text</code> or <code>content</code>, <code>search_result</code>
@@ -591,11 +594,77 @@ already applies to one tenant; use a project policy to single out some
 keys. A rule's <code>block</code> is a policy refusal (<code>content_filter</code>), not
 <code>unscanned_content</code>.</p>
 </li>
-<li><p><strong>Not done here.</strong> The gateway does not extract the text of a PDF or run
-OCR. Have the application send the text instead of the file, or scan the
-extracted text at upload; see
+<li><p><strong>Not done here.</strong> The gateway does not run OCR (a scanned PDF, an image)
+and does not fetch a file the provider holds (a URL or file id). Have the
+application send the text instead of the file, or scan the extracted text
+at upload; see
 <a href="/docs/quickstart/integrations/#files-pdfs-and-images">Files, PDFs and images</a>.</p>
 </li>
+</ul>
+<h3 id="pdfs">PDFs<a class="anchor" href="#pdfs" aria-hidden="true">#</a></h3>
+<p>With <code>PDF_EXTRACT=on</code> (the default) a PDF sent inline (a <code>document</code> block
+with a <code>base64</code> source on <code>/v1/messages</code>, a <code>file</code> part with <code>file_data</code> on
+chat completions, an <code>input_file</code> item with <code>file_data</code> on <code>/v1/responses</code>;
+plain base64 or a data URL) is opened with PDFium, run as WebAssembly inside
+the gateway (no native library, no external service), and its text is
+scanned as an untrusted document on the same path as a <code>document</code> block with
+a text source: <code>INDIRECT_ACTION</code> applies (<code>block</code> refuses the request,
+<code>redact</code> replaces the part with the document placeholder), as do the scan
+cache and <code>MAX_SCAN_TOKENS</code>. The PDF itself is never rewritten: the
+forwarded body is byte-identical unless a part is redacted.</p>
+<ul>
+<li><strong>What is read.</strong> Every text object of every page, whether a reader would
+see it or not: white, invisible (render mode 3), tiny, clipped and
+off-page text, and text under an image; the contents of annotations
+(comments, free text); the values of form fields. That is the text a model
+gets from the provider's extraction, and more.</li>
+<li><strong>What is not.</strong> A scanned or image-only PDF (a page that is a picture of
+text has no text layer; there is no OCR: <code>no_text</code>), an encrypted PDF
+(<code>encrypted</code>), a file PDFium cannot open (<code>damaged</code>), a PDF the gateway
+cannot fetch (a <code>url</code> or <code>file</code> source on <code>/v1/messages</code>, <code>file_id</code> on
+chat completions, <code>file_id</code> or <code>file_url</code> on <code>/v1/responses</code>: <code>remote</code>),
+text past the limits (<code>over_limit</code>: more than <code>PDF_EXTRACT_MAX_BYTES</code>,
+<code>PDF_EXTRACT_MAX_PAGES</code> or <code>PDF_EXTRACT_MAX_TEXT_BYTES</code>, or, with
+<code>MAX_SCAN_TOKENS</code> unset, more than the 128 KiB of documents the short
+path scans) or past the time budget (<code>timeout</code>, <code>PDF_EXTRACT_TIMEOUT</code>);
+an extractor fault is <code>internal</code>. Document metadata (title, author,
+keywords), bookmarks, embedded files, JavaScript and the text inside
+images on a page are not read. Such a PDF is forwarded as before, as an
+unscanned <code>file</code> under <code>UNSCANNED_PARTS</code>; partial text never counts as a
+scan.</li>
+<li><strong>Where it shows.</strong> The audit row's tags <code>input:pdf_scanned=&lt;n&gt;</code> and
+<code>input:pdf_unscanned_&lt;reason&gt;=&lt;n&gt;</code> next to <code>input:unscanned_file=&lt;n&gt;</code>
+(the unscanned tags are left out with <code>UNSCANNED_PARTS=allow</code>); the rule
+fields <code>input.pdf.count</code>, <code>input.pdf.scanned</code> and <code>input.pdf.reasons</code>
+(for example <code>&quot;encrypted&quot; in input.pdf.reasons</code> with action <code>block</code>, or
+<code>input.pdf.count &gt; input.pdf.scanned</code> to refuse any PDF the gateway could
+not read; the Simulator takes them too); the metrics
+<code>guardspec_gateway_pdf_extract_total{result}</code> (the reasons, <code>ok</code> and
+<code>busy</code>), <code>guardspec_gateway_pdf_extract_seconds</code> and
+<code>guardspec_gateway_pdf_text_bytes</code>. A PDF in an earlier turn is scored
+(through the scan cache) but not counted, like the unscanned counts.</li>
+<li><strong>Limits and cost.</strong> At most <code>PDF_EXTRACT_MAX_CONCURRENCY</code> PDFs (half the
+CPUs) are read at once, each in a PDFium instance with its own memory cap
+(<code>PDF_EXTRACT_MEMORY</code>, 512 MiB) and time budget (<code>PDF_EXTRACT_TIMEOUT</code>,
+10 s); a request that gets no extractor within <code>LARGE_SCAN_QUEUE_TIMEOUT</code>
+is answered 429 with <code>Retry-After</code>. A PDF arrives base64-encoded, so the
+largest one that fits in <code>MAX_REQUEST_BYTES</code> is about three quarters of
+it (3 MiB with the default 4 MiB); the start-up log states the effective
+limit and warns when <code>PDF_EXTRACT_MAX_BYTES</code> was set above it. A long PDF
+needs <code>MAX_SCAN_TOKENS</code>: without it, more than 128 KiB of extracted text
+(about 30k tokens, some 40 pages of prose) is <code>over_limit</code> and the PDF
+goes to the model unscanned. Measured on an M3 Max, a 100-page PDF of
+about 200k tokens takes about 1 s to extract and 40 to 50 s to scan with
+the models (every window scored, the large-input lane at its default of
+CPUs / 4 model runs at once); see <a href="/docs/operations/sizing/#pdf-documents">sizing, PDF documents</a>.</li>
+<li><strong>Recommended.</strong> For document-heavy applications set
+<code>INDIRECT_ACTION=redact</code>: the classifier still takes some long benign
+documents for injections (RF-895d3533), and with <code>redact</code> the request goes
+on without the document instead of failing, with the audit row recording
+it. Keep <code>UNSCANNED_PARTS=log</code> and watch <code>input:pdf_unscanned_*</code> to see
+which PDFs are not read; a rule on <code>input.pdf.reasons</code> refuses the kinds
+you do not want. <code>PDF_EXTRACT=off</code> is the behaviour of 0.5.0: every PDF is
+an unscanned part.</li>
 </ul>
 <h2 id="large-inputs">Large inputs<a class="anchor" href="#large-inputs" aria-hidden="true">#</a></h2>
 <p>By default a proxied request may carry about 28 KB of user, system and
@@ -1256,7 +1325,7 @@ and <code>dbRoles</code> hooks, network policies, and EN / VI injections blocked
 L1 only.</li>
 </ul>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/README.md#operations">README.md#operations</a> @ <code>89173d0ba5c1</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#operations">README.md#operations</a> @ <code>affcb7e33994</code></p>
   </main>
 </div>
 

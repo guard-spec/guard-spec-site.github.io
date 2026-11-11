@@ -160,7 +160,7 @@ in a second table.</p>
 <tr>
   <td><code>TOOL_CODE_CORROBORATION</code></td>
   <td><code>on</code></td>
-  <td>Tool results and documents that look like source code, configuration, a diff, a stack trace or a log (six or more lines, 60% of them code-like) are blocked only when L1 (a rule, not just keywords) or L3 agrees with the classifier (L2), which over-scores such text. <code>off</code> lets L2 alone block them again, as before 0.4.2. User, system and tool-description text is never affected; without the model layers it changes nothing. On the long path (<code>MAX_SCAN_TOKENS</code>) the rule applies to each token window, where L3 does not run, so only L1 can agree. Independently of this setting, a classifier whose <code>calibration.json</code> sets <code>l2_untrusted_max</code> counts up to that calibrated score only on tool results and documents (<code>fusion.l2_capped</code> in the rules), so that it never blocks untrusted content alone; the shipped v3b sets none. See <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/README.md#security-model-and-limitations">Security model</a></td>
+  <td>Tool results and documents that look like source code, configuration, a diff, a stack trace or a log (six or more lines, 60% of them code-like) are blocked only when L1 (a rule, not just keywords) or L3 agrees with the classifier (L2), which over-scores such text. <code>off</code> lets L2 alone block them again, as before 0.4.2. User, system and tool-description text is never affected; without the model layers it changes nothing. On the long path (<code>MAX_SCAN_TOKENS</code>) the rule applies to each token window, where L3 does not run, so only L1 can agree. Independently of this setting, a classifier whose <code>calibration.json</code> sets <code>l2_untrusted_max</code> counts up to that calibrated score only on tool results and documents (<code>fusion.l2_capped</code> in the rules), so that it never blocks untrusted content alone; the shipped v3b sets none. See <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#security-model-and-limitations">Security model</a></td>
 </tr>
 <tr>
   <td><code>SCAN_HISTORY</code></td>
@@ -170,7 +170,7 @@ in a second table.</p>
 <tr>
   <td><code>RESPONSES_SERVER_STATE</code></td>
   <td><code>refuse</code></td>
-  <td><code>/v1/responses</code> requests that refer to conversation state the upstream keeps (<code>previous_response_id</code>, <code>conversation</code>, <code>item_reference</code> input items) carry turns the gateway never sees in the request and cannot scan again: <code>refuse</code> answers them with 400 (<code>server_state_refused</code>); <code>allow</code> passes them and tags the audit row <code>input:server_state=1</code>. See <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/README.md#security-model-and-limitations">Security model</a></td>
+  <td><code>/v1/responses</code> requests that refer to conversation state the upstream keeps (<code>previous_response_id</code>, <code>conversation</code>, <code>item_reference</code> input items) carry turns the gateway never sees in the request and cannot scan again: <code>refuse</code> answers them with 400 (<code>server_state_refused</code>); <code>allow</code> passes them and tags the audit row <code>input:server_state=1</code>. See <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#security-model-and-limitations">Security model</a></td>
 </tr>
 <tr>
   <td><code>UNSCANNED_PARTS</code></td>
@@ -365,7 +365,42 @@ in a second table.</p>
 <tr>
   <td><code>LARGE_SCAN_QUEUE_TIMEOUT</code></td>
   <td><code>30s</code></td>
-  <td>How long a large request waits for the lane before 429 with <code>Retry-After</code></td>
+  <td>How long a large request waits for the lane before 429 with <code>Retry-After</code>; also how long a request waits for a free PDF extractor (<code>PDF_EXTRACT</code>)</td>
+</tr>
+<tr>
+  <td><code>PDF_EXTRACT</code></td>
+  <td><code>on</code></td>
+  <td><code>on</code> or <code>off</code>. <code>on</code>: the text of a PDF sent inline (a <code>document</code> block with a base64 source on <code>/v1/messages</code>, a <code>file</code> part with <code>file_data</code> on chat completions, an <code>input_file</code> item with <code>file_data</code> on <code>/v1/responses</code>) is extracted (hidden text, annotations and form fields included) and scanned as a document, so <code>INDIRECT_ACTION</code> and <code>MAX_SCAN_TOKENS</code> apply; the forwarded body is unchanged unless <code>redact</code> replaces the part with the document placeholder. A PDF that yields no text (<code>no_text</code>, <code>encrypted</code>, <code>damaged</code>, <code>timeout</code>, <code>over_limit</code>, <code>internal</code>) or that the gateway cannot fetch (a url or file id: <code>remote</code>) stays an unscanned part under <code>UNSCANNED_PARTS</code>, with audit tags <code>input:pdf_scanned=&lt;n&gt;</code> and <code>input:pdf_unscanned_&lt;reason&gt;=&lt;n&gt;</code> and the rule fields <code>input.pdf.count</code>, <code>input.pdf.scanned</code>, <code>input.pdf.reasons</code>. <code>off</code>: PDFs are unscanned parts, as in 0.5.0. No per-org override. See <a href="/docs/operations/#pdfs">PDFs</a></td>
+</tr>
+<tr>
+  <td><code>PDF_EXTRACT_MAX_BYTES</code></td>
+  <td><code>33554432</code> (32 MiB)</td>
+  <td>Largest PDF the extractor opens, in bytes (<code>1024</code> to <code>1073741824</code>); larger ones are <code>over_limit</code>. The body limit applies first: a PDF arrives base64-encoded, so the largest PDF that can reach the gateway is about 3/4 of <code>MAX_REQUEST_BYTES</code> (3 MiB by default). The start-up log states the effective limit and warns when this is set above it</td>
+</tr>
+<tr>
+  <td><code>PDF_EXTRACT_MAX_PAGES</code></td>
+  <td><code>600</code></td>
+  <td>Most pages extracted from one PDF (<code>1</code> to <code>100000</code>); more is <code>over_limit</code></td>
+</tr>
+<tr>
+  <td><code>PDF_EXTRACT_MAX_TEXT_BYTES</code></td>
+  <td><code>4194304</code> (4 MiB), or 4 × <code>MAX_SCAN_TOKENS</code> when that is smaller</td>
+  <td>Most text extracted from one PDF, in bytes (<code>1024</code> to <code>1073741824</code>); more is <code>over_limit</code>. With <code>MAX_SCAN_TOKENS</code> unset, text past the short path's 128 KiB of documents is <code>over_limit</code> as well</td>
+</tr>
+<tr>
+  <td><code>PDF_EXTRACT_TIMEOUT</code></td>
+  <td><code>10s</code></td>
+  <td>Wall-clock budget for one PDF (<code>100ms</code> to <code>10m</code>), the wait for an extractor excluded; past it the PDF is <code>timeout</code></td>
+</tr>
+<tr>
+  <td><code>PDF_EXTRACT_MEMORY</code></td>
+  <td><code>536870912</code> (512 MiB)</td>
+  <td>Memory cap of one PDFium instance (WebAssembly linear memory), in bytes (<code>33554432</code>, 32 MiB, to <code>4294967296</code>, 4 GiB); a document that needs more is <code>damaged</code></td>
+</tr>
+<tr>
+  <td><code>PDF_EXTRACT_MAX_CONCURRENCY</code></td>
+  <td>CPUs / 2 (at least 1)</td>
+  <td>PDFs extracted at once (<code>1</code> to <code>1024</code>); others wait up to <code>LARGE_SCAN_QUEUE_TIMEOUT</code>, then 429 with <code>Retry-After</code></td>
 </tr>
 <tr>
   <td><code>MAX_REQUEST_BYTES</code></td>
@@ -582,7 +617,7 @@ URL tried before Hugging Face: <code>&lt;mirror&gt;/&lt;name&gt;/&lt;version&gt;
 </tr>
 <tr>
   <td><code>GUARDSPEC_VERSION</code></td>
-  <td><code>0.5.0</code></td>
+  <td><code>0.6.0</code></td>
   <td>Tag of the <code>ghcr.io/guard-spec/guard-spec-*</code> images in <code>docker-compose.yml</code> (the dev override builds from source instead)</td>
 </tr>
 <tr>
@@ -598,7 +633,7 @@ URL tried before Hugging Face: <code>&lt;mirror&gt;/&lt;name&gt;/&lt;version&gt;
 </tbody>
 </table></div>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/README.md#configuration">README.md#configuration</a> @ <code>89173d0ba5c1</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#configuration">README.md#configuration</a> @ <code>affcb7e33994</code></p>
   </main>
 </div>
 

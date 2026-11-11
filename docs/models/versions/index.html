@@ -52,7 +52,7 @@ binary. L2 (our classifier, <code>guardspec-classifier</code>) and L3 (the
 <code>multilingual-e5-small</code> embedder) are ONNX models that are never baked into
 an image or committed to git: they are downloaded, verified and mounted at
 <code>/models</code>.</p>
-<p><a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/models/manifest.yaml"><code>models/manifest.yaml</code></a> lists every model version
+<p><a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/models/manifest.yaml"><code>models/manifest.yaml</code></a> lists every model version
 that can be pulled. The same file is built into the gateway and the <code>models</code>
 tool, so the binary always knows its recommended models.</p>
 <div class="table"><table>
@@ -232,7 +232,7 @@ shadow mode. v4 is v3b's architecture and recipe trained on more Vietnamese
 data (owner-written teencode, no-diacritics and banking rows, and new hard
 negatives); it blocks fewer benign Vietnamese messages. The comparison with
 v3b is below (<a href="#v3b-vs-v4">v3b vs v4</a>) and in
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v4&quot;).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v4&quot;).</p>
 <pre><code class="language-bash"># 1. Install it next to v3b (files checked against the manifest's SHA-256).
 #    It comes from the Hugging Face branch v4 at the pinned commit, with the
 #    GitHub release model-guardspec-classifier-v4 as the mirror.
@@ -310,13 +310,13 @@ trained on.</p>
 attacks (eval: 7 fewer of 1,171; lower on Vietnamese data exfiltration and
 tool poisoning and on English leet). It did not pass the pre-registered
 decision rule, which is why it is a candidate for shadow mode and not the
-default. <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v4&quot;) has every
+default. <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v4&quot;) has every
 table.</p>
 <h3 id="guardspec-classifier-v5-candidate">guardspec-classifier v5 (candidate)<a class="anchor" href="#guardspec-classifier-v5-candidate" aria-hidden="true">#</a></h3>
 <p><code>guardspec-classifier@v5</code> is listed in the manifest but is <strong>not</strong> the
 recommended version: v3b stays the default until v5 has run in shadow mode
-for at least 7 days and the owner decides (planned for v0.6.0). v5 is v3b's
-architecture, recipe and labels, trained window by window (the gateway's
+for at least 7 days and the owner decides (not in v0.6.0: after the shadow
+run, RF-895d3533). v5 is v3b's architecture, recipe and labels, trained window by window (the gateway's
 256-token windows instead of a truncated row) on the v4 data plus benign
 code, configuration, logs, stack traces and long prose as hard negatives and
 attacks embedded in such text (<code>train/DATA_CARD.md</code>, &quot;v5 data&quot;). It targets
@@ -419,7 +419,7 @@ generated <code>val_v3_holdout</code> attacks at the block threshold (0.887 vs 0
 and on the tool path the cap keeps embedded attacks that only the classifier
 recognises below the block threshold (<code>val_v5_holdout</code>: 0.623 vs 0.665 at
 0.85, although it ranks them far better). The selection rule, every table
-and the data are in <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v5&quot;).</p>
+and the data are in <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v5&quot;).</p>
 <h2 id="reloading-without-a-restart">Reloading without a restart<a class="anchor" href="#reloading-without-a-restart" aria-hidden="true">#</a></h2>
 <p><code>kill -HUP</code> the gateway, or <code>POST /admin/models/reload</code> with
 <code>GATEWAY_ADMIN_TOKEN</code>, loads the classifier again (or another version), checks
@@ -462,7 +462,7 @@ no restart.</li>
 <h2 id="releasing-a-new-model-version">Releasing a new model version<a class="anchor" href="#releasing-a-new-model-version" aria-hidden="true">#</a></h2>
 <p>For maintainers. The example releases <code>guardspec-classifier</code> <code>v4</code>.</p>
 <ol>
-<li><strong>Train</strong> with <code>train/</code> (see <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/train/MODEL_CARD.md">train/MODEL_CARD.md</a>).
+<li><strong>Train</strong> with <code>train/</code> (see <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/train/MODEL_CARD.md">train/MODEL_CARD.md</a>).
 Choose epochs, thresholds and calibration on the validation splits only.
 <code>eval/</code> is never used for tuning.</li>
 <li><strong>Calibrate</strong>: <code>go run -tags onnx ./cmd/calibrate fit -write</code> writes
@@ -496,7 +496,7 @@ its cosign bundle
 </ol>
 <p>The next software release then ships the manifest that recommends v4.</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/docs/models.md">docs/models.md</a> @ <code>89173d0ba5c1</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/models.md">docs/models.md</a> @ <code>affcb7e33994</code></p>
   </main>
 </div>
 

@@ -50,7 +50,7 @@
 <p>This page is for the people who deploy and operate Guard Spec. It lists the
 risks that remain when Guard Spec is in front of your LLM, and what you can do
 about each. For what the gateway does and does not protect against, read
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/README.md#security-model-and-limitations">Security model and limitations</a>
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#security-model-and-limitations">Security model and limitations</a>
 first. To report a vulnerability, follow <a href="/docs/security/policy/">SECURITY.md</a>.</p>
 <p>Guard Spec is one layer of defence. It lowers the chance that an injected
 instruction reaches the model and limits what the answer can leak. It does not
@@ -99,8 +99,8 @@ make an LLM application safe on its own.</p>
 <tr>
   <td>D4</td>
   <td>Indirect injection in content you do not scan</td>
-  <td>Tool results, system prompts, files or images are not checked</td>
-  <td><code>SCAN_ROLES</code>, per-org <code>scan_roles</code>, <code>SPOTLIGHT</code>, send extracted text, <code>UNSCANNED_PARTS=block</code></td>
+  <td>System prompts, images, scanned or remote PDFs are not checked</td>
+  <td><code>SCAN_ROLES</code>, per-org <code>scan_roles</code>, <code>SPOTLIGHT</code>, <code>PDF_EXTRACT</code> (default), send extracted text, <code>UNSCANNED_PARTS=block</code></td>
 </tr>
 <tr>
   <td>D5</td>
@@ -230,7 +230,7 @@ make an LLM application safe on its own.</p>
 Vietnamese, encodings that L1 only partly decodes (such as base64) and
 multi-turn attacks that look harmless in each single message can pass. With
 the default model layers the eval set shows a true positive rate of about 0.93
-at the block threshold (see <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/README.md#benchmarks">Benchmarks</a>); the rest
+at the block threshold (see <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#benchmarks">Benchmarks</a>); the rest
 reach the model.</p>
 <p>What to do:</p>
 <ul>
@@ -265,10 +265,16 @@ model layers, or use the <code>gateway-full</code> image, which ships them.</li>
 <p>By default the gateway classifies user messages, tool results and MCP tool
 descriptions (<code>SCAN_ROLES=user,tool,tool_descriptions</code>). System prompts and
 the model's tool-call arguments are not classified unless you add them.
-Images, files (PDFs and others) and audio in a request are forwarded to the
-model unread: an injection inside a PDF or an image is not classified. With
-the default <code>UNSCANNED_PARTS=log</code> they are counted in the audit row
-(<code>input:unscanned_&lt;kind&gt;=&lt;n&gt;</code>), so you can see where they come from.</p>
+A PDF sent inline is read by the gateway (<code>PDF_EXTRACT</code>, on by default):
+its text, hidden text, annotations and form fields included, is scanned as a
+document. What remains unread goes to the model as it is: images and audio,
+a PDF with no text layer (a scan; the gateway does not run OCR), an
+encrypted or damaged PDF, a PDF over the limits (more than about 30k tokens
+of text without <code>MAX_SCAN_TOKENS</code>, or over <code>PDF_EXTRACT_MAX_*</code>), a file the
+provider fetches by URL or file id, and other file types. An injection
+inside those is not classified. With the default <code>UNSCANNED_PARTS=log</code> they
+are counted in the audit row (<code>input:unscanned_&lt;kind&gt;=&lt;n&gt;</code>,
+<code>input:pdf_unscanned_&lt;reason&gt;=&lt;n&gt;</code>), so you can see where they come from.</p>
 <p>What to do:</p>
 <ul>
 <li>If your system prompt contains user-controlled or retrieved text, add
@@ -277,9 +283,14 @@ the default <code>UNSCANNED_PARTS=log</code> they are counted in the audit row
 you put them in a prompt.</li>
 <li>Turn on <code>SPOTLIGHT</code> (<code>delimit</code> or <code>datamark</code>) so the model can tell data from
 instructions.</li>
-<li>Have the application send the text of files (extracted, OCR for scans)
-instead of the files, and set <code>UNSCANNED_PARTS=block</code> (or <code>unscanned_parts</code>
-per organization, or a rule on <code>input.unscanned.kinds</code>) once it does. With
+<li>Keep <code>PDF_EXTRACT=on</code> and set <code>MAX_SCAN_TOKENS</code> high enough for the
+documents your users send, so that a long PDF is scanned rather than
+<code>over_limit</code>; refuse what the gateway cannot read with a rule on
+<code>input.pdf.reasons</code> (for example <code>no_text</code>, <code>encrypted</code>, <code>remote</code>).</li>
+<li>Have the application send the text of files the gateway cannot read
+(OCR for scans, extracted text for files held by the provider) instead of
+the files, and set <code>UNSCANNED_PARTS=block</code> (or <code>unscanned_parts</code> per
+organization, or a rule on <code>input.unscanned.kinds</code>) once it does. With
 untrusted images in the context, limit the agent's tools and confirm risky
 actions. See <a href="/docs/quickstart/integrations/#files-pdfs-and-images">Files, PDFs and images</a>.</li>
 </ul>
@@ -485,7 +496,7 @@ Postgres, and alert on 503 rates and <code>/readyz</code>.</p>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>UPSTREAM_ALLOW_PRIVATE=false</code> and a narrow <code>UPSTREAM_KEY_ORGS</code></li>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>TRUSTED_PROXIES</code> lists exactly your proxies</li>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>SCAN_ROLES</code> covers every place untrusted text enters your prompts</li>
-<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Files sent as extracted text; <code>UNSCANNED_PARTS=block</code> where no application needs to send files, images or audio</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/><code>PDF_EXTRACT=on</code> with <code>MAX_SCAN_TOKENS</code> sized for your documents; other files sent as extracted text; <code>UNSCANNED_PARTS=block</code> where no application needs to send files, images or audio</li>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>A short link allowlist; no auto-linking of model output in your UI</li>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Content storage off; <code>AUDIT_RETENTION_DAYS</code> set</li>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>SSO or required 2FA for everyone with admin access</li>
@@ -494,7 +505,7 @@ Postgres, and alert on 503 rates and <code>/readyz</code>.</p>
 <li class="task-list-item"><input class="task-list-item-checkbox" type="checkbox" disabled/>Tools authorised in your application; risky actions confirmed by a person</li>
 </ul>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/docs/security-risks.md">docs/security-risks.md</a> @ <code>89173d0ba5c1</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/security-risks.md">docs/security-risks.md</a> @ <code>affcb7e33994</code></p>
   </main>
 </div>
 

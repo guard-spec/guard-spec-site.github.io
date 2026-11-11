@@ -242,7 +242,7 @@ the Python detectors; <code>cmd/eval</code> times every row, model loading exclu
 <p>Every dataset was checked on its Hugging Face card at the pinned commit. The
 benchmark downloads them at run time; no row from them is stored in this
 repository beyond what <code>eval/</code> already contains (see
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/eval/LICENSES.md">eval/LICENSES.md</a>).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/eval/LICENSES.md">eval/LICENSES.md</a>).</p>
 <div class="table"><table>
 <thead>
 <tr>
@@ -306,7 +306,7 @@ repository beyond what <code>eval/</code> already contains (see
 <p>Row counts and languages per run are in the generated tables below.</p>
 <p><strong>Vietnamese.</strong> We found no public, licensed Vietnamese prompt-injection
 dataset. The only Vietnamese rows here are those of <code>eval/</code>, which are
-synthetic and labelled by AI agents (see <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/eval/README.md">eval/README.md</a>).</p>
+synthetic and labelled by AI agents (see <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/eval/README.md">eval/README.md</a>).</p>
 <p><strong>Language column.</strong> <code>eval/</code> carries a language per row (<code>en</code>, <code>vi</code>). For the
 public sets, rows with German, Spanish or Cyrillic markers (the rule of
 <code>eval/build/build.py</code>) are <code>other</code>, the rest <code>en</code>. Only <code>deepset</code> has a
@@ -315,7 +315,7 @@ sizeable <code>other</code> share.</p>
 <ul>
 <li>Guard Spec's classifier (L2, v3b) was trained on the <code>train</code> splits of
 <code>deepset/prompt-injections</code>, <code>Lakera/gandalf_ignore_instructions</code> and
-<code>jackhhao/jailbreak-classification</code> (<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/train/DATA_LICENSES.md">train/DATA_LICENSES.md</a>).
+<code>jackhhao/jailbreak-classification</code> (<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/train/DATA_LICENSES.md">train/DATA_LICENSES.md</a>).
 The benchmark uses only their <code>test</code> splits, but those come from the same
 distribution, which favours Guard Spec on these three sets.</li>
 <li>ProtectAI v2 lists <code>jackhhao/jailbreak-classification</code> among its training
@@ -323,7 +323,7 @@ sets (split not stated), so the same holds for it there.</li>
 <li>The English <code>test</code> rows of <code>deepset</code> and <code>Gandalf</code> are also part of
 <code>eval/</code> (60 of 116 and 111 of 112 rows).</li>
 <li>Guard Spec's L1 rules were refined by reading failures on the &quot;dev&quot; half of
-<code>eval/</code> (<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/eval/README.md">eval/README.md</a>); L1 numbers on <code>eval/</code> are
+<code>eval/</code> (<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/eval/README.md">eval/README.md</a>); L1 numbers on <code>eval/</code> are
 optimistic. L2, L3 and the fusion were never fitted on <code>eval/</code>.</li>
 <li>Nothing in this benchmark was used to change Guard Spec.</li>
 </ul>
@@ -1139,7 +1139,7 @@ measures that, with <code>make bench-long</code> (<code>bench/long/</code>, <cod
 <p><strong>Setup.</strong> The corpus is built from pinned public sources (Wikipedia EN/VI,
 the U.S. Code, Go source code, Vietnamese public-domain literature and laws
 from vi.wikisource; licences in
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/bench/long/corpus.yaml"><code>bench/long/corpus.yaml</code></a>), plus seeded synthetic
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/bench/long/corpus.yaml"><code>bench/long/corpus.yaml</code></a>), plus seeded synthetic
 logs, JSON, CSV, e-mail threads, chat transcripts and hard negatives (benign
 text about prompt injection). Texts of one genre are joined to 20k, 50k,
 100k, 200k and 500k tokens. Attack documents put one payload from the
@@ -1165,9 +1165,9 @@ Runtime 1.31.1, <code>guardspec-classifier-v3b</code>, 2026-11-09, run from the
 branch that added the benchmark; 26 benign documents (0.86M tokens), 12
 payloads per language. Small samples: one 100k document per language, and
 12 attacks per cell (one attack is 8 points). Full tables:
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/bench/results/long-m3max-local.md"><code>bench/results/long-m3max-local.md</code></a>.
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/bench/results/long-m3max-local.md"><code>bench/results/long-m3max-local.md</code></a>.
 The 4 vCPU and 2 vCPU runs on GitHub's runners come from
-<a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/.github/workflows/bench-long.yml"><code>bench-long.yml</code></a> after merge.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/.github/workflows/bench-long.yml"><code>bench-long.yml</code></a> after merge.</p>
 <p>False positives of benign text at the 0.85 block threshold (<code>l1,l2</code>):</p>
 <div class="table"><table>
 <thead>
@@ -1292,7 +1292,7 @@ hardware or your own documents.</p>
 <p>The results will also appear on <a href="https://guardspec.io/docs/">guardspec.io/docs</a>,
 which is built from this page.</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/89173d0ba5c10ae1c453974c72f70f6b2d7f6cdb/docs/benchmark.md">docs/benchmark.md</a> @ <code>89173d0ba5c1</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/benchmark.md">docs/benchmark.md</a> @ <code>affcb7e33994</code></p>
   </main>
 </div>
 
