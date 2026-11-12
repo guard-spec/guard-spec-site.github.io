@@ -160,7 +160,7 @@ in a second table.</p>
 <tr>
   <td><code>TOOL_CODE_CORROBORATION</code></td>
   <td><code>on</code></td>
-  <td>Tool results and documents that look like source code, configuration, a diff, a stack trace or a log (six or more lines, 60% of them code-like) are blocked only when L1 (a rule, not just keywords) or L3 agrees with the classifier (L2), which over-scores such text. <code>off</code> lets L2 alone block them again, as before 0.4.2. User, system and tool-description text is never affected; without the model layers it changes nothing. On the long path (<code>MAX_SCAN_TOKENS</code>) the rule applies to each token window, where L3 does not run, so only L1 can agree. Independently of this setting, a classifier whose <code>calibration.json</code> sets <code>l2_untrusted_max</code> counts up to that calibrated score only on tool results and documents (<code>fusion.l2_capped</code> in the rules), so that it never blocks untrusted content alone; the shipped v3b sets none. See <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#security-model-and-limitations">Security model</a></td>
+  <td>Tool results and documents that look like source code, configuration, a diff, a stack trace or a log (six or more lines, 60% of them code-like) are blocked only when L1 (a rule, not just keywords) or L3 agrees with the classifier (L2), which over-scores such text. <code>off</code> lets L2 alone block them again, as before 0.4.2. User, system and tool-description text is never affected; without the model layers it changes nothing. On the long path (<code>MAX_SCAN_TOKENS</code>) the rule applies to each token window, where L3 does not run, so only L1 can agree. Independently of this setting, a classifier whose <code>calibration.json</code> sets <code>l2_untrusted_max</code> counts up to that calibrated score only on tool results and documents (<code>fusion.l2_capped</code> in the rules), so that it never blocks untrusted content alone; the shipped v3b sets none. See <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#security-model-and-limitations">Security model</a></td>
 </tr>
 <tr>
   <td><code>SCAN_HISTORY</code></td>
@@ -170,7 +170,7 @@ in a second table.</p>
 <tr>
   <td><code>RESPONSES_SERVER_STATE</code></td>
   <td><code>refuse</code></td>
-  <td><code>/v1/responses</code> requests that refer to conversation state the upstream keeps (<code>previous_response_id</code>, <code>conversation</code>, <code>item_reference</code> input items) carry turns the gateway never sees in the request and cannot scan again: <code>refuse</code> answers them with 400 (<code>server_state_refused</code>); <code>allow</code> passes them and tags the audit row <code>input:server_state=1</code>. See <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#security-model-and-limitations">Security model</a></td>
+  <td><code>/v1/responses</code> requests that refer to conversation state the upstream keeps (<code>previous_response_id</code>, <code>conversation</code>, <code>item_reference</code> input items) carry turns the gateway never sees in the request and cannot scan again: <code>refuse</code> answers them with 400 (<code>server_state_refused</code>); <code>allow</code> passes them and tags the audit row <code>input:server_state=1</code>. See <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#security-model-and-limitations">Security model</a></td>
 </tr>
 <tr>
   <td><code>UNSCANNED_PARTS</code></td>
@@ -339,13 +339,28 @@ in a second table.</p>
 </tr>
 <tr>
   <td><code>INFERENCE_MAX_CONCURRENCY</code></td>
-  <td>number of CPUs</td>
+  <td>number of CPUs (<code>2</code> on CUDA)</td>
   <td>Concurrent model runs per process</td>
 </tr>
 <tr>
   <td><code>INFERENCE_INTRA_OP_THREADS</code></td>
   <td>ORT's choice (Linux: min(4, CPUs); with L2+L3 each gets min(4, CPUs/2))</td>
   <td>ONNX Runtime threads per session</td>
+</tr>
+<tr>
+  <td><code>INFERENCE_PROVIDER</code></td>
+  <td><code>cpu</code> (<code>cuda</code> in an image built from <code>build/gateway-gpu.Dockerfile</code>)</td>
+  <td>ONNX Runtime execution provider. <code>cpu</code> is the default and needs nothing else. <code>cuda</code> (the GPU option: your own image from <code>build/gateway-gpu.Dockerfile</code>, which is not published; an NVIDIA GPU; the FP16 model) runs the models with the CUDA execution provider; when CUDA cannot start the gateway exits with an error saying why. <code>auto</code> uses CUDA when it starts, else the CPU with a warning. <code>/readyz</code> (<code>detector.inference</code>) and <code>doctor</code> report the provider, GPU, CUDA and ONNX Runtime versions and the model file. See <a href="/docs/deploy/#gpu-optional">GPU</a></td>
+</tr>
+<tr>
+  <td><code>INFERENCE_CUDA_DEVICE_ID</code></td>
+  <td><code>0</code></td>
+  <td>CUDA device of <code>INFERENCE_PROVIDER=cuda</code> or <code>auto</code></td>
+</tr>
+<tr>
+  <td><code>INFERENCE_BATCH_SIZE</code></td>
+  <td><code>8</code> on the short path and <code>16</code> on the long path; <code>8</code> for both on CUDA</td>
+  <td>Token windows per model run, on the short and the long path (<code>1</code> to <code>1024</code>)</td>
 </tr>
 <tr>
   <td><code>MAX_SCAN_TOKENS</code></td>
@@ -370,7 +385,7 @@ in a second table.</p>
 <tr>
   <td><code>PDF_EXTRACT</code></td>
   <td><code>on</code></td>
-  <td><code>on</code> or <code>off</code>. <code>on</code>: the text of a PDF sent inline (a <code>document</code> block with a base64 source on <code>/v1/messages</code>, a <code>file</code> part with <code>file_data</code> on chat completions, an <code>input_file</code> item with <code>file_data</code> on <code>/v1/responses</code>) is extracted (hidden text, annotations and form fields included) and scanned as a document, so <code>INDIRECT_ACTION</code> and <code>MAX_SCAN_TOKENS</code> apply; the forwarded body is unchanged unless <code>redact</code> replaces the part with the document placeholder. A PDF that yields no text (<code>no_text</code>, <code>encrypted</code>, <code>damaged</code>, <code>timeout</code>, <code>over_limit</code>, <code>internal</code>) or that the gateway cannot fetch (a url or file id: <code>remote</code>) stays an unscanned part under <code>UNSCANNED_PARTS</code>, with audit tags <code>input:pdf_scanned=&lt;n&gt;</code> and <code>input:pdf_unscanned_&lt;reason&gt;=&lt;n&gt;</code> and the rule fields <code>input.pdf.count</code>, <code>input.pdf.scanned</code>, <code>input.pdf.reasons</code>. <code>off</code>: PDFs are unscanned parts, as in 0.5.0. No per-org override. See <a href="/docs/operations/#pdfs">PDFs</a></td>
+  <td><code>on</code> or <code>off</code>. <code>on</code>: the text of a PDF sent inline (a <code>document</code> block with a base64 source on <code>/v1/messages</code>, a <code>file</code> part with <code>file_data</code> on chat completions, an <code>input_file</code> item with <code>file_data</code> on <code>/v1/responses</code>) is extracted (hidden text, annotations and form fields included) and scanned as a document, so <code>INDIRECT_ACTION</code> and <code>MAX_SCAN_TOKENS</code> apply; the forwarded body is unchanged unless <code>redact</code> replaces the part with the document placeholder. A PDF that yields no text (<code>no_text</code>, <code>encrypted</code>, <code>damaged</code>, <code>timeout</code>, <code>over_limit</code>, <code>internal</code>) or that the gateway cannot fetch (a url or file id: <code>remote</code>) stays an unscanned part under <code>UNSCANNED_PARTS</code>, with audit tags <code>input:pdf_scanned=&lt;n&gt;</code> and <code>input:pdf_unscanned_&lt;reason&gt;=&lt;n&gt;</code> and the rule fields <code>input.pdf.count</code>, <code>input.pdf.scanned</code>, <code>input.pdf.reasons</code>. <code>off</code>: PDFs are unscanned parts, as in 0.5.0. No per-org override of extraction; an organization can refuse PDFs or unreadable ones with its <a href="/docs/operations/#per-organization-input-settings">input settings</a>. See <a href="/docs/operations/#pdfs">PDFs</a></td>
 </tr>
 <tr>
   <td><code>PDF_EXTRACT_MAX_BYTES</code></td>
@@ -497,7 +512,7 @@ in a second table.</p>
 <tr>
   <td><code>TRUSTED_PROXIES</code></td>
   <td>empty</td>
-  <td>Comma-separated CIDRs or addresses of reverse proxies. Their <code>X-Forwarded-For</code> is read from the right, and the first address that is not a trusted proxy is the client, for rate limits, sessions and the activity log. Empty: the header is ignored and the TCP peer is the client</td>
+  <td>Comma-separated CIDRs or addresses of reverse proxies. Their <code>X-Forwarded-For</code> is read from the right, and the first address that is not a trusted proxy is the client, for rate limits, sessions and the activity log. The gateway reads it too, for API keys limited to addresses (<code>allowed_cidrs</code>). Empty: the header is ignored and the TCP peer is the client</td>
 </tr>
 <tr>
   <td><code>MFA_ENC_KEY</code></td>
@@ -617,7 +632,7 @@ URL tried before Hugging Face: <code>&lt;mirror&gt;/&lt;name&gt;/&lt;version&gt;
 </tr>
 <tr>
   <td><code>GUARDSPEC_VERSION</code></td>
-  <td><code>0.6.0</code></td>
+  <td><code>0.7.0</code></td>
   <td>Tag of the <code>ghcr.io/guard-spec/guard-spec-*</code> images in <code>docker-compose.yml</code> (the dev override builds from source instead)</td>
 </tr>
 <tr>
@@ -633,7 +648,7 @@ URL tried before Hugging Face: <code>&lt;mirror&gt;/&lt;name&gt;/&lt;version&gt;
 </tbody>
 </table></div>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#configuration">README.md#configuration</a> @ <code>affcb7e33994</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#configuration">README.md#configuration</a> @ <code>c81d88c99140</code></p>
   </main>
 </div>
 

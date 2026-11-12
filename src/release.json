@@ -1,52 +1,61 @@
 {
   "_comment": "The current release, shown on the landing page (hero badge, 'New in' link, What's new section). On each release: update this file, bump ref in src/docs.json, run build.py, run check_site.py --external. Text may hold inline HTML (<code>). 'previous' lists the newest first; keep about four. Optional 'also' (label, text): a highlighted note at the top of What's new for a release that is not a gateway version (for example a model candidate); remove it when the next gateway release covers it.",
-  "version": "v0.6.0",
-  "date": "2026-11-11",
-  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.6.0",
-  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.6.0/CHANGELOG.md#060---2026-11-11",
+  "version": "v0.7.0",
+  "date": "2026-11-13",
+  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.7.0",
+  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.7.0/CHANGELOG.md#070---2026-11-13",
   "status": {
     "en": "pre-1.0",
     "vi": "trước 1.0"
   },
   "tagline": {
-    "en": "PDFs read and scanned, and Go 1.26.11",
-    "vi": "Đọc và quét PDF, và Go 1.26.11"
+    "en": "Policy history and two-person approval, per-org input settings, a GPU option",
+    "vi": "Lịch sử policy và duyệt 2 người, cấu hình input theo org, tùy chọn GPU"
   },
   "upgrade": {
-    "en": "Upgrading: no migration. <code>PDF_EXTRACT</code> is <code>on</code> by default, so inline PDFs that 0.5.0 forwarded unread are now scanned and can be blocked; prefer <code>INDIRECT_ACTION=redact</code> for document-heavy apps, or set <code>PDF_EXTRACT=off</code> to keep 0.5.0 behaviour. v3b stays the classifier.",
-    "vi": "Khi nâng cấp: không có migration. <code>PDF_EXTRACT</code> mặc định là <code>on</code>, nên PDF gửi kèm mà 0.5.0 chuyển đi không đọc giờ được quét và có thể bị chặn; ứng dụng nhiều tài liệu nên dùng <code>INDIRECT_ACTION=redact</code>, hoặc đặt <code>PDF_EXTRACT=off</code> để giữ hành vi 0.5.0. Classifier vẫn là v3b."
+    "en": "Upgrading: apply migrations 026–030 before a 0.7.0 gateway starts (the compose <code>migrate</code> job does). Behind a proxy, set <code>TRUSTED_PROXIES</code> before using <code>allowed_cidrs</code>. Approval, key limits and input settings stay off until an admin turns them on. The images fix CVE-2026-84243 (glibc). v3b stays the classifier.",
+    "vi": "Khi nâng cấp: chạy migration 026–030 trước khi gateway 0.7.0 khởi động (job <code>migrate</code> của compose làm việc này). Đứng sau proxy thì đặt <code>TRUSTED_PROXIES</code> trước khi dùng <code>allowed_cidrs</code>. Duyệt 2 người, giới hạn key và cấu hình input đều tắt cho tới khi admin bật. Image đã vá CVE-2026-84243 (glibc). Classifier vẫn là v3b."
   },
   "highlights": {
     "en": [
       {
-        "title": "PDF text extraction",
-        "text": "A PDF sent inline on <code>/v1/messages</code>, chat completions or <code>/v1/responses</code> has its text extracted by PDFium in WebAssembly (no cgo, no external service) and scanned as a document, hidden text included: white, tiny and off-page text, annotations and form fields."
+        "title": "Governance",
+        "text": "Policy history with diff and rollback, opt-in two-person approval for disabling a policy or storing content, API keys limited by network (<code>allowed_cidrs</code>), lifetime and rotation, and a CSV report of the request log."
       },
       {
-        "title": "What cannot be read is recorded",
-        "text": "Scanned, encrypted, damaged, oversized and remote PDFs stay unscanned parts under <code>UNSCANNED_PARTS</code>, with the reason in the audit log, in rules (<code>input.pdf.*</code>) and in metrics. There is no OCR."
+        "title": "Input settings and false positives",
+        "text": "Per organization: <code>text_only</code> or <code>hybrid</code> input, unreadable-file handling and a token limit. A getting-started checklist, and one-click false-positive handling from the request details with each layer's score and an impact preview."
       },
       {
-        "title": "Go 1.26.11",
-        "text": "Fixes GO-2026-6859 in <code>net/http</code> of the Go standard library, which the 0.5.0 images were built with."
+        "title": "GPU option",
+        "text": "<code>INFERENCE_PROVIDER=cuda</code> runs the models on ONNX Runtime's CUDA provider: a 200k-token document in about 3 s on an NVIDIA L4. The CPU stays the default; build your GPU image from <code>build/gateway-gpu.Dockerfile</code>."
       }
     ],
     "vi": [
       {
-        "title": "Trích văn bản PDF",
-        "text": "PDF gửi kèm trên <code>/v1/messages</code>, chat completions hay <code>/v1/responses</code> được PDFium chạy trong WebAssembly trích văn bản (không cgo, không dịch vụ ngoài) và quét như tài liệu, kể cả chữ ẩn: chữ trắng, chữ cực nhỏ, chữ ngoài trang, chú thích và trường form."
+        "title": "Quản trị",
+        "text": "Lịch sử policy có diff và rollback, duyệt 2 người (tùy chọn) khi tắt policy hay lưu nội dung, API key giới hạn theo mạng (<code>allowed_cidrs</code>), thời hạn và xoay key, cùng báo cáo CSV của request log."
       },
       {
-        "title": "Ghi lại phần không đọc được",
-        "text": "PDF dạng scan, có mật khẩu, hỏng, quá lớn hoặc gửi bằng URL vẫn là phần không quét dưới <code>UNSCANNED_PARTS</code>, kèm lý do trong audit log, trong rule (<code>input.pdf.*</code>) và metric. Chưa có OCR."
+        "title": "Cấu hình input và chặn nhầm",
+        "text": "Theo từng org: input <code>text_only</code> hoặc <code>hybrid</code>, cách xử lý file không đọc được và giới hạn token. Có danh sách việc cần làm khi bắt đầu, và xử lý chặn nhầm một chạm ngay trong chi tiết request, kèm điểm từng lớp và ước tính ảnh hưởng."
       },
       {
-        "title": "Go 1.26.11",
-        "text": "Vá GO-2026-6859 trong <code>net/http</code> của thư viện chuẩn Go, bản mà image 0.5.0 dùng để build."
+        "title": "Tùy chọn GPU",
+        "text": "<code>INFERENCE_PROVIDER=cuda</code> chạy model trên CUDA provider của ONNX Runtime: tài liệu 200k token mất khoảng 3 s trên NVIDIA L4. CPU vẫn là mặc định; tự build image GPU từ <code>build/gateway-gpu.Dockerfile</code>."
       }
     ]
   },
   "previous": [
+    {
+      "version": "v0.6.0",
+      "date": "2026-11-11",
+      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.6.0",
+      "summary": {
+        "en": "PDFs sent inline are read and scanned (hidden text included), unreadable ones recorded; Go 1.26.11 for GO-2026-6859.",
+        "vi": "PDF gửi kèm được đọc và quét (kể cả chữ ẩn), file không đọc được được ghi lại; Go 1.26.11 vá GO-2026-6859."
+      }
+    },
     {
       "version": "v0.5.0",
       "date": "2026-11-10",
@@ -73,15 +82,16 @@
         "en": "Security fix: saving an organization's security settings no longer lifts its login method restriction.",
         "vi": "Vá bảo mật: lưu cài đặt bảo mật của tổ chức không còn làm mất giới hạn phương thức đăng nhập."
       }
-    },
-    {
-      "version": "v0.4.0",
-      "date": "2026-11-08",
-      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.4.0",
-      "summary": {
-        "en": "Images with no known CVE, stored content encrypted per organization, personal data kept from the model, content access with a tamper-evident log, SIEM export as OCSF, PagerDuty and Opsgenie, secrets from files and Vault.",
-        "vi": "Image không còn CVE đã biết, mã hoá nội dung lưu trữ theo tổ chức, giữ dữ liệu cá nhân khỏi model, quyền xem nội dung và nhật ký chống sửa, xuất SIEM dạng OCSF, PagerDuty và Opsgenie, secret từ file và Vault."
-      }
     }
-  ]
+  ],
+  "also": {
+    "label": {
+      "en": "Classifier v6 candidate",
+      "vi": "Classifier v6 (ứng viên)"
+    },
+    "text": {
+      "en": "<a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v6\"><code>guardspec-classifier@v6</code></a> is published as a signed pre-release (Hugging Face branch <code>v6</code>), with an FP16 file for the GPU option. Not the default: run it in shadow mode first. The goal of at most 1% blocked clean 100k–200k-token documents is not met yet.",
+      "vi": "<a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v6\"><code>guardspec-classifier@v6</code></a> đã phát hành dạng pre-release có chữ ký (nhánh <code>v6</code> trên Hugging Face), có file FP16 cho tùy chọn GPU. Không phải mặc định: chạy shadow mode trước. Mục tiêu chặn nhầm tối đa 1% tài liệu sạch 100k–200k token vẫn chưa đạt."
+    }
+  }
 }

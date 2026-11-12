@@ -52,7 +52,7 @@ L2 (classifier của chúng tôi, <code>guardspec-classifier</code>) và L3 (emb
 <code>multilingual-e5-small</code>) là các model ONNX, không bao giờ được đóng sẵn vào
 image hay commit vào git: chúng được tải về, kiểm tra rồi mount vào
 <code>/models</code>.</p>
-<p><a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/models/manifest.yaml"><code>models/manifest.yaml</code></a> liệt kê mọi phiên bản model
+<p><a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/models/manifest.yaml"><code>models/manifest.yaml</code></a> liệt kê mọi phiên bản model
 có thể tải về. Cùng file này được build vào gateway và công cụ <code>models</code>, nên
 binary luôn biết các model nó khuyến nghị.</p>
 <div class="table"><table>
@@ -86,6 +86,13 @@ binary luôn biết các model nó khuyến nghị.</p>
   <td>L2</td>
   <td>không: bản ứng viên cho code, log và tài liệu dài, <a href="#guardspec-classifier-v5-bản-ứng-viên">shadow mode trước</a></td>
   <td>Hugging Face <code>guard-spec/guardspec-classifier</code> (nhánh <code>v5</code>), sau đó là GitHub Release <code>model-guardspec-classifier-v5</code></td>
+</tr>
+<tr>
+  <td><code>guardspec-classifier</code></td>
+  <td><code>v6</code></td>
+  <td>L2</td>
+  <td>không: bản ứng viên cho tài liệu dài, có file FP16 cho tùy chọn GPU, <a href="#guardspec-classifier-v6-bản-ứng-viên">shadow mode trước</a></td>
+  <td>Hugging Face <code>guard-spec/guardspec-classifier</code> (nhánh <code>v6</code>), sau đó là GitHub Release <code>model-guardspec-classifier-v6</code></td>
 </tr>
 <tr>
   <td><code>multilingual-e5-small</code></td>
@@ -122,6 +129,12 @@ chúng tôi train, tên phiên bản là 7 ký tự đầu của revision Huggin
 </code></pre>
 <p>Nhiều phiên bản của cùng một model có thể nằm cạnh nhau; nhờ vậy rollback chỉ
 cần một lần khởi động lại.</p>
+<p>Với tùy chọn GPU (<a href="/vi/docs/deploy/#gpu-tùy-chọn">triển khai, GPU</a>), một
+phiên bản bộ phân loại có thể có thêm <code>model_fp16.onnx</code>: cùng checkpoint ở
+dạng FP16 cho CUDA execution provider của ONNX Runtime (<code>train/export.py --fp16</code>). Manifest đánh dấu file này <code>provider: cuda</code>: <code>models pull -provider cuda</code> (hoặc <code>INFERENCE_PROVIDER=cuda</code>/<code>auto</code>, như trong image GPU) sẽ tải
+nó, bản cài cho CPU không bao giờ tải, và CPU vẫn nạp <code>model_int8.onnx</code>.
+Hiện chỉ <code>guardspec-classifier@v6</code> có file này; với phiên bản khác (kể cả
+v3b, bản mặc định) CUDA chạy file INT8, chậm, và <code>doctor</code> cảnh báo.</p>
 <h2 id="tải-model">Tải model<a class="anchor" href="#tải-model" aria-hidden="true">#</a></h2>
 <pre><code class="language-bash"># Docker: models-init does this before the gateway starts, on every `up`
 docker compose --profile models run --rm models-pull                           # recommended versions
@@ -233,7 +246,7 @@ v4 dùng cùng kiến trúc và công thức train của v3b nhưng train trên 
 liệu tiếng Việt hơn (các dòng teencode, không dấu và ngân hàng do chủ dự án
 viết, cùng các hard negative mới); nó chặn ít tin nhắn tiếng Việt vô hại hơn.
 Phần so sánh với v3b ở bên dưới (<a href="#v3b-so-với-v4">v3b so với v4</a>) và trong
-<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v4&quot;).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v4&quot;).</p>
 <pre><code class="language-bash"># 1. Install it next to v3b (files checked against the manifest's SHA-256).
 #    It comes from the Hugging Face branch v4 at the pinned commit, with the
 #    GitHub release model-guardspec-classifier-v4 as the mirror.
@@ -311,12 +324,11 @@ lần cho v4; owner hold-out là dữ liệu do chủ dự án viết mà không
 chút (eval: ít hơn 7 trên 1,171; thấp hơn ở rò rỉ dữ liệu và tool poisoning
 tiếng Việt, và ở leet tiếng Anh). Nó không vượt qua quy tắc quyết định đã đăng
 ký trước, nên nó là bản ứng viên cho shadow mode chứ không phải mặc định.
-<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v4&quot;) có đầy đủ các bảng.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v4&quot;) có đầy đủ các bảng.</p>
 <h3 id="guardspec-classifier-v5-bản-ứng-viên">guardspec-classifier v5 (bản ứng viên)<a class="anchor" href="#guardspec-classifier-v5-bản-ứng-viên" aria-hidden="true">#</a></h3>
 <p><code>guardspec-classifier@v5</code> có trong manifest nhưng <strong>không</strong> phải phiên bản
 khuyến nghị: v3b vẫn là mặc định cho đến khi v5 chạy ở shadow mode ít nhất 7
-ngày và chủ dự án quyết định (không ở v0.6.0: sau đợt
-chạy shadow, RF-895d3533). v5 dùng cùng kiến trúc, công
+ngày và chủ dự án quyết định (không ở v0.6.0 hay v0.7.0). v5 dùng cùng kiến trúc, công
 thức train và nhãn của v3b, nhưng train theo từng cửa sổ (các cửa sổ 256 token
 của gateway thay vì một dòng bị cắt ngắn) trên dữ liệu v4 cộng thêm code,
 cấu hình, log, stack trace và văn xuôi dài vô hại làm hard negative, cùng các
@@ -413,13 +425,124 @@ kèm; v5 dùng <code>calibration.json</code> của nó cùng cap.</p>
 tấn công giấu trong code và log hơn; trên <code>eval/data</code> nó ngang v3b; trên
 owner hold-out nó bắt được nhiều tấn công hơn với cái giá là chặn thêm 4
 dòng vô hại (8 trên 272 so với 4). Hạn chế đã biết: với tài liệu 100k-200k
-token, mục tiêu false positive chưa đạt (cần vòng dữ liệu thứ ba, văn xuôi vô
-hại nhúng trong các host code và log); nó bắt được ít tấn công sinh tự động
+token, mục tiêu false positive chưa đạt (các vòng sau của đợt làm việc với
+tài liệu dài, RF-895d3533, cũng không đạt; xem
+<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/MODEL_CARD.md">train/MODEL_CARD.md</a>, mục &quot;v6&quot;); nó bắt được ít tấn công sinh tự động
 của <code>val_v3_holdout</code> hơn ở ngưỡng chặn (0.887 so với 0.953); và trên đường
 tool, cap giữ các tấn công nhúng mà chỉ classifier nhận ra ở dưới ngưỡng chặn
 (<code>val_v5_holdout</code>: 0.623 so với 0.665 ở 0.85, dù xếp hạng tốt hơn nhiều). Quy
 tắc chọn, mọi bảng số và dữ liệu nằm trong
-<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v5&quot;).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v5&quot;).</p>
+<h3 id="guardspec-classifier-v6-bản-ứng-viên">guardspec-classifier v6 (bản ứng viên)<a class="anchor" href="#guardspec-classifier-v6-bản-ứng-viên" aria-hidden="true">#</a></h3>
+<p><code>guardspec-classifier@v6</code> có trong manifest nhưng <strong>không</strong> phải phiên bản
+khuyến nghị: v3b vẫn là mặc định, và v6 chạy ở shadow mode trước, như v5. Đây
+là bản ứng viên của đợt làm việc với tài liệu dài (RF-895d3533, vòng 2 arm A):
+công thức train của v5 trên dữ liệu mới, trong đó mỗi tấn công nhúng trong
+code, log hay văn xuôi đều có một &quot;bản sinh đôi&quot; vô hại với văn xuôi bình
+thường thay vào chỗ payload, có thêm hard negative <em>nói về</em> prompt injection,
+và kho bench/long được giữ ngoài dữ liệu train (<code>train/DATA_CARD.md</code>, mục &quot;v6
+data&quot;). <code>calibration.json</code> của nó có cùng loại cap như v5 (<code>l2_untrusted_max</code>
+0.88).</p>
+<p>v6 cũng là phiên bản đầu tiên có <code>model_fp16.onnx</code>, cùng checkpoint ở dạng
+FP16 cho <a href="/vi/docs/deploy/#gpu-tùy-chọn">tùy chọn GPU</a> (<code>provider: cuda</code>
+trong manifest). Quyết định ở ngưỡng 0.85 của nó trùng với file INT8 trên
+98.8% đến 99.9% số dòng, dưới mức 99.5% yêu cầu ở hai bộ, nên
+<code>calibration.json</code> có thêm khối <code>fp16</code>, fit trên cùng các dòng validation, chỉ
+áp dụng khi classifier được nạp từ <code>model_fp16.onnx</code>
+(<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/reports/fp16_agreement_v6.md">train/reports/fp16_agreement_v6.md</a>).
+Khoảng 1% quyết định gần ngưỡng sẽ khác nhau giữa gateway chạy GPU và gateway
+chạy CPU.</p>
+<p><strong>Đã công bố</strong> ngày 2026-11-13: nhánh <code>v6</code> trên Hugging Face (revision
+<code>c44ec1d2</code>, đã ghim trong manifest) và GitHub Release đã ký
+<code>model-guardspec-classifier-v6</code> làm bản sao dự phòng. Mọi file được kiểm tra
+theo SHA-256 trong manifest.</p>
+<pre><code class="language-bash"># 1. Install it next to v3b (files checked against the manifest's SHA-256).
+docker compose --profile models run --rm models-pull guardspec-classifier@v6
+#    (GPU: models pull -provider cuda guardspec-classifier@v6 also fetches
+#    model_fp16.onnx.)
+# 2. .env: keep v3b deciding, let v6 score the same traffic.
+L2_MODEL=guardspec-classifier@v3b
+SHADOW_L2_MODEL=guardspec-classifier@v6
+SHADOW_SAMPLE=1
+# 3. Restart the gateway (or POST /admin/models/reload), then watch the
+#    Models page for at least 7 days, long documents and tool results
+#    included.
+</code></pre>
+<h4 id="v3b-so-với-v5-và-v6">v3b so với v5 và v6<a class="anchor" href="#v3b-so-với-v5-và-v6" aria-hidden="true">#</a></h4>
+<p>Điểm của gateway (chặn ở 0.85), nửa hold-out của các eval set, owner hold-out
+(đợt 1 + 2) và hold-out của bench/long, mỗi bộ chỉ chấm một lần. v3b dùng
+calibration đi kèm; v5 và v6 dùng <code>calibration.json</code> của chúng cùng cap; INT8
+trên CPU.</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th></th>
+  <th>v3b</th>
+  <th>v5</th>
+  <th>v6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>eval/data</code> (tin nhắn người dùng): TPR ở FPR ≤ 1% / TPR và FPR ở 0.85</td>
+  <td>0.942 / 0.9435 và 1.57%</td>
+  <td>0.940 / 0.9435 và 1.17%</td>
+  <td>0.964 / 0.9452 và 0.39%</td>
+</tr>
+<tr>
+  <td><code>eval/codelog</code> (tool output vô hại): FPR, corroboration tắt / bật</td>
+  <td>20.99% / 7.41%</td>
+  <td>0.62% / 0.62%</td>
+  <td>1.23% / 1.23%</td>
+</tr>
+<tr>
+  <td><code>eval/embedded</code>, corroboration tắt: TPR / FPR</td>
+  <td>0.779 / 15.1%</td>
+  <td>0.861 / 4.7%</td>
+  <td>0.857 / 5.1%</td>
+</tr>
+<tr>
+  <td>owner hold-out (276 tấn công / 184 vô hại): TPR / FPR ở 0.85</td>
+  <td>0.714 / 1.6%</td>
+  <td>0.823 / 4.3%</td>
+  <td>0.779 / 1.1%</td>
+</tr>
+<tr>
+  <td><code>val_v6_holdout</code> (văn xuôi và bản sinh đôi trong host code và log, đường tool): FPR ở 0.85 / TPR ở FPR ≤ 1%</td>
+  <td>3.4% / 0.561</td>
+  <td>1.5% / 0.530</td>
+  <td>0.5% / 0.982</td>
+</tr>
+<tr>
+  <td><code>val_v3_holdout</code>: FPR / TPR ở 0.85</td>
+  <td>0.5% / 0.953</td>
+  <td>0.5% / 0.887</td>
+  <td>0.8% / 0.899</td>
+</tr>
+<tr>
+  <td>profile <code>long</code> của bench/long, tỉ lệ tài liệu vô hại 100k-200k token bị chặn</td>
+  <td>80%</td>
+  <td>45%</td>
+  <td>24% đến 26%</td>
+</tr>
+<tr>
+  <td>hold-out bench/long, tấn công nhúng bị bắt (mọi biến thể)</td>
+  <td>53.6%</td>
+  <td>89.6%</td>
+  <td>86.7%</td>
+</tr>
+</tbody>
+</table></div>
+<p>v6 chặn số tài liệu dài vô hại chỉ bằng khoảng một nửa v5 và xếp hạng tin
+nhắn người dùng cũng như host code và log tốt hơn, nhưng <strong>mục tiêu cho tài
+liệu dài (chặn tối đa 1% tài liệu vô hại 100k-200k token) chưa đạt</strong>, và các
+vòng sau cũng không đạt: một quy tắc cấp tài liệu trên đường dài (R3), siết
+quy tắc L1 cùng một cách quyết định chặt hơn (R5: 6.6% tài liệu mới bị chặn;
+các thay đổi quy tắc đã vào gateway, cách quyết định thì không), và một vòng
+train v7 (R6), chặn không tài liệu vô hại nào nhưng bắt ít hơn 9 điểm tấn công
+nhúng nên không được phát hành. Khả năng phát hiện tấn công nhúng thấp hơn v5
+một chút, và <code>val_v3_holdout</code> cùng <code>val_realistic_holdout</code> vẫn dưới v3b. Mọi
+bảng số nằm trong <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v6&quot;).</p>
 <h2 id="nạp-lại-không-cần-khởi-động-lại">Nạp lại không cần khởi động lại<a class="anchor" href="#nạp-lại-không-cần-khởi-động-lại" aria-hidden="true">#</a></h2>
 <p><code>kill -HUP</code> gateway, hoặc <code>POST /admin/models/reload</code> với
 <code>GATEWAY_ADMIN_TOKEN</code>, sẽ nạp lại classifier (hoặc một phiên bản khác), kiểm
@@ -461,7 +584,7 @@ hợp một phần. Hãy báo những văn bản như vậy (không kèm dữ li
 <h2 id="phát-hành-phiên-bản-model-mới">Phát hành phiên bản model mới<a class="anchor" href="#phát-hành-phiên-bản-model-mới" aria-hidden="true">#</a></h2>
 <p>Dành cho maintainer. Ví dụ dưới đây phát hành <code>guardspec-classifier</code> <code>v4</code>.</p>
 <ol>
-<li><strong>Train</strong> bằng <code>train/</code> (xem <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/train/MODEL_CARD.md">train/MODEL_CARD.md</a>).
+<li><strong>Train</strong> bằng <code>train/</code> (xem <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/MODEL_CARD.md">train/MODEL_CARD.md</a>).
 Chọn số epoch, threshold và calibration chỉ dựa trên các validation split.
 <code>eval/</code> không bao giờ được dùng để tinh chỉnh.</li>
 <li><strong>Calibrate</strong>: <code>go run -tags onnx ./cmd/calibrate fit -write</code> ghi
@@ -494,7 +617,7 @@ Workflow kiểm tra mọi file với các giá trị ghim mới rồi đính kè
 </ol>
 <p>Release phần mềm kế tiếp sau đó sẽ mang manifest khuyến nghị v4.</p>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/models.vi.md">docs/models.vi.md</a> @ <code>affcb7e33994</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/models.vi.md">docs/models.vi.md</a> @ <code>c81d88c99140</code></p>
   </main>
 </div>
 

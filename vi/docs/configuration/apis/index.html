@@ -56,13 +56,26 @@ không gọi model), <code>POST /guardrail/scan/tools</code> (chấm định ngh
 <code>POST /guardrail/sanitize</code>.</p>
 <p>Control plane (cổng 8081, compose mở ra 18081): đăng nhập, tổ chức, API key,
 project, policy, guard settings, exemplar, lời mời, audit log. Bảng đầy đủ và
-ví dụ curl ở mục <a href="/docs/configuration/apis/">APIs</a>.</p>
+ví dụ curl ở mục <a href="/docs/configuration/apis/">APIs</a>. Các endpoint quản trị (lịch sử
+chính sách, phê duyệt hai người, chính sách khóa API, báo cáo CSV) ở mục
+<a href="#quản-trị">Quản trị</a>.</p>
 <p><code>GET /v1/organizations/:orgId/dashboard?window=24h|7d|30d&amp;project_id=</code> (vai trò
 viewer trở lên, như <code>/requests</code>) trả về số liệu tổng hợp của nhật ký yêu cầu,
 tính trong Postgres trên toàn bộ khoảng thời gian: tổng số yêu cầu, số bị chặn,
 tỷ lệ chặn, số theo quyết định, độ trễ p50/p95/p99, chuỗi thời gian theo giờ
-(24h) hoặc theo ngày (UTC), các nhãn phát hiện, luật và dự án nhiều nhất.
-Trang Bảng điều khiển dùng endpoint này.</p>
+(24h) hoặc theo ngày (UTC), các nhãn phát hiện, luật và dự án nhiều nhất, cùng
+các dự án và API key bị tấn công nhiều nhất (<code>top_blocked_projects</code>,
+<code>top_blocked_keys</code>, chỉ tính request bị từ chối). Trang Bảng điều khiển và
+Tổng quan bảo mật dùng endpoint này.</p>
+<p>Cho giao diện quản trị (chỉ trả về số đếm, không bao giờ trả nội dung):
+<code>GET /v1/organizations/:orgId/getting-started</code> (viewer) trả về trạng thái các
+bước thiết lập; <code>GET /v1/organizations/:orgId/requests/:requestId/impact</code>
+(viewer) cho biết một thay đổi để xử lý chặn nhầm liên quan tới bao nhiêu
+request trong 7 ngày, tính từ điểm và mã băm đã lưu (<code>same_input</code>,
+<code>same_rule</code>, <code>threshold</code>); <code>POST /v1/policy/sample</code> <code>{&quot;text&quot;}</code> (mọi người dùng
+đã đăng nhập, 60 lần mỗi phút) chấm một câu mẫu bằng bộ làm sạch, luật L1 và
+mẫu dữ liệu cá nhân cho bộ mô phỏng (<code>scores.l2</code>, <code>scores.l3</code> là -1), không
+lưu gì.</p>
 <h2 id="trường-của-luật-policy">Trường của luật (policy)<a class="anchor" href="#trường-của-luật-policy" aria-hidden="true">#</a></h2>
 <p>Điều kiện của luật dùng các trường: <code>request.model</code>, <code>request.tenant_id</code>,
 <code>request.tokens</code>, <code>injection.score</code>, <code>injection.label</code>, <code>injection.category</code>,
@@ -83,12 +96,16 @@ chuyển tiếp nhưng không đọc được, trong những lượt nó quét; 
 nhiêu phần đã được đọc nhờ <code>PDF_EXTRACT</code>) và <code>input.pdf.reasons</code> (lý do các
 phần còn lại không đọc được: <code>no_text</code>, <code>encrypted</code>, <code>damaged</code>, <code>timeout</code>,
 <code>over_limit</code>, <code>internal</code>, <code>remote</code>) mô tả các PDF. Ví dụ: <code>&quot;encrypted&quot; in input.pdf.reasons</code> với hành động <code>block</code>.
+<code>input.files.types</code> liệt kê loại của hình ảnh, file và âm thanh trong các lượt
+đó, nhận diện từ nội dung (<code>pdf</code>, <code>png</code>, <code>jpeg</code>, <code>gif</code>, <code>webp</code>, <code>docx</code>,
+<code>xlsx</code>, <code>pptx</code>, <code>zip</code>, <code>wav</code>, <code>mp3</code>, <code>ogg</code>, <code>flac</code>, <code>unknown</code>, <code>remote</code>); xem
+<a href="#thiết-lập-đầu-vào-theo-tổ-chức">Thiết lập đầu vào theo tổ chức</a>.
 Các trường <code>pii.entities</code>, <code>toxicity.score</code> và <code>topic.categories</code> đã bị bỏ:
 luật mới không được dùng chúng, còn luật đã lưu có dùng thì vẫn đọc <code>[]</code> hoặc
 <code>0</code> như trước. Chi tiết ở mục <a href="/docs/configuration/apis/">APIs</a>.</p>
 <h2 id="dữ-liệu-cá-nhân-trong-request">Dữ liệu cá nhân trong request<a class="anchor" href="#dữ-liệu-cá-nhân-trong-request" aria-hidden="true">#</a></h2>
 <p>Một tổ chức có thể cho gateway đếm dữ liệu cá nhân trong mỗi request và đưa kết
-quả cho các luật (<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>).
+quả cho các luật (<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>).
 <strong>Mặc định tắt</strong>; bật bằng <code>input_pii: true</code> trong guard settings của tổ chức
 (<code>PUT /v1/organizations/:orgId/guard-settings</code>, hoặc giao diện: Thiết lập bảo
 vệ → Phát hiện dữ liệu cá nhân trong request). Thay đổi có hiệu lực từ request
@@ -257,6 +274,86 @@ không được đọc; luật trên <code>input.pdf.reasons</code> từ chối 
 không muốn. <code>PDF_EXTRACT=off</code> là hành vi của 0.5.0: mọi PDF là phần không
 quét.</li>
 </ul>
+<h2 id="thiết-lập-đầu-vào-theo-tổ-chức">Thiết lập đầu vào theo tổ chức<a class="anchor" href="#thiết-lập-đầu-vào-theo-tổ-chức" aria-hidden="true">#</a></h2>
+<p>Admin của tổ chức có thể đặt những gì gateway nhận từ các ứng dụng của tổ
+chức (giao diện: <strong>Thiết lập đầu vào</strong>, hoặc
+<code>PUT /v1/organizations/:orgId/input-settings</code>). Biến môi trường của instance
+luôn là trần. Tổ chức chưa có thiết lập giữ nguyên hành vi của instance
+(<code>PDF_EXTRACT</code>, <code>UNSCANNED_PARTS</code>, <code>MAX_SCAN_TOKENS</code>, như mô tả ở trên).</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Thiết lập</th>
+  <th>Giá trị</th>
+  <th>Tác dụng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>input_mode</code></td>
+  <td><code>text_only</code>, <code>hybrid</code></td>
+  <td><code>text_only</code>: mọi phần hình ảnh, file và âm thanh bị từ chối với 415 <code>files_not_accepted</code>, thông báo yêu cầu ứng dụng chuyển file thành văn bản. <code>hybrid</code>: văn bản và các file thuộc loại được phép.</td>
+</tr>
+<tr>
+  <td><code>max_input_tokens</code></td>
+  <td>1 đến giới hạn của instance, hoặc <code>null</code></td>
+  <td>Request có nhiều token văn bản cần quét hơn bị từ chối với 413 <code>max_input_tokens_exceeded</code> trước khi quét. Giới hạn là <code>MAX_SCAN_TOKENS</code> của gateway, hoặc 40.000 (đường ngắn) nếu không đặt; giá trị lớn hơn bị từ chối với 400. <code>null</code>: dùng giới hạn của instance.</td>
+</tr>
+<tr>
+  <td><code>allowed_file_types</code></td>
+  <td><code>pdf</code> (các loại gateway đọc được)</td>
+  <td>Chỉ với <code>hybrid</code>. Loại file khác bị từ chối với 415 <code>file_type_not_allowed</code>.</td>
+</tr>
+<tr>
+  <td><code>unreadable_file_action</code></td>
+  <td><code>block</code> (mặc định), <code>pass</code></td>
+  <td>File được phép nhưng gateway không đọc được (PDF dạng ảnh scan, mã hoá, hỏng, vượt giới hạn của bộ trích xuất, hoặc mọi PDF khi <code>PDF_EXTRACT=off</code>): <code>block</code> từ chối request với 422 <code>file_unreadable</code>; <code>pass</code> chuyển tiếp như phần không quét và gắn thẻ audit <code>input:unreadable_passed=&lt;số&gt;</code> (<code>UNSCANNED_PARTS=block</code> vẫn từ chối).</td>
+</tr>
+</tbody>
+</table></div>
+<p>Loại của mỗi phần được nhận diện từ nội dung (<code>%PDF-</code>, chữ ký PNG, JPEG,
+GIF, WebP, zip Office Open XML, WAV, MP3, Ogg, FLAC) và đối chiếu với loại
+phần đó khai báo: <code>media_type</code>, loại của data URL, phần mở rộng của
+<code>filename</code> hoặc <code>format</code> của âm thanh. Không khớp thì bị từ chối với 415
+<code>file_type_mismatch</code>; không bao giờ chỉ tin phần mở rộng. File gateway không
+nhận trực tiếp (URL, <code>file_id</code> hoặc <code>file_url</code>) không kiểm tra được và bị từ
+chối với 415 <code>file_not_inline</code>. Các loại nhận diện được là trường luật
+<code>input.files.types</code> (có hay không có thiết lập) và, với tổ chức có thiết
+lập, thẻ audit <code>input:file_&lt;loại&gt;=&lt;số&gt;</code>. Mỗi lần từ chối có thẻ
+<code>input:refused=&lt;lý do&gt;</code> và được đếm trong
+<code>guardspec_gateway_input_refused_total{reason}</code>; các loại file được đếm
+trong <code>guardspec_gateway_input_files_total{type}</code>.</p>
+<p>Siết chặt một thiết lập có hiệu lực ngay. Nới lỏng (thêm loại file, tăng
+hoặc bỏ <code>max_input_tokens</code>, <code>pass</code> thay cho <code>block</code>, <code>text_only</code> sang
+<code>hybrid</code>, hoặc <code>DELETE</code> để quay về hành vi của instance) luôn được ghi vào
+nhật ký hoạt động (<code>input_settings.updated</code>, kèm những gì được nới) và, khi
+tổ chức bật <a href="#quản-trị">phê duyệt hai người</a>, trả về 202 với yêu cầu
+<code>input_settings.loosen</code> để một admin khác duyệt: phần siết chặt trong cùng
+thay đổi vẫn áp dụng ngay. Mỗi lúc chỉ có một yêu cầu như vậy đang chờ (một
+thay đổi nới lỏng khác trong lúc đó bị từ chối với 409 <code>approval_pending</code>),
+và một thay đổi thiết lập sau đó sẽ hủy yêu cầu.</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>API (control plane, tiền tố <code>/v1</code>)</th>
+  <th>Vai trò</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>GET /organizations/:orgId/input-settings</code> (thiết lập hoặc <code>inherit</code>, giới hạn của instance đọc từ gateway, yêu cầu nới lỏng đang chờ)</td>
+  <td>viewer</td>
+</tr>
+<tr>
+  <td><code>PUT /organizations/:orgId/input-settings</code> (<code>{input_mode, max_input_tokens, allowed_file_types, unreadable_file_action, reason}</code>), <code>DELETE</code> (quay về hành vi của instance, <code>{reason}</code>)</td>
+  <td>admin</td>
+</tr>
+</tbody>
+</table></div>
+<p>Control plane đọc giới hạn của instance từ <code>/readyz</code> của gateway (<code>input</code>),
+qua <code>GATEWAY_URL</code>; nếu không đặt, giới hạn của <code>max_input_tokens</code> là 40.000
+và gateway vẫn áp <code>MAX_SCAN_TOKENS</code> của chính nó. File Office, file tải qua
+<code>/v1/files</code> và OCR không được đọc.</p>
 <h2 id="input-lớn">Input lớn<a class="anchor" href="#input-lớn" aria-hidden="true">#</a></h2>
 <p>Mặc định một request được proxy chứa được khoảng 28 KB văn bản của người dùng,
 system và tham số tool call (16 đoạn khoảng 2 KB), 128 KiB kết quả tool, tài
@@ -311,10 +408,93 @@ lành tính dài có nhiều cửa sổ, mỗi cửa sổ là một cơ hội b�
 lành tính dài có thể bị chặn nhiều hơn tài liệu ngắn. Trần classifier cho nội
 dung không tin cậy (<code>l2_untrusted_max</code>, do calibration của bản ứng viên v5 đặt,
 hiện chạy shadow mode) giảm việc này cho tool result và tài liệu; mục tiêu tối
-đa 1% với tài liệu 100k–200k token chưa đạt (task RF-895d3533). Hãy thử với tài
+đa 1% với tài liệu 100k–200k token chưa đạt (task RF-895d3533 kết thúc mà
+không đạt; lần thử tiếp theo là task nháp RF-3a9ce3f9). Hãy thử với tài
 liệu của bạn và xem điểm trong
 nhật ký yêu cầu trước. Quét một tài liệu 200k token mất vài chục giây trên vài
 lõi CPU. <code>POST /guardrail/scan</code> và <code>/v1/embeddings</code> giữ giới hạn hiện tại.</p>
+<h2 id="quản-trị">Quản trị<a class="anchor" href="#quản-trị" aria-hidden="true">#</a></h2>
+<p>Bốn công cụ cho người vận hành một tổ chức (migration 026 đến 029); mặc định
+đều tắt hoặc không đổi gì, trừ hai điều: xóa tổ chức luôn cần hai người, và chỉ
+xóa được chính sách đã tắt. Chi tiết tiếng Anh ở
+<a href="/docs/operations/#governance">Governance</a>.</p>
+<p><strong>Lịch sử chính sách.</strong> Mỗi lần lưu chính sách (API, giao diện quản trị, cấu
+hình dạng mã) được giữ thành một phiên bản: toàn bộ chính sách sau khi lưu,
+người lưu, thời điểm và lý do (<code>reason</code>, tùy chọn, tối đa 500 ký tự).
+<code>GET /v1/organizations/{id}/policies/{pid}/versions</code> liệt kê các phiên bản
+(mới nhất trước), <code>GET .../versions/diff?from=1&amp;to=3</code> so sánh hai phiên bản
+(các trường và các luật thêm, bỏ, sửa, đổi vị trí theo id luật), và
+<code>POST .../rollback</code> <code>{&quot;version&quot;: 1, &quot;reason&quot;: &quot;...&quot;}</code> khôi phục về phiên bản
+đó thành một phiên bản mới (không có <code>version</code>: lùi một bước). Khôi phục được
+kiểm tra như mọi lần lưu: tên còn trống, luật còn chạy được trên gateway, đích
+định tuyến còn tồn tại. Nhật ký hoạt động ghi <code>policy.updated</code> (kèm phiên bản)
+và <code>policy.rolled_back</code>. Chính sách có <code>log_only: true</code> chỉ ghi nhận thay vì
+quyết định: luật <code>block</code>, <code>allow</code>, <code>route</code> khớp được ghi vào nhật ký yêu cầu
+dạng <code>policy:would_block=&lt;id luật&gt;</code> (<code>would_allow</code>, <code>would_route</code>) và yêu cầu đi
+tiếp sang chính sách kế; luật <code>log</code> vẫn như cũ. Bộ mô phỏng báo <code>log_only</code>, trang
+Luồng có công tắc <strong>Chỉ ghi log</strong> cạnh mỗi chính sách, cấu hình dạng mã có
+<code>log_only</code> cho từng chính sách. Trang <strong>Lịch sử chính sách</strong> hiển thị các phiên
+bản, so sánh và khôi phục.</p>
+<p><strong>Phê duyệt hai người.</strong> <code>PUT /v1/organizations/{id}/security</code>
+<code>{&quot;two_person_approval&quot;: true, &quot;approval_expiry_hours&quot;: 24}</code> (owner) khiến hai
+thay đổi phải chờ quản trị viên thứ hai: tắt chính sách (<code>PUT</code> với
+<code>enabled: false</code>, hoặc khôi phục về một phiên bản đang tắt; phần còn lại của
+lần lưu áp dụng ngay) và bật lưu nội dung prompt và câu trả lời
+(<code>audit_store_content: true</code>). Lời gọi trả về 202
+<code>{&quot;approval_required&quot;: true, &quot;request&quot;: {...}}</code> và chưa đổi gì; gửi lại cùng
+thay đổi khi nó đang chờ sẽ nhận lại chính yêu cầu đó (<code>&quot;already_pending&quot;: true</code>): mỗi tổ chức, loại và đối tượng chỉ có tối đa một yêu cầu đang chờ.
+<code>GET /v1/organizations/{id}/approvals</code> liệt kê yêu cầu đang chờ,
+<code>POST .../approvals/{rid}/approve</code> <code>{&quot;note&quot;}</code> áp dụng thay đổi trong cùng giao
+dịch, <code>.../reject</code> kết thúc nó. Người yêu cầu không tự duyệt được (403
+<code>self_approval</code>) nhưng có thể từ chối; yêu cầu quá <code>approval_expiry_hours</code> (1
+đến 720) sẽ hết hạn và không đổi gì (409 <code>approval_expired</code>). Duyệt việc tắt
+chính sách sẽ khóa yêu cầu và chính sách rồi chỉ tắt <code>enabled</code>: các chỉnh sửa
+chính sách sau khi gửi yêu cầu vẫn được giữ. Yêu cầu không còn gì để áp dụng
+(chính sách đã bị xóa hoặc đã tắt) sẽ bị hủy thay vì báo lỗi khó hiểu: lời
+duyệt trả về 409 <code>approval_cancelled</code> kèm yêu cầu, và danh sách tự hủy các yêu
+cầu như vậy khi gặp. Tắt thiết lập này thì mọi thứ như trước.</p>
+<p><strong>Xóa chính sách</strong> không bao giờ phải chờ duyệt, nhưng chỉ xóa được chính sách
+đã tắt: <code>DELETE .../policies/{pid}</code> với chính sách đang bật trả về 409
+<code>{&quot;error&quot;: &quot;disable the policy before deleting it&quot;, &quot;code&quot;: &quot;policy_enabled&quot;}</code>,
+bất kể chính sách bảo mật. Nhờ vậy khi bật phê duyệt hai người, không thể né
+bước tắt (bước cần duyệt) bằng cách xóa. Cấu hình dạng mã theo cùng quy tắc:
+tệp bỏ sót một chính sách đang bật sẽ bị từ chối (422; đặt <code>enabled: false</code>,
+áp dụng, rồi mới xóa khỏi tệp), và khi bật phê duyệt hai người thì tệp không
+tắt được chính sách đang bật (hãy tắt ở trang Luồng chính sách hoặc bằng
+<code>PUT</code>). Trang Luồng chính sách chỉ cho xóa chính sách khi nó đã tắt và đã lưu.</p>
+<p><strong>Xóa tổ chức</strong> luôn cần hai người, bất kể <code>two_person_approval</code>:
+<code>DELETE /v1/organizations/{id}</code> <code>{&quot;confirm&quot;: &quot;&lt;slug&gt;&quot;, &quot;reason&quot;: &quot;...&quot;}</code> do một
+owner gửi trả về 202 kèm yêu cầu mà một owner khác của tổ chức hoặc quản trị
+viên hệ thống duyệt (admin có thể từ chối, người yêu cầu có thể rút lại). Quản
+trị viên hệ thống có thể xóa ngay một tổ chức, dù là thành viên hay không,
+nhưng phải ghi <code>reason</code> (thiếu thì 400 <code>reason_required</code>); tổ chức mặc định
+không bao giờ xóa được (409 <code>default_org</code>). Quản trị viên hệ thống xem mọi yêu
+cầu xóa tổ chức đang chờ ở <code>GET /v1/admin/approvals</code> và trên trang <strong>Phê
+duyệt</strong>. Nhật ký của tổ chức bị xóa theo nó, nên <code>org.deleted</code> (kèm slug, lý do
+và yêu cầu nếu có) và <code>approval.approved</code> được ghi vào nhật ký hệ thống.</p>
+<p>Mỗi bước ghi vào nhật ký hoạt động (<code>approval.requested</code>, <code>approval.approved</code>,
+<code>approval.rejected</code>, <code>approval.cancelled</code>) và tới các kênh cảnh báo dạng sự kiện
+<code>activity.approval.*</code>. Giao diện quản trị có trang <strong>Phê duyệt</strong>.</p>
+<p><strong>Chính sách khóa API.</strong> Khóa có thể giới hạn theo địa chỉ:
+<code>POST /v1/organizations/{id}/api-keys</code> <code>{&quot;alias&quot;: &quot;edge&quot;, &quot;allowed_cidrs&quot;: [&quot;203.0.113.0/24&quot;, &quot;198.51.100.7&quot;]}</code> (tối đa 32 mục; <code>PATCH</code> cũng được). Gateway
+từ chối khóa từ địa chỉ khác với 403 <code>{&quot;error&quot;: &quot;API key is not allowed from this address&quot;}</code>, dùng địa chỉ client xác định qua <code>TRUSTED_PROXIES</code> (gateway
+cũng đọc biến này), không bao giờ tin header do client tự gửi; khóa hết hạn
+hoặc bị thu hồi vẫn là 401. <code>api_key_max_lifetime_days</code> trong chính sách bảo
+mật (1 đến 3650, null là không giới hạn) chặn <code>expires_at</code> của mọi khóa mới và
+tự điền khi tạo khóa không có hạn; khóa đang có không đổi.
+<code>POST .../api-keys/{prefix}/rotate</code> <code>{&quot;overlap_hours&quot;: 24}</code> (0 đến 720) tạo khóa
+kế thừa cùng bí danh, dự án, giới hạn và địa chỉ (trả về một lần), khóa cũ hết
+hạn khi hết thời gian chuyển tiếp (<code>rotated_to</code>, <code>rotated_at</code> trong danh sách).
+Ghi nhật ký <code>api_key.rotated</code>.</p>
+<p><strong>Báo cáo.</strong> <code>GET /v1/organizations/{id}/reports/requests.csv?window=7d</code> (hoặc
+<code>?from=...&amp;to=...</code> tối đa 92 ngày; <code>project_id</code> thu hẹp) trả về nhật ký yêu cầu
+theo giờ (đến 48 giờ) hoặc ngày (UTC) dạng dài:
+<code>period_start,period_end,section,key,requests,blocked</code> với các mục <code>total</code>,
+<code>action</code>, <code>reason</code> (lý do chặn: <code>policy:&lt;tên luật&gt;</code>, nhãn của bộ phát hiện, hoặc
+<code>other</code>), <code>project</code> và <code>api_key</code>. Chỉ có số đếm, không có nội dung; mỗi lần tải
+ghi <code>report.downloaded</code>. Nút <strong>Tải CSV</strong> trên Bảng điều khiển lấy đúng khoảng và
+dự án đang xem. Control plane không có bộ lập lịch theo tổ chức, nên báo cáo
+định kỳ là một cron job gọi <code>curl</code>.</p>
 <h2 id="giao-diện-quản-trị">Giao diện quản trị<a class="anchor" href="#giao-diện-quản-trị" aria-hidden="true">#</a></h2>
 <p>Control plane phục vụ giao diện quản trị tại <code>/ui/</code> (với compose:
 <a href="http://localhost:18081/ui/">http://localhost:18081/ui/</a>), bằng tiếng Việt hoặc tiếng Anh, giao diện sáng
@@ -333,11 +513,48 @@ hành động, bước và cạnh đều có dấu <strong>?</strong> giải th�
 khi nào dùng. Phạm vi chưa có luật nào sẽ gợi ý các luật mẫu thêm bằng một cú
 bấm. Ngoài ra
 có các trang Upstream, Cấu hình dạng mã (YAML: kiểm tra, xem khác biệt, áp
-dụng), Thiết lập bảo vệ, Khóa API, Dự án, Mẫu tham chiếu và Nhật ký kiểm tra.
-Chi tiết ở mục <a href="/docs/operations/admin-ui/">Admin UI</a>.</p>
-<p><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/images/admin-flow-dark-vi.png" alt="Luồng xử lý, giao diện tối" /></p>
+dụng), Thiết lập bảo vệ, Khóa API (giới hạn địa chỉ, xoay khóa), Dự án, Mẫu
+tham chiếu, Nhật ký kiểm tra, Lịch sử chính sách (phiên bản, so sánh, khôi
+phục) và Phê duyệt (yêu cầu chờ quản trị viên thứ hai; với quản trị viên hệ
+thống, cả yêu cầu xóa tổ chức của mọi tổ chức); trang Luồng chỉ cho xóa chính
+sách đã tắt; Bảng điều khiển tải
+được CSV. Chi tiết ở mục <a href="/docs/operations/admin-ui/">Admin UI</a>.</p>
+<ul>
+<li><strong>Bắt đầu</strong> liệt kê các bước thiết lập kèm trạng thái thực tế: nhà cung cấp
+mô hình (và request được chuyển tiếp gần nhất trong 7 ngày có được trả lời
+không), API key, policy đang bật, các lớp phát hiện gateway báo về (bắt
+buộc), kênh cảnh báo và cài đặt đầu vào riêng của tổ chức (khuyến nghị).
+Mỗi bước dẫn tới trang thiết lập bước đó. Tổ chức còn thiếu nhà cung cấp,
+key hoặc policy sẽ mở trang này sau khi đăng nhập cho tới khi xong hoặc khi
+ẩn trang (theo tổ chức, trên trình duyệt này).</li>
+<li><strong>Tổng quan bảo mật</strong>: request bị từ chối và xu hướng tấn công trong 24 giờ,
+7 hoặc 30 ngày, API key và dự án bị tấn công nhiều nhất, các phát hiện
+nhiều nhất, tình trạng mô hình phát hiện và phiên bản gateway, control plane
+đang chạy, kèm báo cáo CSV.</li>
+<li><strong>Xử lý chặn nhầm một chạm</strong>: phần chi tiết của request cho thấy điểm của
+từng lớp phát hiện đã chạy và các luật đã kích hoạt (gateway từ 0.7 ghi chúng
+thành tag <code>detector:*</code>, không ghi văn bản), rồi cho thêm <strong>exemplar cho
+phép</strong> hoặc <strong>báo cáo chặn nhầm</strong> ngay trên trang. Văn bản chỉ được điền sẵn
+từ nội dung bạn đã đọc (tổ chức lưu nội dung, đúng vai trò, có lý do được
+ghi log); nếu không, bạn tự nhập. Bảng xem trước tác động đếm các request
+giống hệt (cùng mã băm), số request luật đó đã quyết định, hoặc số request
+bị bộ phát hiện từ chối có điểm không cao hơn; nó nói rõ không thể biết
+chính xác exemplar sẽ đổi kết quả của request nào khi không có văn bản và
+mô hình.</li>
+<li><strong>Policy từ mẫu</strong> tạo cả một policy bằng một cú bấm: <strong>Dữ liệu cá nhân</strong>,
+<strong>OTP và KYC</strong>, <strong>Ngân hàng</strong>; policy bắt đầu ở chế độ chỉ ghi log. Bộ mô
+phỏng có ô <strong>Thử một câu mẫu</strong>: chấm điểm câu, điền các trường và cho biết
+luật nào khớp.</li>
+<li><strong>Ctrl+K</strong> (⌘K trên Mac) mở hộp tìm kiếm để đi tới trang, policy, dự án,
+nhà cung cấp hoặc API key bằng bàn phím. Nhật ký yêu cầu lưu được bộ lọc
+và tải CSV theo khoảng thời gian.</li>
+<li>Mọi trang được kiểm tra bằng axe-core ở cả tiếng Anh và tiếng Việt
+(<code>e2e/a11y.spec.ts</code>): lỗi WCAG 2.1 A hoặc AA mức nghiêm trọng làm build
+thất bại.</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/images/admin-flow-dark-vi.png" alt="Luồng xử lý, giao diện tối" /></p>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.vi.md#api">README.vi.md#api</a> @ <code>affcb7e33994</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.vi.md#api">README.vi.md#api</a> @ <code>c81d88c99140</code></p>
   </main>
 </div>
 

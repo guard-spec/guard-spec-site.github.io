@@ -122,6 +122,16 @@ dùng nhất:</p>
   <td>Số token tối đa gateway quét cho một request được proxy. Rỗng hoặc <code>0</code>: giữ giới hạn theo byte như trước (khoảng 28 KB văn bản của người dùng, system và tham số tool call; 128 KiB kết quả tool, tài liệu và mô tả tool; 1 MiB lượt cũ), vượt thì 413. Khi đặt: là trần token của request (vượt thì 413), và request vượt các giới hạn byte đó được quét theo đường dài trong làn input lớn thay vì bị từ chối. Xem <a href="/vi/docs/configuration/apis/#input-lớn">Input lớn</a></td>
 </tr>
 <tr>
+  <td><code>INFERENCE_PROVIDER</code></td>
+  <td><code>cpu</code> (<code>cuda</code> trong image build từ <code>build/gateway-gpu.Dockerfile</code>)</td>
+  <td>Execution provider của ONNX Runtime. <code>cpu</code> là mặc định, không cần gì thêm. <code>cuda</code> (tùy chọn GPU: image tự build từ <code>build/gateway-gpu.Dockerfile</code>, không được phát hành sẵn; GPU NVIDIA; model FP16) chạy model bằng CUDA execution provider; nếu CUDA không khởi động được thì gateway dừng và báo lý do. <code>auto</code> dùng CUDA khi được, nếu không thì chạy CPU kèm cảnh báo. <code>/readyz</code> (<code>detector.inference</code>) và <code>doctor</code> báo provider, GPU, phiên bản CUDA và ONNX Runtime, file model. Xem <a href="/vi/docs/deploy/#gpu-tùy-chọn">GPU</a></td>
+</tr>
+<tr>
+  <td><code>INFERENCE_CUDA_DEVICE_ID</code> / <code>INFERENCE_BATCH_SIZE</code></td>
+  <td><code>0</code> / <code>8</code> ở đường ngắn, <code>16</code> ở đường dài (<code>8</code> cho cả hai trên CUDA)</td>
+  <td>Thiết bị CUDA / số cửa sổ token mỗi lượt chạy model, cho cả đường ngắn lẫn đường dài</td>
+</tr>
+<tr>
   <td><code>INFERENCE_LARGE_MAX_CONCURRENCY</code> / <code>LARGE_SCAN_ORG_CONCURRENCY</code></td>
   <td>số CPU / 4 (ít nhất 1) / một nửa của nó</td>
   <td>Số request lớn được quét cùng lúc (và các lượt chạy model của chúng, trên limiter riêng) / của một tổ chức</td>
@@ -134,7 +144,7 @@ dùng nhất:</p>
 <tr>
   <td><code>PDF_EXTRACT</code></td>
   <td><code>on</code></td>
-  <td><code>on</code> hoặc <code>off</code>. <code>on</code>: văn bản của PDF gửi kèm trong request (khối <code>document</code> nguồn base64 trên <code>/v1/messages</code>, phần <code>file</code> có <code>file_data</code> trên chat completions, mục <code>input_file</code> có <code>file_data</code> trên <code>/v1/responses</code>) được trích xuất (kể cả chữ ẩn, chú thích và trường biểu mẫu) và quét như một tài liệu, nên <code>INDIRECT_ACTION</code> và <code>MAX_SCAN_TOKENS</code> áp dụng; body chuyển tiếp giữ nguyên, trừ khi <code>redact</code> thay phần đó bằng placeholder tài liệu. PDF không lấy được chữ (<code>no_text</code>, <code>encrypted</code>, <code>damaged</code>, <code>timeout</code>, <code>over_limit</code>, <code>internal</code>) hoặc gateway không tải được (url hay file id: <code>remote</code>) vẫn là phần không quét theo <code>UNSCANNED_PARTS</code>, với thẻ audit <code>input:pdf_scanned=&lt;số&gt;</code> và <code>input:pdf_unscanned_&lt;lý do&gt;=&lt;số&gt;</code> và các trường luật <code>input.pdf.count</code>, <code>input.pdf.scanned</code>, <code>input.pdf.reasons</code>. <code>off</code>: PDF là phần không quét như ở 0.5.0. Không có ghi đè theo tổ chức. Xem <a href="/vi/docs/configuration/apis/#pdf">PDF</a></td>
+  <td><code>on</code> hoặc <code>off</code>. <code>on</code>: văn bản của PDF gửi kèm trong request (khối <code>document</code> nguồn base64 trên <code>/v1/messages</code>, phần <code>file</code> có <code>file_data</code> trên chat completions, mục <code>input_file</code> có <code>file_data</code> trên <code>/v1/responses</code>) được trích xuất (kể cả chữ ẩn, chú thích và trường biểu mẫu) và quét như một tài liệu, nên <code>INDIRECT_ACTION</code> và <code>MAX_SCAN_TOKENS</code> áp dụng; body chuyển tiếp giữ nguyên, trừ khi <code>redact</code> thay phần đó bằng placeholder tài liệu. PDF không lấy được chữ (<code>no_text</code>, <code>encrypted</code>, <code>damaged</code>, <code>timeout</code>, <code>over_limit</code>, <code>internal</code>) hoặc gateway không tải được (url hay file id: <code>remote</code>) vẫn là phần không quét theo <code>UNSCANNED_PARTS</code>, với thẻ audit <code>input:pdf_scanned=&lt;số&gt;</code> và <code>input:pdf_unscanned_&lt;lý do&gt;=&lt;số&gt;</code> và các trường luật <code>input.pdf.count</code>, <code>input.pdf.scanned</code>, <code>input.pdf.reasons</code>. <code>off</code>: PDF là phần không quét như ở 0.5.0. Không có ghi đè việc trích xuất theo tổ chức; tổ chức có thể từ chối PDF hoặc PDF không đọc được bằng <a href="/vi/docs/configuration/apis/#thiết-lập-đầu-vào-theo-tổ-chức">thiết lập đầu vào</a>. Xem <a href="/vi/docs/configuration/apis/#pdf">PDF</a></td>
 </tr>
 <tr>
   <td><code>PDF_EXTRACT_MAX_BYTES</code></td>
@@ -199,7 +209,7 @@ dùng nhất:</p>
 </tbody>
 </table></div>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.vi.md#cấu-hình">README.vi.md#cấu-hình</a> @ <code>affcb7e33994</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.vi.md#cấu-hình">README.vi.md#cấu-hình</a> @ <code>c81d88c99140</code></p>
   </main>
 </div>
 

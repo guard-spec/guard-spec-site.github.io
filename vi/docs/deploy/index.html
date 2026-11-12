@@ -53,7 +53,7 @@
 Cộng đồng đã thử: chưa. Nếu bạn triển khai theo các hướng dẫn này, hãy mở
 một <a href="https://github.com/guard-spec/guard-spec/issues/new/choose">issue</a> hoặc
 một pull request kể lại điều gì chạy được và điều gì không. Xem
-<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
 </blockquote>
 <div class="table"><table>
 <thead>
@@ -102,7 +102,7 @@ và archive.</li>
 <li><a href="/docs/operations/">Vận hành</a>, đặc biệt là
 <a href="/docs/operations/#kubernetes">Kubernetes</a> và
 <a href="/docs/operations/#identity-sso-and-two-factor-authentication">Danh tính, SSO và xác thực hai lớp</a>.</li>
-<li><a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.vi.md#m%C3%B4-h%C3%ACnh-b%E1%BA%A3o-m%E1%BA%ADt-v%C3%A0-gi%E1%BB%9Bi-h%E1%BA%A1n">Mô hình bảo mật và giới hạn</a>.</li>
+<li><a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.vi.md#m%C3%B4-h%C3%ACnh-b%E1%BA%A3o-m%E1%BA%ADt-v%C3%A0-gi%E1%BB%9Bi-h%E1%BA%A1n">Mô hình bảo mật và giới hạn</a>.</li>
 </ul>
 <h2 id="mọi-bản-triển-khai-đều-cần">Mọi bản triển khai đều cần<a class="anchor" href="#mọi-bản-triển-khai-đều-cần" aria-hidden="true">#</a></h2>
 <div class="table"><table>
@@ -127,11 +127,11 @@ và archive.</li>
 </tr>
 <tr>
   <td>Gateway</td>
-  <td><code>ghcr.io/guard-spec/guard-spec-gateway:0.6.0</code> (model được mount ở <code>/models</code>) hoặc <code>-gateway-full:0.6.0</code> (model nằm sẵn trong image). Port 8080 cho client, 9090 cho metrics</td>
+  <td><code>ghcr.io/guard-spec/guard-spec-gateway:0.7.0</code> (model được mount ở <code>/models</code>) hoặc <code>-gateway-full:0.7.0</code> (model nằm sẵn trong image). Port 8080 cho client, 9090 cho metrics</td>
 </tr>
 <tr>
   <td>Control plane</td>
-  <td><code>ghcr.io/guard-spec/guard-spec-control-plane:0.6.0</code>. Port 8081 cho API và giao diện quản trị ở <code>/ui/</code>, 9091 cho metrics</td>
+  <td><code>ghcr.io/guard-spec/guard-spec-control-plane:0.7.0</code>. Port 8081 cho API và giao diện quản trị ở <code>/ui/</code>, 9091 cho metrics</td>
 </tr>
 <tr>
   <td>Secret</td>
@@ -164,11 +164,11 @@ lạm dụng, hãy đặt một rate limiter hoặc WAF đứng trước.</li>
 <li><strong>Streaming.</strong> <code>UPSTREAM_LLM_TIMEOUT</code> mặc định là <code>5m</code> không có dữ liệu.
 Timeout idle hoặc timeout response của load balancer ngắn hơn câu trả lời
 dài nhất của model sẽ cắt ngang stream; hãy tăng chúng lên.</li>
-<li><strong>Schema còn thay đổi trước bản 1.0.</strong> Đọc <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/CHANGELOG.md">CHANGELOG</a>
+<li><strong>Schema còn thay đổi trước bản 1.0.</strong> Đọc <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CHANGELOG.md">CHANGELOG</a>
 và snapshot database trước mỗi lần nâng cấp.</li>
 </ul>
 <h2 id="helm-chart-trên-main">Helm chart trên <code>main</code><a class="anchor" href="#helm-chart-trên-main" aria-hidden="true">#</a></h2>
-<p>Chart 0.4.0 (xem mục Unreleased trong <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/CHANGELOG.md">CHANGELOG</a>) bổ
+<p>Chart 0.4.0 (xem mục Unreleased trong <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CHANGELOG.md">CHANGELOG</a>) bổ
 sung các tính năng sau, tất cả đều tắt theo mặc định: một <strong>migration hook</strong>
 (<code>migrations.enabled</code>), một <strong>init container kéo model</strong> (<code>models.pull</code>, kéo
 vào claim hoặc vào một <code>emptyDir</code> riêng cho từng pod, nên nhiều replica không
@@ -176,7 +176,7 @@ còn cần volume ReadWriteMany), <strong>Ingress</strong> và <strong>Routes</s
 <strong>HPA</strong>, <strong>PodDisruptionBudget</strong>, <strong>topologySpreadConstraints</strong>,
 <strong>NetworkPolicies</strong> và một <strong>ServiceAccount</strong> có annotation cho IRSA và
 Workload Identity. Values tham khảo cho từng nền tảng nằm trong
-<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/deploy/helm/guard-spec/examples"><code>deploy/helm/guard-spec/examples/</code></a>
+<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/deploy/helm/guard-spec/examples"><code>deploy/helm/guard-spec/examples/</code></a>
 (EKS, AKS, GKE, OpenShift): được render và kiểm tra schema trong CI, được job
 <code>kind-e2e</code> cài lên kind với values riêng của job, chưa kiểm chứng trên cloud.
 Chỗ nào hướng dẫn bên dưới dùng manifest thuần cho một trong các tính năng
@@ -187,7 +187,7 @@ của chart, External Secrets). Sau khi cài,
 <code>kubectl exec deploy/&lt;release&gt;-guard-spec-gateway -c gateway -- ./doctor</code>
 (image từ 0.2.0) sẽ kiểm tra database, migration, model, các lớp phát hiện,
 upstream và các thiết lập bảo mật.</p>
-<p>Từ chart 0.1.1 (xem <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/CHANGELOG.md">CHANGELOG</a>): <code>/models</code> chỉ được
+<p>Từ chart 0.1.1 (xem <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CHANGELOG.md">CHANGELOG</a>): <code>/models</code> chỉ được
 mount khi có models claim (hoặc <code>models.pull</code>), nên
 <code>guard-spec-gateway-full</code> chạy được với
 <code>models.persistence.enabled=false</code>; gateway mặc định giới hạn bộ nhớ 2Gi;
@@ -200,16 +200,92 @@ trong một plugin post-renderer, hoặc render rồi apply mà không qua Helm
 release: ghi output của <code>helm template</code> vào resources của một kustomization,
 rồi chạy <code>kubectl kustomize &lt;dir&gt; | kubectl apply -f -</code>. Khi đó các hook như
 <code>dbRoles</code> chạy như Job bình thường, không còn chạy trước các service.</p>
+<h2 id="gpu-tùy-chọn">GPU (tùy chọn)<a class="anchor" href="#gpu-tùy-chọn" aria-hidden="true">#</a></h2>
+<p>CPU là mặc định: image gateway được phát hành chạy bộ phân loại INT8 trên
+CPU provider của ONNX Runtime và không cần gì thêm. <a href="/vi/docs/operations/sizing/">Sizing</a>
+có số đo CPU; với tài liệu dài (từ 100k token) đường CPU cần nhiều core, và
+GPU là một tùy chọn.</p>
+<p>Đường GPU được hỗ trợ trong code và đã được đo (các dòng GPU trong
+<a href="/vi/docs/operations/sizing/">sizing</a>), nhưng <strong>không có image GPU phát hành sẵn</strong>: hãy tự
+build từ <code>build/gateway-gpu.Dockerfile</code> (linux/amd64; cùng binary gateway với
+bản CUDA 12 của ONNX Runtime trên image runtime CUDA 12 + cuDNN 9 của NVIDIA,
+khoảng 5,7 GB khi giải nén) rồi đẩy lên registry của bạn:</p>
+<pre><code class="language-sh">docker build --platform linux/amd64 -f build/gateway-gpu.Dockerfile \
+  -t &lt;registry&gt;/guard-spec-gateway:&lt;version&gt;-gpu .
+docker push &lt;registry&gt;/guard-spec-gateway:&lt;version&gt;-gpu
+</code></pre>
+<p>Khi build và chạy image này, bạn chấp nhận điều khoản của NVIDIA cho các thư
+viện CUDA và cuDNN trong image nền (xem NOTICE). CI build Dockerfile này ở
+mọi pull request, không đẩy lên đâu, để giữ nó luôn chạy được. Cần:</p>
+<ul>
+<li>GPU NVIDIA với driver 525 trở lên;</li>
+<li>NVIDIA container runtime (<code>docker run --gpus all ...</code>), hoặc trên
+Kubernetes là NVIDIA device plugin hay GPU Operator;</li>
+<li>bộ phân loại FP16, <code>model_fp16.onnx</code>, đặt cạnh bản INT8:
+<code>./models pull -provider cuda</code> (init container <code>models.pull</code> làm việc này
+khi bật <code>gateway.gpu.enabled</code>). Nếu thiếu, CUDA chạy model INT8, chậm, và
+<code>doctor</code> cảnh báo.</li>
+</ul>
+<p><code>INFERENCE_PROVIDER</code> chọn provider (image GPU đặt sẵn <code>cuda</code>):</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Giá trị</th>
+  <th>Hành vi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>cpu</code></td>
+  <td>Mặc định. CPU provider, model INT8; không có gì thay đổi.</td>
+</tr>
+<tr>
+  <td><code>cuda</code></td>
+  <td>CUDA execution provider trên <code>INFERENCE_CUDA_DEVICE_ID</code> (mặc định 0), model FP16. Nếu CUDA không khởi động được (không có GPU, không có driver, dùng nhầm image CPU) thì gateway dừng ngay lúc khởi động với lỗi nói rõ thiếu gì, thay vì âm thầm chạy chậm trên CPU.</td>
+</tr>
+<tr>
+  <td><code>auto</code></td>
+  <td>Dùng CUDA nếu khởi động được, nếu không thì chạy CPU kèm cảnh báo (lý do có trong <code>/readyz</code>).</td>
+</tr>
+</tbody>
+</table></div>
+<p>Trên CUDA, <code>INFERENCE_BATCH_SIZE</code> mặc định là 8 cửa sổ mỗi lượt chạy (cả
+đường ngắn lẫn đường dài; nhanh nhất trên L4) và <code>INFERENCE_MAX_CONCURRENCY</code> là 2; chỉnh theo số
+đo GPU trong <a href="/vi/docs/operations/sizing/">sizing</a>. <code>GET /readyz</code> báo <code>detector.inference</code>
+(provider yêu cầu và đang chạy, GPU, driver, phiên bản CUDA và ONNX Runtime,
+batch size, <code>l2_model_file</code>), và <code>./doctor</code> kiểm tra cùng các điều đó trước
+khi gateway khởi động (<code>inference</code>).</p>
+<p>Với Helm chart, hãy chỉ ra image của bạn; chart từ chối <code>gpu.enabled</code> nếu
+thiếu:</p>
+<pre><code class="language-yaml">gateway:
+  gpu:
+    enabled: true     # image của bạn, resources.limits[&quot;nvidia.com/gpu&quot;]: 1, INFERENCE_PROVIDER=cuda
+    # provider: auto  # chạy CPU thay vì từ chối khởi động
+    image:
+      repository: &lt;registry&gt;/guard-spec-gateway
+      tag: &lt;version&gt;-gpu
+  nodeSelector:
+    nvidia.com/gpu.present: &quot;true&quot;
+  tolerations:
+    - {key: nvidia.com/gpu, operator: Exists, effect: NoSchedule}
+models:
+  pull:
+    enabled: true     # tải thêm model_fp16.onnx
+</code></pre>
+<p><code>ci/gpu-values.yaml</code> của chart được render và kiểm schema trong CI. Trong CI,
+image chạy trên máy không có GPU, nơi nó phải từ chối khởi động với <code>cuda</code> và
+chuyển sang CPU với <code>auto</code>; số đo GPU được đo riêng và ghi rõ trong
+<a href="/vi/docs/operations/sizing/">sizing</a>.</p>
 <h2 id="đóng-góp">Đóng góp<a class="anchor" href="#đóng-góp" aria-hidden="true">#</a></h2>
 <p>Nếu bạn chạy Guard Spec trên một trong các nền tảng này, một báo cáo ngắn
 hữu ích hơn một hướng dẫn trau chuốt: nền tảng và phiên bản, những gì bạn đã
 thay đổi so với hướng dẫn, và những gì bị lỗi. Hãy mở một
 <a href="https://github.com/guard-spec/guard-spec/issues/new/choose">issue</a> hoặc một
-pull request vào <code>docs/deploy/</code> (xem <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/CONTRIBUTING.md">CONTRIBUTING.md</a>;
+pull request vào <code>docs/deploy/</code> (xem <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CONTRIBUTING.md">CONTRIBUTING.md</a>;
 commit cần có DCO sign-off). Vấn đề bảo mật phải đi qua
 <a href="/docs/security/policy/">SECURITY.md</a>, không bao giờ qua issue công khai.</p>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/deploy/README.vi.md">docs/deploy/README.vi.md</a> @ <code>affcb7e33994</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/deploy/README.vi.md">docs/deploy/README.vi.md</a> @ <code>c81d88c99140</code></p>
   </main>
 </div>
 

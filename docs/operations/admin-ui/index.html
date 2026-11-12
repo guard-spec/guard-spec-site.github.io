@@ -57,7 +57,7 @@ project) moves through the gateway: request, API key, L0 sanitizer, the L1, L2
 and L3 detectors with the parts guard settings let them scan, then every
 enabled policy rule in gateway order, the Block, Log and Allow outcomes, the
 upstreams, the output guard and the client.</p>
-<p><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/images/admin-flow.png" alt="Flow page with a simulated request" /></p>
+<p><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/images/admin-flow.png" alt="Flow page with a simulated request" /></p>
 <ul>
 <li>Click any step to open its panel on the same page; nothing navigates away,
 so unsaved rule edits stay. <strong>Detectors</strong> shows the layers, the running
@@ -89,6 +89,14 @@ block) are flagged.</li>
 <li>A scope without rules offers one-click templates: block high-risk
 injection, log possible injection in tool responses, route suspicious
 requests to another upstream (when there is one) and block hidden Unicode.</li>
+<li><strong>Policy from template</strong> adds a whole policy in one click: <strong>Personal
+data</strong> (block card and CCCD numbers, log other personal data), <strong>OTP and
+KYC</strong> (block attempts to extract OTPs, secrets or the prompt, a CCCD sent
+with a phone number; log ID photos the gateway cannot read) and
+<strong>Banking</strong> (injection from 0.6, injection in tool results and documents,
+hidden characters, card numbers). It starts <strong>log only</strong> in the current
+scope, so the request log shows what it would block before you turn it on;
+the dialog says when its rules need personal data detection.</li>
 <li>Drag a rule up or down to reorder it within its policy (or use the arrow
 buttons). Drag from a rule's round <strong>match</strong> handle to Block, Allow, Log or
 an upstream to set its action; an upstream makes it a <code>route</code> rule.</li>
@@ -96,7 +104,11 @@ an upstream to set its action; an upstream makes it a <code>route</code> rule.</
 The server validates every rule; its errors are shown on the rule.</li>
 <li>The <strong>Simulator</strong> evaluates a request (scores, category, model and other
 schema fields) against the rules shown, unsaved changes included, highlights
-the path and lists every rule's outcome.</li>
+the path and lists every rule's outcome. <strong>Try a sample sentence</strong> scores a
+text on the control plane (<code>POST /v1/policy/sample</code>: the sanitizer, the L1
+rules, the personal data patterns), fills the fields, runs the simulator
+and lists the L1 rules that fired. L2 and L3 need the gateway's models, so
+they show as not run (-1); nothing is stored.</li>
 </ul>
 <div class="table"><table>
 <thead>
@@ -107,12 +119,12 @@ the path and lists every rule's outcome.</li>
 </thead>
 <tbody>
 <tr>
-  <td><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/images/admin-rule-visual.png" alt="Visual condition builder" /></td>
-  <td><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/images/admin-rule-text.png" alt="Condition as text" /></td>
+  <td><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/images/admin-rule-visual.png" alt="Visual condition builder" /></td>
+  <td><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/images/admin-rule-text.png" alt="Condition as text" /></td>
 </tr>
 </tbody>
 </table></div>
-<p><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/images/admin-flow-panel.png" alt="Detectors panel with a staged block threshold" /></p>
+<p><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/images/admin-flow-panel.png" alt="Detectors panel with a staged block threshold" /></p>
 <p><strong>Upstreams</strong> manages the named upstreams and the org and project defaults.
 An upstream's key is never entered in the UI: <code>api_key_env</code> names a
 <code>UPSTREAM_KEY_*</code> variable set on the gateway, and the operator's
@@ -139,14 +151,58 @@ them, each linked to the policy and rule on the Flow page.</p>
 </thead>
 <tbody>
 <tr>
-  <td><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/images/admin-upstreams.png" alt="Upstreams" /></td>
-  <td><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/images/admin-config.png" alt="Config as code with a diff" /></td>
+  <td><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/images/admin-upstreams.png" alt="Upstreams" /></td>
+  <td><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/images/admin-config.png" alt="Config as code with a diff" /></td>
 </tr>
 </tbody>
 </table></div>
-<p>Guard settings, API keys (the secret is shown once, at creation), projects,
+<p>Guard settings, API keys (the secret is shown once, at creation; a key can
+be limited to addresses and rotated with an overlap window), projects,
 exemplars and the audit log (with the route target of each request) have
-pages of their own.</p>
+pages of their own. <strong>Policy history</strong> lists every saved version of a
+policy with its author, time and reason, shows the changes between two
+versions and rolls back to any of them; the Flow page has a <strong>Log only</strong>
+switch per policy and offers to delete a policy only once it is disabled.
+<strong>Approvals</strong> lists the requests waiting for a second administrator (and,
+for instance administrators, every organization's pending deletion), and
+the <strong>Dashboard</strong>
+downloads its period as CSV (see <a href="/docs/operations/#governance">Governance</a>).</p>
+<p><strong>Getting started</strong> lists the setup steps with their real state
+(<code>GET /v1/organizations/{id}/getting-started</code>): a model provider (and
+whether the last forwarded request in 7 days got an answer), an API key, an
+enabled policy and the detection layers the gateway reports (required), an
+alert channel and the organization's own input settings (recommended). Each
+step links to the page that sets it up. An organization still missing a
+provider, a key or a policy lands there after sign-in until the steps are
+done or the page is hidden (per organization, in this browser); the
+dashboard shows a setup card while a required step is left.</p>
+<p><strong>Security overview</strong> shows the refused requests and their trend over 24
+hours, 7 or 30 days, the most attacked API keys and projects, the top
+detections, the health of the detection models (layers, a verified
+classifier, a recommended update, a failed reload) and the running gateway
+and control plane versions, with the CSV report of the period.</p>
+<p><strong>False positives in one click.</strong> A request's details show why it was
+refused: the score of each detection layer that ran and the rules and
+categories that fired (gateways from 0.7 record them as <code>detector:*</code> tags,
+never text), the policy rule, and the log-only rules that would have
+decided. A refused request gets a panel to add an <strong>allow exemplar</strong> of the
+text or <strong>report the false positive</strong>, without leaving the page. The text is
+never fetched for it: it starts from the stored prompt only when you already
+read it (content storage on, your role, a logged reason), else you type it.
+The panel previews the impact from what the control plane stores
+(<code>GET .../requests/{id}/impact</code>, 7 days): identical requests (same body hash)
+and how many were refused; for a rule's refusal, how many requests that rule
+decided (an exemplar does not change a rule; the panel links to the flow);
+for the detector's, how many refusals at or below the score a higher block
+threshold would let through, or that the score is above the gateway's
+threshold. It cannot tell exactly which other requests an exemplar would
+flip: that would need the texts and the detector's models, and it says so.</p>
+<p><strong>Command palette.</strong> Ctrl+K (⌘K on a Mac), or <strong>Search</strong> in the top bar,
+goes to any page the role may see and to the organization's policies,
+projects, model providers and API keys. Arrows move, Enter opens, Escape
+closes. The <strong>request log</strong> saves named filters (action and search, per
+organization, in this browser) and downloads the CSV report for a chosen
+period and project.</p>
 <p><strong>Report</strong> on a request log row (or in its details) turns a missed attack or a
 wrongly blocked text into a prefilled GitHub issue for the project's &quot;Bypass&quot;
 or &quot;False positive&quot; form: decision, scores, label, rule, model, gateway
@@ -164,18 +220,20 @@ sends nothing. Viewers can report. What happens to a report is described in
 </thead>
 <tbody>
 <tr>
-  <td><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/images/admin-flow-dark-vi.png" alt="Flow in Vietnamese, dark theme" /></td>
-  <td><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/images/admin-audit.png" alt="Audit log" /></td>
+  <td><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/images/admin-flow-dark-vi.png" alt="Flow in Vietnamese, dark theme" /></td>
+  <td><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/images/admin-audit.png" alt="Audit log" /></td>
 </tr>
 </tbody>
 </table></div>
 <p>The UI loads nothing from other origins and runs under the control plane's
 <code>Content-Security-Policy</code> (<code>default-src 'self'</code>, no inline scripts or styles);
 the e2e tests run the production build under that policy and fail on any
-violation. Screenshots are taken against the mocked API of the e2e tests
+violation. Every page is checked with axe-core in English and Vietnamese
+(<code>e2e/a11y.spec.ts</code>): a serious or critical WCAG 2.1 A or AA violation fails
+the build. Screenshots are taken against the mocked API of the e2e tests
 (<code>npm run screenshots</code> in <code>web/</code>).</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#admin-ui">README.md#admin-ui</a> @ <code>affcb7e33994</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#admin-ui">README.md#admin-ui</a> @ <code>c81d88c99140</code></p>
   </main>
 </div>
 

@@ -83,7 +83,7 @@ repository root) and the
 </tbody>
 </table></div>
 <p>Before 1.0, a minor version can change the schema and the configuration:
-read the <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/CHANGELOG.md">CHANGELOG</a> for every version you skip.</p>
+read the <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CHANGELOG.md">CHANGELOG</a> for every version you skip.</p>
 <h2 id="backups">Backups<a class="anchor" href="#backups" aria-hidden="true">#</a></h2>
 <p><code>scripts/backup.sh</code> saves what a restore needs, while the stack runs:</p>
 <pre><code class="language-bash">scripts/backup.sh                                                     # quick start
@@ -190,6 +190,51 @@ and the security settings; exit code 1 means a check failed (<code>-strict</code
 also fails on warnings, <code>-json</code> for scripts). See
 <a href="/docs/operations/#kubernetes">README, Kubernetes</a>.</li>
 </ul>
+<h3 id="migration-notes">Migration notes<a class="anchor" href="#migration-notes" aria-hidden="true">#</a></h3>
+<p>What a release's migrations do beyond adding tables, and what to check
+after them. The <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CHANGELOG.md">CHANGELOG</a> has the full upgrade notes of
+every version.</p>
+<ul>
+<li><strong>026 (policy versions).</strong> Adds <code>policies.log_only</code> and <code>policy_versions</code>,
+and writes one version row for every existing policy (its state at the
+upgrade), so the first edit after the upgrade can be rolled back. Down:
+the history is dropped and a log-only policy becomes live, so disable
+such policies first.</li>
+<li><strong>027 (two-person approval).</strong> Adds <code>approval_requests</code> and two
+<code>org_security</code> columns; off for every organization. Down: pending
+requests are dropped.</li>
+<li><strong>028 (API key policy).</strong> Replaces <code>lookup_api_key</code> so it also returns a
+key's allowed addresses. Gateways from before 0.7.0 keep working against
+the new function (they read the first two columns); a 0.7.0 gateway
+needs the migration, so apply it before the gateway starts, as the
+compose <code>migrate</code> job does. Set <code>TRUSTED_PROXIES</code> on the <strong>gateway</strong> when
+it runs behind a reverse proxy and you use <code>allowed_cidrs</code>: without it
+the proxy's address is the client. Down: keys limited to addresses work
+from anywhere again; revoke them first if that matters. Expiries set by
+rotations or the maximum lifetime stay.</li>
+<li><strong>029 (approval consistency).</strong> Adds the <code>cancelled</code> status, a partial
+unique index that allows one pending request per organization, kind and
+target, and lets instance administrators read pending organization
+deletions. It cancels pending <code>policy.delete</code> requests (deleting a policy
+no longer needs approval; only a disabled policy can be deleted) and,
+where a change was pending twice, every request but the oldest. After
+it: API clients and config files that delete an <strong>enabled</strong> policy get
+409 <code>policy_enabled</code> (422 for a file): disable it first. Deleting an
+organization always becomes a request another owner or an instance
+administrator approves, two-person approval on or off. Down: cancelled
+requests read as expired and duplicates are allowed again.</li>
+<li><strong>030 (input settings).</strong> Adds <code>org_input_settings</code> (one row per
+organization that sets its own input mode, token limit, file types and
+unreadable-file action) and the approval kind <code>input_settings.loosen</code>.
+No organization has a row after it, so every one keeps the instance's
+behaviour (<code>PDF_EXTRACT</code>, <code>UNSCANNED_PARTS</code>, <code>MAX_SCAN_TOKENS</code>) until an
+admin sets them. A 0.7.0 gateway reads the table with each request's
+guard settings: apply the migration before it starts, or requests fail
+closed with 503. Set <code>GATEWAY_URL</code> on the control plane so that it checks
+<code>max_input_tokens</code> against the gateway's <code>MAX_SCAN_TOKENS</code> (without it,
+40,000). Down: the settings and pending loosening requests are dropped,
+and every organization is back to the instance's behaviour.</li>
+</ul>
 <h2 id="rolling-back">Rolling back<a class="anchor" href="#rolling-back" aria-hidden="true">#</a></h2>
 <h3 id="images-no-schema-change">Images, no schema change<a class="anchor" href="#images-no-schema-change" aria-hidden="true">#</a></h3>
 <p>When the release you leave added no migration (compare <code>migrations/</code> of the
@@ -238,7 +283,7 @@ again.</li>
 <code>DETECTOR_REQUIRE_ML=true</code> a missing model stops it at start, by design.</li>
 </ul>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/upgrade.md">docs/upgrade.md</a> @ <code>affcb7e33994</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/upgrade.md">docs/upgrade.md</a> @ <code>c81d88c99140</code></p>
   </main>
 </div>
 
