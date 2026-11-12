@@ -233,19 +233,43 @@ needs <code>Authorization: Bearer &lt;token from /v1/auth/login&gt;</code>. Role
   <td>any user</td>
 </tr>
 <tr>
+  <td><code>POST /policy/sample</code> (<code>{&quot;text&quot;}</code>, at most 8000 bytes, to <code>{vars, layers, rules}</code>: a sample sentence scored with the sanitizer, the L1 rules and the personal data patterns for the simulator; <code>scores.l2</code> and <code>scores.l3</code> are -1; nothing stored; 60 per user per minute)</td>
+  <td>any user</td>
+</tr>
+<tr>
   <td><code>GET /organizations/:orgId</code> (includes <code>default_upstream_id</code>)</td>
   <td>viewer</td>
 </tr>
 <tr>
-  <td><code>PATCH /organizations/:orgId</code> (<code>audit_store_content</code>)</td>
+  <td><code>PATCH /organizations/:orgId</code> (<code>audit_store_content</code>; 202 with a pending request under <a href="/docs/operations/#governance">two-person approval</a>)</td>
   <td>admin</td>
+</tr>
+<tr>
+  <td><code>DELETE /organizations/:orgId</code> (<code>{&quot;confirm&quot;: &quot;&lt;slug&gt;&quot;, &quot;reason&quot;}</code>; never the default organization; an owner gets 202 with a request another owner or an instance administrator approves; an instance administrator deletes at once with a <code>reason</code>)</td>
+  <td>owner, instance admin</td>
+</tr>
+<tr>
+  <td><code>GET /organizations/:orgId/approvals?status=pending\|approved\|rejected\|expired\|cancelled\|all</code></td>
+  <td>admin, instance admin</td>
+</tr>
+<tr>
+  <td><code>POST /organizations/:orgId/approvals/:id/approve</code>, <code>.../reject</code> (<code>{&quot;note&quot;}</code>; the requester cannot approve their own; an organization's deletion is approved by another owner or an instance administrator)</td>
+  <td>admin, instance admin</td>
 </tr>
 <tr>
   <td><code>GET</code>, <code>PUT /organizations/:orgId/guard-settings</code></td>
   <td>viewer, admin</td>
 </tr>
 <tr>
-  <td><code>GET</code>, <code>PUT /organizations/:orgId/security</code> (2FA requirement, login methods, domain join, session lifetime, <code>scim_revoke_keys</code>)</td>
+  <td><code>GET /organizations/:orgId/input-settings</code> (the settings or <code>inherit</code>, the instance limits read from the gateway, a pending loosening)</td>
+  <td>viewer</td>
+</tr>
+<tr>
+  <td><code>PUT /organizations/:orgId/input-settings</code> (<code>{input_mode, max_input_tokens, allowed_file_types, unreadable_file_action, reason}</code>), <code>DELETE</code> (back to the instance's behaviour, <code>{reason}</code>); 202 with a pending request when it loosens and <a href="/docs/operations/#governance">two-person approval</a> is on. See <a href="/docs/operations/#per-organization-input-settings">Per-organization input settings</a></td>
+  <td>admin</td>
+</tr>
+<tr>
+  <td><code>GET</code>, <code>PUT /organizations/:orgId/security</code> (2FA requirement, login methods, domain join, session lifetime, <code>scim_revoke_keys</code>, <code>two_person_approval</code>, <code>approval_expiry_hours</code>, <code>api_key_max_lifetime_days</code>)</td>
   <td>admin, owner</td>
 </tr>
 <tr>
@@ -281,11 +305,15 @@ needs <code>Authorization: Bearer &lt;token from /v1/auth/login&gt;</code>. Role
   <td>viewer, admin</td>
 </tr>
 <tr>
-  <td><code>GET</code>, <code>POST /organizations/:orgId/api-keys</code></td>
+  <td><code>GET</code>, <code>POST /organizations/:orgId/api-keys</code> (<code>expires_at</code>, <code>allowed_cidrs</code>; see <a href="/docs/operations/#governance">API key policy</a>)</td>
   <td>admin</td>
 </tr>
 <tr>
-  <td><code>PATCH</code>, <code>DELETE /organizations/:orgId/api-keys/:keyId</code></td>
+  <td><code>PATCH</code> (<code>rpm_limit</code>, <code>tpm_limit</code>, <code>allowed_cidrs</code>, <code>expires_at</code>), <code>DELETE /organizations/:orgId/api-keys/:keyId</code></td>
+  <td>admin</td>
+</tr>
+<tr>
+  <td><code>POST /organizations/:orgId/api-keys/:keyId/rotate</code> (<code>{&quot;overlap_hours&quot;: 24}</code>; the successor key is in the answer once)</td>
   <td>admin</td>
 </tr>
 <tr>
@@ -317,7 +345,7 @@ needs <code>Authorization: Bearer &lt;token from /v1/auth/login&gt;</code>. Role
   <td>viewer, admin</td>
 </tr>
 <tr>
-  <td><code>GET</code>, <code>POST /organizations/:orgId/policies</code> (409 on a name the org already uses; <code>enabled</code> defaults to true)</td>
+  <td><code>GET</code>, <code>POST /organizations/:orgId/policies</code> (409 on a name the org already uses; <code>enabled</code> defaults to true; <code>log_only</code>, <code>reason</code>)</td>
   <td>viewer, admin</td>
 </tr>
 <tr>
@@ -325,11 +353,27 @@ needs <code>Authorization: Bearer &lt;token from /v1/auth/login&gt;</code>. Role
   <td>viewer</td>
 </tr>
 <tr>
-  <td><code>PUT</code>, <code>DELETE /organizations/:orgId/policies/:id</code></td>
+  <td><code>PUT</code>, <code>DELETE /organizations/:orgId/policies/:id</code> (disabling answers 202 under two-person approval; only a disabled policy is deleted, else 409 <code>policy_enabled</code>)</td>
+  <td>admin</td>
+</tr>
+<tr>
+  <td><code>GET /organizations/:orgId/policies/:id/versions</code>, <code>GET .../versions/diff?from=&amp;to=</code> (<a href="/docs/operations/#governance">policy history</a>)</td>
+  <td>viewer</td>
+</tr>
+<tr>
+  <td><code>POST /organizations/:orgId/policies/:id/rollback</code> (<code>{&quot;version&quot;, &quot;reason&quot;}</code>; without <code>version</code>, one step back)</td>
   <td>admin</td>
 </tr>
 <tr>
   <td><code>GET /organizations/:orgId/requests?limit=&amp;cursor=&amp;action=</code> (includes <code>route_target</code>, <code>repeat_count</code> and <code>has_content</code>; never the content)</td>
+  <td>viewer</td>
+</tr>
+<tr>
+  <td><code>GET /organizations/:orgId/requests/:requestId/impact</code> (what a false-positive fix concerns over 7 days, from stored scores and hashes: <code>same_input</code>, <code>same_rule</code>, <code>threshold</code>; counts only; see <a href="/docs/operations/admin-ui/">Admin UI</a>)</td>
+  <td>viewer</td>
+</tr>
+<tr>
+  <td><code>GET /organizations/:orgId/getting-started</code> (the setup checklist: enabled providers and reachability from the request log, active API keys, enabled policies, the gateway's layers and version, alert channels, own input settings, <code>complete</code>; counts only)</td>
   <td>viewer</td>
 </tr>
 <tr>
@@ -338,6 +382,10 @@ needs <code>Authorization: Bearer &lt;token from /v1/auth/login&gt;</code>. Role
 </tr>
 <tr>
   <td><code>GET /organizations/:orgId/dashboard?window=24h\|7d\|30d&amp;project_id=</code> (request log aggregates; see below)</td>
+  <td>viewer</td>
+</tr>
+<tr>
+  <td><code>GET /organizations/:orgId/reports/requests.csv?window=24h\|7d\|30d</code> or <code>?from=&amp;to=</code> (the same per period as CSV, counts only; see <a href="/docs/operations/#governance">Governance</a>)</td>
   <td>viewer</td>
 </tr>
 <tr>
@@ -366,8 +414,10 @@ log in Postgres over a window that ends now (<code>window</code> is <code>24h</c
 <code>block_rate</code>, <code>by_action</code>, <code>latency_ms</code> (<code>p50</code>, <code>p95</code>, <code>p99</code>; null without
 latencies), a <code>series</code> of <code>{start, count, blocked}</code> per hour (24h) or per day
 (UTC, empty buckets included), and the top five <code>top_labels</code> (benign left
-out), <code>top_rules</code> (with rule and policy names) and <code>top_projects</code>. The admin
-UI dashboard reads it.</p>
+out), <code>top_rules</code> (with rule and policy names) and <code>top_projects</code>, and the
+most attacked: <code>top_blocked_projects</code> and <code>top_blocked_keys</code> (key prefix and
+alias), refused requests only. The admin UI dashboard and security overview
+read it.</p>
 <p><strong>Errors</strong> are <code>{&quot;error&quot;: &quot;message&quot;}</code>; the identity endpoints add a
 machine-readable <code>&quot;code&quot;</code> (such as <code>mfa_required</code>, <code>login_method_not_allowed</code>,
 <code>last_owner</code>, <code>invalid_code</code>). The gateway refuses a model an upstream does
@@ -433,14 +483,22 @@ the parts the gateway forwards but cannot read, in the turns it scans; see
 of them were read with <code>PDF_EXTRACT</code>) and <code>input.pdf.reasons</code> (why the others
 were not: <code>no_text</code>, <code>encrypted</code>, <code>damaged</code>, <code>timeout</code>, <code>over_limit</code>,
 <code>internal</code>, <code>remote</code>) describe the PDFs. Example: <code>&quot;encrypted&quot; in input.pdf.reasons</code> with action <code>block</code>.
+<code>input.files.types</code> lists the types of the images, files and audio in those
+turns, detected from their content (<code>pdf</code>, <code>png</code>, <code>jpeg</code>, <code>gif</code>, <code>webp</code>,
+<code>docx</code>, <code>xlsx</code>, <code>pptx</code>, <code>zip</code>, <code>wav</code>, <code>mp3</code>, <code>ogg</code>, <code>flac</code>, <code>unknown</code>,
+<code>remote</code>); see <a href="/docs/operations/#per-organization-input-settings">Per-organization input settings</a>.
 <code>pii.entities</code>, <code>toxicity.score</code> and <code>topic.categories</code> were removed: new
 rules may not name them, and stored rules that do read <code>[]</code> or <code>0</code> as they
 always did. A policy holds at most 200 rules; each rule has a CEL
 cost limit, the rules of one request share a cost budget and a timeout, and
 any of these limits fails closed with 503. Project policies run before the
-org-wide ones.</p>
+org-wide ones. A policy with <code>log_only</code> is evaluated like any other, but
+what its <code>allow</code>, <code>block</code> and <code>route</code> rules would have decided is only
+recorded in the request log (tag <code>policy:would_block=&lt;rule id&gt;</code>); the
+request goes on to the next policy. Every save is kept as a version
+(see <a href="/docs/operations/#governance">Governance</a>).</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#apis">README.md#apis</a> @ <code>affcb7e33994</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#apis">README.md#apis</a> @ <code>c81d88c99140</code></p>
   </main>
 </div>
 

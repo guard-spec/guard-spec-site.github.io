@@ -466,11 +466,11 @@ is single-turn, so the window does not change its numbers (L1: FPR 0.1 %,
 L1+L2+L3: FPR 1.4 % at the gateway decision, as before).</p>
 <p><strong>Latency.</strong> One more detector run per request that has a new window, and a
 cache lookup otherwise (<code>BenchmarkConversationWindow</code>, see
-<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>).</p>
 <h2 id="personal-data-in-requests">Personal data in requests<a class="anchor" href="#personal-data-in-requests" aria-hidden="true">#</a></h2>
 <p>An organization can have the gateway count the personal data in each request
 and give the result to its policy rules
-(<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>). It is <strong>off by
+(<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>). It is <strong>off by
 default</strong>; turn it on with <code>input_pii: true</code> in the org's guard settings
 (<code>PUT /v1/organizations/:orgId/guard-settings</code>, or admin UI: Guard settings →
 Detect personal data in requests). The setting is read per request, so a
@@ -528,7 +528,7 @@ with an e-mail address and a phone number): the check adds about 11 µs to
 a 2 KB request (sanitize step 148 → 159 µs) and about 57 µs to a 20 KB one
 (1.62 → 1.68 ms); end to end with L1 the p50 goes from 1.18 to 1.20 ms
 (2 KB) and from 11.08 to 11.19 ms (20 KB). With the setting off nothing
-runs. See <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>.</li>
+runs. See <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>.</li>
 </ul>
 <h2 id="content-the-gateway-cannot-read">Content the gateway cannot read<a class="anchor" href="#content-the-gateway-cannot-read" aria-hidden="true">#</a></h2>
 <p>The detector reads text. Images, audio and files in a request are forwarded
@@ -666,6 +666,77 @@ which PDFs are not read; a rule on <code>input.pdf.reasons</code> refuses the ki
 you do not want. <code>PDF_EXTRACT=off</code> is the behaviour of 0.5.0: every PDF is
 an unscanned part.</li>
 </ul>
+<h2 id="per-organization-input-settings">Per-organization input settings<a class="anchor" href="#per-organization-input-settings" aria-hidden="true">#</a></h2>
+<p>An organization's admins can set what the gateway accepts from the
+organization's applications (admin UI: <strong>Input settings</strong>, or
+<code>PUT /v1/organizations/:orgId/input-settings</code>). The instance's environment
+stays the ceiling. An organization without settings keeps the instance's
+behaviour exactly (<code>PDF_EXTRACT</code>, <code>UNSCANNED_PARTS</code>, <code>MAX_SCAN_TOKENS</code>, as
+described above).</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Setting</th>
+  <th>Values</th>
+  <th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>input_mode</code></td>
+  <td><code>text_only</code>, <code>hybrid</code></td>
+  <td><code>text_only</code>: every image, file and audio part is refused with 415 <code>files_not_accepted</code>, whose message tells the application to convert files to text. <code>hybrid</code>: text and the files whose type is allowed.</td>
+</tr>
+<tr>
+  <td><code>max_input_tokens</code></td>
+  <td>1 to the instance's limit, or <code>null</code></td>
+  <td>A request with more tokens of text to scan is refused with 413 <code>max_input_tokens_exceeded</code> before it is scanned. The limit is the gateway's <code>MAX_SCAN_TOKENS</code>, or 40,000 (the short path) without it; a larger value is refused with 400. <code>null</code>: the instance's limit.</td>
+</tr>
+<tr>
+  <td><code>allowed_file_types</code></td>
+  <td><code>pdf</code> (types the gateway can read)</td>
+  <td><code>hybrid</code> only. Any other file type is refused with 415 <code>file_type_not_allowed</code>.</td>
+</tr>
+<tr>
+  <td><code>unreadable_file_action</code></td>
+  <td><code>block</code> (default), <code>pass</code></td>
+  <td>An allowed file the gateway cannot read (a scanned, encrypted or damaged PDF, one over the extractor's limits, or any PDF with <code>PDF_EXTRACT=off</code>): <code>block</code> refuses the request with 422 <code>file_unreadable</code>; <code>pass</code> forwards it as an unscanned part and tags the audit row <code>input:unreadable_passed=&lt;n&gt;</code> (<code>UNSCANNED_PARTS=block</code> still refuses it).</td>
+</tr>
+</tbody>
+</table></div>
+<p>The type of every part is detected from its content (<code>%PDF-</code>, the PNG,
+JPEG, GIF and WebP signatures, an Office Open XML zip, WAV, MP3, Ogg,
+FLAC) and checked against what the part declares: the <code>media_type</code>, the
+type of a data URL, the <code>filename</code> extension or the audio <code>format</code>. A
+mismatch is refused with 415 <code>file_type_mismatch</code>; the extension alone is
+never trusted. A file the gateway does not receive (a URL, <code>file_id</code> or
+<code>file_url</code>) cannot be checked and is refused with 415 <code>file_not_inline</code>.
+The detected types are the policy field <code>input.files.types</code> (with or
+without settings) and, for an organization with settings, the audit tags
+<code>input:file_&lt;type&gt;=&lt;n&gt;</code>. A refusal is tagged <code>input:refused=&lt;reason&gt;</code> and
+counted in <code>guardspec_gateway_input_refused_total{reason}</code>.</p>
+<p>Tightening a setting applies at once. Loosening one (a file type added,
+<code>max_input_tokens</code> raised or cleared, <code>pass</code> instead of <code>block</code>,
+<code>text_only</code> to <code>hybrid</code>, or <code>DELETE</code> back to the instance's behaviour) is
+always written to the activity log (<code>input_settings.updated</code>, with what it
+loosened) and, when the organization has
+<a href="#governance">two-person approval</a> on, answers 202 with an
+<code>input_settings.loosen</code> request that another admin approves: the
+tightening part of the same change applies at once. One such request is
+pending at a time (a different loosening meanwhile is refused with 409
+<code>approval_pending</code>), and a later change of the settings cancels it.</p>
+<p>The control plane reads the instance's limits from the gateway's <code>/readyz</code>
+(<code>input</code>), through <code>GATEWAY_URL</code>; without it the bound of
+<code>max_input_tokens</code> is 40,000, and the gateway still applies its own
+<code>MAX_SCAN_TOKENS</code>. Office files, <code>/v1/files</code> uploads and OCR are not
+read.</p>
+<pre><code class="language-bash"># Text only for this organization, at most 8,000 tokens a request
+curl -s -X PUT $CP/organizations/$ORG/input-settings -H &quot;$AUTH&quot; -H 'Content-Type: application/json' \
+  -d '{&quot;input_mode&quot;:&quot;text_only&quot;,&quot;max_input_tokens&quot;:8000}'
+# Accept PDFs and refuse those the gateway cannot read
+curl -s -X PUT $CP/organizations/$ORG/input-settings -H &quot;$AUTH&quot; -H 'Content-Type: application/json' \
+  -d '{&quot;input_mode&quot;:&quot;hybrid&quot;,&quot;allowed_file_types&quot;:[&quot;pdf&quot;],&quot;unreadable_file_action&quot;:&quot;block&quot;,&quot;reason&quot;:&quot;contracts&quot;}'
+</code></pre>
 <h2 id="large-inputs">Large inputs<a class="anchor" href="#large-inputs" aria-hidden="true">#</a></h2>
 <p>By default a proxied request may carry about 28 KB of user, system and
 tool-call text (16 chunks of about 2 KB), 128 KiB of tool results, documents
@@ -719,7 +790,8 @@ Expect long benign documents to be blocked more often than short ones. The
 classifier cap for untrusted content (<code>l2_untrusted_max</code>, set by the v5
 candidate's calibration, in shadow mode for now) lowers this for tool
 results and documents; at most 1% on 100k–200k-token documents is not
-reached yet (task RF-895d3533). Try it on your own
+reached (task RF-895d3533 ended without meeting it; a further attempt is
+the draft task RF-3a9ce3f9). Try it on your own
 documents with <code>AUDIT_STORE_CONTENT</code> off and the request log's scores first.
 A 200k-token document takes tens of seconds to scan on a few cores (see
 <a href="/docs/operations/sizing/">docs/sizing.md</a>). <code>POST /guardrail/scan</code> and
@@ -803,6 +875,14 @@ Keep that port on the internal network.</p>
 <tr>
   <td><code>scan_queue_wait_seconds</code></td>
   <td><code>outcome</code> (<code>admitted</code>, <code>timeout</code>, <code>full</code>, <code>canceled</code>): wait for the large-input lane</td>
+</tr>
+<tr>
+  <td><code>input_refused_total</code></td>
+  <td><code>reason</code> (<code>text_only</code>, <code>type_not_allowed</code>, <code>type_mismatch</code>, <code>not_inline</code>, <code>unreadable</code>, <code>max_input_tokens</code>): requests an organization's <a href="#per-organization-input-settings">input settings</a> refused</td>
+</tr>
+<tr>
+  <td><code>input_files_total</code></td>
+  <td><code>type</code> (<code>pdf</code>, <code>png</code>, <code>jpeg</code>, ..., <code>unknown</code>, <code>remote</code>): image, file and audio parts by detected type</td>
 </tr>
 </tbody>
 </table></div>
@@ -1136,8 +1216,11 @@ and a login never adds a membership.</li>
 replaces the current one even when it is lower, and leaving the admins group
 takes the access away (at once with SCIM, at the next login with SAML).
 SAML role changes are logged as <code>member.role_from_group</code>.</p>
-<p><strong>Activity log.</strong> Member, invite, API key, policy, upstream, security and
-config changes and 2FA resets are recorded per org
+<p><strong>Activity log.</strong> Member, invite, API key (<code>api_key.created</code>, <code>.updated</code>,
+<code>.rotated</code>, <code>.revoked</code>), policy (<code>policy.created</code>, <code>.updated</code> with the
+version, <code>.rolled_back</code>, <code>.deleted</code>), approval (<code>approval.requested</code>,
+<code>.approved</code>, <code>.rejected</code>, <code>.cancelled</code>), report (<code>report.downloaded</code>), upstream, security
+and config changes and 2FA resets are recorded per org
 (<code>GET /v1/organizations/:orgId/activity</code>); SSO provider and instance user
 changes, logins (success and failure) and the user's own 2FA events at
 <code>GET /v1/admin/activity</code>. Details never hold secrets; a failed login keeps
@@ -1168,6 +1251,113 @@ its rows are deleted through a function with the table owner's rights (as
 for audit rows); the application role still cannot read or delete across
 orgs. Expired entries of the shared scan cache (<code>SCAN_CACHE_BACKEND=postgres</code>)
 go in the same run, whatever the retention periods are.</p>
+<h2 id="governance">Governance<a class="anchor" href="#governance" aria-hidden="true">#</a></h2>
+<p>Four controls for the people who run an organization (migrations 026 to
+029); all off or unchanged by default, except that deleting an organization
+always takes two people and a policy is deleted only once it is disabled.</p>
+<p><strong>Policy history.</strong> Every save of a policy (API, admin UI, config as code)
+is kept as a version: the whole policy as it was after the save, the
+author, the time and an optional <code>reason</code> (at most 500 characters) given
+with the <code>POST</code> or <code>PUT</code>. <code>GET /v1/organizations/{id}/policies/{pid}/versions</code>
+lists them newest first (<code>items</code>, <code>current</code>), <code>GET .../versions/diff?from=1&amp;to=3</code>
+compares two (<code>fields</code> that changed and <code>rules</code> added, removed, changed or
+moved, by rule id; without <code>to</code> the current version, without <code>from</code> the one
+before it), and <code>POST .../rollback</code> <code>{&quot;version&quot;: 1, &quot;reason&quot;: &quot;...&quot;}</code> makes
+the policy what it was at that version, as a new version (without <code>version</code>,
+one step back). A rollback is checked like any save: the name must still be
+free, the rules must still run on this gateway and route targets must
+exist. The activity log records <code>policy.updated</code> (with the version) and
+<code>policy.rolled_back</code> (<code>to_version</code>, <code>version</code>). Policies that existed before
+migration 026 start their history with their state at the upgrade. A policy
+with <code>log_only: true</code> records instead of deciding: a matching <code>block</code>,
+<code>allow</code> or <code>route</code> rule of it is written to the request log as
+<code>policy:would_block=&lt;rule id&gt;</code> (<code>would_allow</code>, <code>would_route</code>) and the
+request goes on to the next policy; its <code>log</code> rules behave as always. The
+request log row names the first such rule when nothing else decided, the
+simulator reports <code>log_only</code> on the rule and the decision, and the Flow
+page shows the switch next to each policy. Config as code carries
+<code>log_only</code> per policy.</p>
+<p><strong>Two-person approval.</strong> <code>PUT /v1/organizations/{id}/security</code>
+<code>{&quot;two_person_approval&quot;: true, &quot;approval_expiry_hours&quot;: 24}</code> (owner) makes
+two changes wait for a second administrator: disabling a policy (<code>PUT</code>
+with <code>enabled: false</code>, or a rollback to a disabled version; the rest of the
+save applies at once) and turning on the storage of prompt and answer
+content (<code>audit_store_content: true</code>). The call answers 202
+<code>{&quot;approval_required&quot;: true, &quot;request&quot;: {...}}</code> and changes nothing; asking
+again while the same change is pending answers that request
+(<code>&quot;already_pending&quot;: true</code>): there is at most one pending request per
+organization, kind and target. <code>GET /v1/organizations/{id}/approvals</code> lists
+the pending requests (<code>kind</code>, <code>target</code>, <code>target_label</code>, <code>requested_by</code>,
+<code>reason</code>, <code>expires_at</code>); <code>POST .../approvals/{rid}/approve</code> <code>{&quot;note&quot;}</code>
+applies the change in the same transaction, as the approver, and
+<code>.../reject</code> ends it. The requester cannot approve their own request (403
+<code>self_approval</code>) but can reject it; a request past <code>approval_expiry_hours</code>
+(1 to 720) expires and changes nothing (409 <code>approval_expired</code>). Approving
+a disable locks the request and the policy and only turns <code>enabled</code> off:
+edits made to the policy after the request stay. A request whose change no
+longer applies (the policy was deleted, or is already disabled) is
+cancelled instead of failing: the approval answers 409 <code>approval_cancelled</code>
+with the request, and the list cancels such requests as it finds them.
+Turning storage off, enabling a policy and everything else apply at once,
+as before; with the setting off nothing changes.</p>
+<p><strong>Deleting a policy</strong> never waits for approval, but only a disabled policy
+can be deleted: <code>DELETE .../policies/{pid}</code> on an enabled one answers 409
+<code>{&quot;error&quot;: &quot;disable the policy before deleting it&quot;, &quot;code&quot;: &quot;policy_enabled&quot;}</code>,
+whatever the security policy says. Under two-person approval the guarded
+step, disabling, cannot be skipped by deleting instead. Config as code
+follows the same rule: a file that leaves out an enabled policy is refused
+(422; set <code>enabled: false</code>, apply, then remove it), and with two-person
+approval on a file cannot disable an enabled policy (disable it on the
+Policy flow page or with <code>PUT</code>). The Policy flow page offers to delete a
+policy only while it is disabled as saved.</p>
+<p><strong>Deleting an organization</strong> always takes two people, whatever
+<code>two_person_approval</code> says: <code>DELETE /v1/organizations/{id}</code>
+<code>{&quot;confirm&quot;: &quot;&lt;slug&gt;&quot;, &quot;reason&quot;: &quot;...&quot;}</code> by an owner answers 202 with a
+pending request that another owner of the organization or an instance
+administrator approves (an admin may reject it, the requester may withdraw
+it). An instance administrator may delete an organization at once, member
+or not, but must give a <code>reason</code> (400 <code>reason_required</code> without one); the
+default organization is never deleted (409 <code>default_org</code>). Instance
+administrators see every organization's pending deletion at
+<code>GET /v1/admin/approvals</code> and on the <strong>Approvals</strong> page. The organization's
+own log goes with it, so <code>org.deleted</code> (with the slug, the reason and, for
+an approval, the request) and <code>approval.approved</code> are written to the
+instance log.</p>
+<p>Every step is in the activity log (<code>approval.requested</code>,
+<code>approval.approved</code> with the effect's own action, <code>approval.rejected</code>,
+<code>approval.cancelled</code>) and reaches the alert channels as
+<code>activity.approval.*</code> events. The admin UI lists the requests on
+<strong>Approvals</strong>.</p>
+<p><strong>API key policy.</strong> A key can be limited to addresses:
+<code>POST /v1/organizations/{id}/api-keys</code> <code>{&quot;alias&quot;: &quot;edge&quot;, &quot;allowed_cidrs&quot;: [&quot;203.0.113.0/24&quot;, &quot;198.51.100.7&quot;]}</code> (at most 32 CIDRs or addresses; also
+<code>PATCH</code>). The gateway refuses the key from any other address with 403
+<code>{&quot;error&quot;: &quot;API key is not allowed from this address&quot;}</code> (the Anthropic error
+shape on <code>/v1/messages</code>), using the client address it resolves through
+<code>TRUSTED_PROXIES</code>, never a header a client sent on its own; an expired or
+revoked key stays 401. <code>api_key_max_lifetime_days</code> in the security policy
+(1 to 3650, null for no limit) caps the <code>expires_at</code> of every new key and
+fills it in when a key is created without one; existing keys are not
+changed. <code>POST .../api-keys/{prefix}/rotate</code> <code>{&quot;overlap_hours&quot;: 24}</code> (0 to
+720) creates a successor with the same alias, project, limits and
+addresses, returned once, and gives the old key an expiry at the end of the
+overlap (<code>rotated_to</code> and <code>rotated_at</code> in the list; a rotated key cannot be
+rotated again, rotate its successor). Logged as <code>api_key.rotated</code>.</p>
+<p><strong>Reports.</strong> <code>GET /v1/organizations/{id}/reports/requests.csv?window=7d</code>
+(or <code>?from=2026-11-01T00:00:00Z&amp;to=2026-11-08T00:00:00Z</code>, at most 92 days;
+<code>project_id</code> narrows it) answers the request log per hour (up to 48 hours)
+or day (UTC) in long form, one row per period and item:
+<code>period_start,period_end,section,key,requests,blocked</code> with the sections
+<code>total</code> (<code>all</code>), <code>action</code> (<code>allow</code>, <code>block</code>, <code>route</code>, <code>error</code>), <code>reason</code>
+(why a request was blocked: <code>policy:&lt;rule name&gt;</code>, else the detector's label,
+else <code>other</code>), <code>project</code> (the name, or <code>none</code>) and <code>api_key</code> (the prefix, or
+<code>none</code>). Counts only, never content; empty periods are left out; the file
+name is <code>guard-spec-&lt;slug&gt;-&lt;from&gt;-&lt;to&gt;.csv</code>; each download is logged as
+<code>report.downloaded</code>. The dashboard's <strong>Download CSV</strong> button fetches its
+window and project. There is no scheduler for per-organization jobs in
+the control plane, so a periodic report is a cron job:</p>
+<pre><code class="language-bash">0 6 * * 1 curl -sf -H &quot;Authorization: Bearer $TOKEN&quot; \
+  &quot;$CP/organizations/$ORG/reports/requests.csv?window=7d&quot; -o &quot;weekly-$(date +\%F).csv&quot;
+</code></pre>
 <h2 id="scan-cache">Scan cache<a class="anchor" href="#scan-cache" aria-hidden="true">#</a></h2>
 <p>Claude Code (<code>/v1/messages</code>) and Responses API clients (<code>/v1/responses</code>)
 resend the whole session every turn: system prompt or instructions, tool
@@ -1325,7 +1515,7 @@ and <code>dbRoles</code> hooks, network policies, and EN / VI injections blocked
 L1 only.</li>
 </ul>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#operations">README.md#operations</a> @ <code>affcb7e33994</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#operations">README.md#operations</a> @ <code>c81d88c99140</code></p>
   </main>
 </div>
 

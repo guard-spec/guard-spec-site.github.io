@@ -91,7 +91,7 @@ docker compose -f docker-compose.yml up -d
 <p><code>models-init</code> pulls only what the layers need, and <code>/readyz</code> shows the active
 layers (<code>&quot;layers&quot;:[&quot;l1&quot;,&quot;l2&quot;]</code>). What each layer detects and how they are
 fused: README, <a href="/docs/models/">Models</a> and
-<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#benchmarks">Benchmarks</a>.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#benchmarks">Benchmarks</a>.</p>
 <h2 id="measured-resource-use">Measured resource use<a class="anchor" href="#measured-resource-use" aria-hidden="true">#</a></h2>
 <p><strong>Source.</strong> Measured on 2026-11-06 by the maintainers on one machine: an
 Apple M3 Max (arm64) MacBook Pro, Docker Desktop 28.4 with a Linux VM of
@@ -279,9 +279,9 @@ queueing up behind the model layers.</li>
 memory limit) fit the full detector's measured peak; set
 <code>INFERENCE_MAX_CONCURRENCY</code> and <code>INFERENCE_INTRA_OP_THREADS</code> to the CPU
 limit as above (<code>gateway.env</code>), and scale with <code>gateway.autoscaling</code> (HPA). See
-<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/deploy/helm/guard-spec/values.yaml"><code>values.yaml</code></a>, the per-cloud
+<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/deploy/helm/guard-spec/values.yaml"><code>values.yaml</code></a>, the per-cloud
 examples in
-<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/deploy/helm/guard-spec/examples"><code>deploy/helm/guard-spec/examples/</code></a>
+<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/deploy/helm/guard-spec/examples"><code>deploy/helm/guard-spec/examples/</code></a>
 and <a href="/docs/operations/#kubernetes">README, Kubernetes</a>.</li>
 </ul>
 <h2 id="long-inputs">Long inputs<a class="anchor" href="#long-inputs" aria-hidden="true">#</a></h2>
@@ -362,14 +362,14 @@ for each run.</p>
   <td style="text-align:right">about 1.5 s</td>
 </tr>
 <tr>
-  <td>GPU</td>
-  <td>not measured (task RF-b74de2b9)</td>
+  <td>NVIDIA L4 (GPU option, FP16 model)</td>
+  <td>Colab (shared VM), NVIDIA L4, driver 580.82.07, CUDA 12.9, ORT 1.31.1 gpu_cuda12, 12 vCPU Xeon 2.2 GHz, <code>INFERENCE_BATCH_SIZE=8</code>, 2026-11-12; median of 3 runs</td>
+  <td style="text-align:right">1.2 (L2 alone, batch 8)</td>
   <td style="text-align:right"></td>
   <td style="text-align:right"></td>
+  <td style="text-align:right">about 640,000 (L1+L2); about 1,500,000 (L2 alone)</td>
   <td style="text-align:right"></td>
-  <td style="text-align:right"></td>
-  <td style="text-align:right"></td>
-  <td style="text-align:right"></td>
+  <td style="text-align:right">0.30 s (L1+L2); 0.12 s (L2 alone)</td>
 </tr>
 </tbody>
 </table></div>
@@ -387,21 +387,143 @@ against about 2,300 per M3 Max core).</li>
 own run.</li>
 <li>For a 10 s scanning budget this means roughly 30k to 50k tokens per
 request on 2 to 4 vCPU, 60k on 8 and 120k on 16 (estimated); 200k tokens
-in 10 s needs about 32 dedicated vCPUs or a GPU (not measured yet).</li>
+in 10 s needs about 32 dedicated vCPUs or a GPU (an L4 takes about 3 s,
+see <a href="#gpu-option">GPU</a> below).</li>
 <li>CPU per token barely changes with K or intra: more parallelism cuts the
 wall time of one document, not its cost. A server scanning documents for
 several users at once gets the same total throughput from intra 1 and
 many concurrent runs as from fewer, wider runs.</li>
+<li><strong>100k and 200k-token documents, measured</strong> (Apple M3 Max, 2026-11-11,
+<code>guardspec-classifier-v3b</code>, commit <code>2b805cc</code>; one Wikipedia document of
+each size per language from the <code>long</code> profile, scored alone with
+<code>cmd/benchlong -docs</code>, <code>l1,l2</code>). The cost is linear in the length: a
+100k-token document takes 44.7 s (EN) / 39.8 s (VI) at intra 1 with one
+chunk at a time (2,200 to 2,500 tokens/s, 0.45 / 0.39 CPU-s per 1k
+tokens), 11.2 / 10.0 s with K = 4 (8,800 to 10,100 tokens/s), and 6.6 /
+5.7 s with ONNX Runtime's default threads and K = 4 (15,300 to 17,900
+tokens/s, 0.64 / 0.55 CPU-s per 1k tokens); a 200k-token document takes
+twice that (90.0 / 77.9 s, 22.7 / 19.6 s and 13.1 / 11.1 s). The
+classifier alone (<code>l2</code>, batched windows) scans 100k tokens in 32.8 s at
+intra 1 and 5.8 s with the default threads. Four long documents scored at
+once (the <code>long</code> profile's score pass, 128 documents, 18.0M tokens after
+the sanitizer) run at 7,100 to 7,900 tokens/s in total, 38 to 42 minutes
+for the whole profile. On a 4 vCPU cloud runner, 3 to 4 times slower per
+core, expect roughly 40 to 50 s per 100k tokens at best.</li>
+<li><strong>The gateway's long path costs less than the chunked numbers above.</strong>
+With <code>MAX_SCAN_TOKENS</code> set, a document past 128 KiB of untrusted text is
+tokenized once and scored in the classifier's 256-token windows, in
+batches, each window fused with L1 (<code>ml.ScoreLong</code>), not in 2,048-byte
+chunks. Measured as it runs with <code>cmd/benchlong -long on</code> (Apple M3 Max,
+2026-11-11, <code>guardspec-classifier-v6</code> with its cap and code corroboration,
+4 documents at a time, ONNX Runtime's default threads): the <code>long</code>
+profile's 128 documents (18.0M tokens after the sanitizer) in 19 minutes,
+15,600 tokens/s and 0.51 CPU-s per 1k tokens, against 7,100 tokens/s and
+1.49 CPU-s per 1k tokens for the chunked measurement of the same documents
+(which runs the classifier twice, per window for <code>l2</code> and per chunk for
+<code>l1,l2</code>); 256 documents of 100k to 200k tokens with an attack inside
+(31.9M tokens) at 17,900 tokens/s. So a 100k-token document costs about
+50 CPU-seconds on this machine, about 26 s of wall time each when four
+are scored at once on its 14 cores (not measured alone).</li>
 <li>The full per-run tables (L2 alone, every K, wall time per document) are in
-<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/bench/results/long-m3max-local.md"><code>bench/results/long-m3max-local.md</code></a>,
-<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/bench/results/long-gh-ubuntu-24.04-4vcpu.md"><code>long-gh-ubuntu-24.04-4vcpu.md</code></a>
-and <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/bench/results/long-gh-ubuntu-24.04-2vcpu.md"><code>long-gh-ubuntu-24.04-2vcpu.md</code></a>.
+<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/bench/results/long-m3max-local.md"><code>bench/results/long-m3max-local.md</code></a>,
+<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/bench/results/long-gh-ubuntu-24.04-4vcpu.md"><code>long-gh-ubuntu-24.04-4vcpu.md</code></a>
+and <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/bench/results/long-gh-ubuntu-24.04-2vcpu.md"><code>long-gh-ubuntu-24.04-2vcpu.md</code></a>.
 The runner runs predate the 0.4.2 code/log fixes, so their false-positive
 tables show the 0.4.1 detector; latency is unaffected.</li>
+</ul>
+<h3 id="gpu-option">GPU option<a class="anchor" href="#gpu-option" aria-hidden="true">#</a></h3>
+<p>The CPU is the default; the GPU is an option (<code>INFERENCE_PROVIDER=cuda</code>, an
+image you build from <code>build/gateway-gpu.Dockerfile</code>, the FP16 classifier;
+<a href="/docs/deploy/#gpu-optional">deploy, GPU</a>). Measured with
+<code>bench/gpu/colab_gpu_bench.sh</code> (<code>cmd/benchlong</code>, <code>l1,l2</code>, one document at a
+time) on <strong>Colab (shared VM), NVIDIA L4, driver 580.82.07, CUDA 12.9, ORT 1.31.1 gpu_cuda12</strong>, 12 vCPU Intel Xeon 2.2 GHz, 2026-11-12. Each figure is the median of 3
+runs; a shared VM varies, read them as indicative. The documents are English
+Wikipedia texts of 20k, 100k and 200k tokens.</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th style="text-align:right"><code>INFERENCE_BATCH_SIZE</code></th>
+  <th style="text-align:right">ms per window (L2)</th>
+  <th style="text-align:right">Tokens/s (L2)</th>
+  <th style="text-align:right">20k doc, L2</th>
+  <th style="text-align:right">100k doc, L2</th>
+  <th style="text-align:right">200k doc, L2</th>
+  <th style="text-align:right">200k doc, L1+L2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:right">8 (default on CUDA)</td>
+  <td style="text-align:right">1.21</td>
+  <td style="text-align:right">156,000</td>
+  <td style="text-align:right">0.12 s</td>
+  <td style="text-align:right">0.64 s</td>
+  <td style="text-align:right">1.29 s</td>
+  <td style="text-align:right">3.1 s</td>
+</tr>
+<tr>
+  <td style="text-align:right">32</td>
+  <td style="text-align:right">1.71</td>
+  <td style="text-align:right">111,000</td>
+  <td style="text-align:right">0.18 s</td>
+  <td style="text-align:right">0.90 s</td>
+  <td style="text-align:right">1.81 s</td>
+  <td style="text-align:right">3.1 s</td>
+</tr>
+<tr>
+  <td style="text-align:right">64</td>
+  <td style="text-align:right">1.79</td>
+  <td style="text-align:right">106,000</td>
+  <td style="text-align:right">0.19 s</td>
+  <td style="text-align:right">0.92 s</td>
+  <td style="text-align:right">1.91 s</td>
+  <td style="text-align:right">3.1 s</td>
+</tr>
+<tr>
+  <td style="text-align:right">128</td>
+  <td style="text-align:right">1.90</td>
+  <td style="text-align:right">100,000</td>
+  <td style="text-align:right">0.19 s</td>
+  <td style="text-align:right">0.97 s</td>
+  <td style="text-align:right">2.05 s</td>
+  <td style="text-align:right">3.1 s</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>&quot;L2&quot; is the classifier on every 256-token window of the document, as the
+long path runs it; &quot;L1+L2&quot; is the gateway's fused score per 2 KiB chunk.
+With the classifier on the GPU, L1 (the rules, on the CPU) takes most of
+the fused time: about 3.1 s for 200k tokens at every batch size, against
+1.3 s for L2 alone. The 100k document takes 1.5 to 1.6 s and the 20k one
+0.30 s with L1+L2.</li>
+<li>Batch 8 was the fastest, so it is the CUDA default for the short and the
+long path (<code>INFERENCE_BATCH_SIZE</code>); larger batches were slower per window
+on the L4.</li>
+<li>Against the CPU rows above, which were measured on CPU machines: a
+200k-token document takes about 11 s on the M3 Max with every core
+(17,551 tokens/s), about 64 s on the 4 vCPU runner (3,106 tokens/s), and
+41 to 47 s through the gateway's large-input lane with its default
+concurrency (<a href="#pdf-documents">PDF documents</a>). The L4 takes about 3 s
+(L1+L2), so the 10 s budget fits about 640k tokens.</li>
+<li>Parity, CUDA against the CPU on the same FP16 file and calibration
+(eval/data, and the bench/long quick dev documents: 2,176 rows, 2,456
+chunks, 5,341 windows): the decisions at 0.85 are 100% identical and the
+mean absolute score difference is at most 7.1e-5; the largest difference
+is 7.6e-3 to 9.5e-3, because FP16 kernels differ between CUDA and the CPU.
+The parity criterion for FP16 is: decisions 100% identical, mean
+difference at most 1e-4, largest difference at most 1e-2 (1e-3 applies
+to FP32). The FP16 model itself differs
+from the INT8 CPU model on about 1% of decisions near the threshold
+(<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/reports/fp16_agreement_v6.md">train/reports/fp16_agreement_v6.md</a>).</li>
+<li>The gateway on the same VM (PostgreSQL 17, the CUDA provider) reported
+<code>&quot;provider&quot;:&quot;cuda&quot;</code> on <code>/readyz</code> and blocked an injection request.</li>
+<li>T4 was not measured.</li>
 </ul>
 <h3 id="measure-long-inputs-on-your-hardware">Measure long inputs on your hardware<a class="anchor" href="#measure-long-inputs-on-your-hardware" aria-hidden="true">#</a></h3>
 <pre><code class="language-bash">make bench-long                    # PROFILE=quick: about 1.6M tokens, about 7 minutes on an M3 Max
 make bench-long PROFILE=full       # about 9.5M tokens
+make bench-long PROFILE=long       # benign 100k and 200k documents only, 19M tokens, about 40 minutes per model on an M3 Max
 # your own documents, no Python needed: one .txt file per document
 go run -tags onnx ./cmd/benchlong -docs ./my-docs -lang en -host my-server
 </code></pre>
@@ -485,8 +607,8 @@ warm runtime the process grew by up to about 95 MB over the first three
 keeps the memory). Count <code>PDF_EXTRACT_MAX_CONCURRENCY</code> × <code>PDF_EXTRACT_MEMORY</code> as the
 worst case on top of the figures in &quot;Measured resource use&quot;.</li>
 <li>A long benign PDF may still be blocked by the classifier (long-document
-false positives, RF-895d3533); run document-heavy applications with
-<code>INDIRECT_ACTION=redact</code> until that lands.</li>
+false positives: the 1% target of RF-895d3533 was not met); run
+document-heavy applications with <code>INDIRECT_ACTION=redact</code>.</li>
 </ul>
 <p>Reproduce (the second form needs the models and <code>make onnx-deps</code>):</p>
 <pre><code class="language-bash">go test ./cmd/gateway -run '^$' -bench 'PDFDocument$' -benchtime 3x
@@ -524,7 +646,7 @@ docker compose exec postgres psql -U ps -d guardspec -c \
 once per <code>DETECTOR_LAYERS</code> value you consider. Reports with other hardware
 are welcome in an issue.</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/sizing.md">docs/sizing.md</a> @ <code>affcb7e33994</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/sizing.md">docs/sizing.md</a> @ <code>c81d88c99140</code></p>
   </main>
 </div>
 

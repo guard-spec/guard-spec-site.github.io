@@ -53,7 +53,7 @@
 Community-tested: not yet. If you deploy this, please open an
 <a href="https://github.com/guard-spec/guard-spec/issues/new/choose">issue</a> or a pull
 request with what worked and what did not. See
-<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CONTRIBUTING.md">CONTRIBUTING.md</a>.</p>
 </blockquote>
 <div class="table"><table>
 <thead>
@@ -103,7 +103,7 @@ variable.</li>
 <li><a href="/docs/operations/">Operations</a>, in particular
 <a href="/docs/operations/#kubernetes">Kubernetes</a> and
 <a href="/docs/operations/#identity-sso-and-two-factor-authentication">Identity, SSO and two-factor authentication</a>.</li>
-<li><a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/README.md#security-model-and-limitations">Security model and limitations</a>.</li>
+<li><a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#security-model-and-limitations">Security model and limitations</a>.</li>
 </ul>
 <h2 id="what-every-deployment-needs">What every deployment needs<a class="anchor" href="#what-every-deployment-needs" aria-hidden="true">#</a></h2>
 <div class="table"><table>
@@ -128,11 +128,11 @@ variable.</li>
 </tr>
 <tr>
   <td>Gateway</td>
-  <td><code>ghcr.io/guard-spec/guard-spec-gateway:0.6.0</code> (models mounted at <code>/models</code>) or <code>-gateway-full:0.6.0</code> (models inside). Port 8080 for clients, 9090 for metrics</td>
+  <td><code>ghcr.io/guard-spec/guard-spec-gateway:0.7.0</code> (models mounted at <code>/models</code>) or <code>-gateway-full:0.7.0</code> (models inside). Port 8080 for clients, 9090 for metrics</td>
 </tr>
 <tr>
   <td>Control plane</td>
-  <td><code>ghcr.io/guard-spec/guard-spec-control-plane:0.6.0</code>. Port 8081 for the API and the admin UI at <code>/ui/</code>, 9091 for metrics</td>
+  <td><code>ghcr.io/guard-spec/guard-spec-control-plane:0.7.0</code>. Port 8081 for the API and the admin UI at <code>/ui/</code>, 9091 for metrics</td>
 </tr>
 <tr>
   <td>Secrets</td>
@@ -165,11 +165,11 @@ or WAF in front for abuse protection.</li>
 <li><strong>Streaming.</strong> <code>UPSTREAM_LLM_TIMEOUT</code> defaults to <code>5m</code> of silence. Load
 balancer idle or response timeouts shorter than your longest model answer
 cut streams; raise them.</li>
-<li><strong>Schema changes before 1.0.</strong> Read the <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/CHANGELOG.md">CHANGELOG</a>
+<li><strong>Schema changes before 1.0.</strong> Read the <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CHANGELOG.md">CHANGELOG</a>
 and snapshot the database before every upgrade.</li>
 </ul>
 <h2 id="the-helm-chart-on-main">The Helm chart on <code>main</code><a class="anchor" href="#the-helm-chart-on-main" aria-hidden="true">#</a></h2>
-<p>Chart 0.4.0 (see Unreleased in the <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/CHANGELOG.md">CHANGELOG</a>) adds,
+<p>Chart 0.4.0 (see Unreleased in the <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CHANGELOG.md">CHANGELOG</a>) adds,
 each off by default: a <strong>migration hook</strong> (<code>migrations.enabled</code>), a <strong>model
 pull init container</strong> (<code>models.pull</code>, into the claim or a per-pod
 <code>emptyDir</code>, so several replicas no longer need a ReadWriteMany volume),
@@ -177,7 +177,7 @@ pull init container</strong> (<code>models.pull</code>, into the claim or a per-
 <strong>topologySpreadConstraints</strong>, <strong>NetworkPolicies</strong> and a <strong>ServiceAccount</strong>
 with annotations for IRSA and Workload Identity. Reference values per
 platform are in
-<a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/deploy/helm/guard-spec/examples"><code>deploy/helm/guard-spec/examples/</code></a>
+<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/deploy/helm/guard-spec/examples"><code>deploy/helm/guard-spec/examples/</code></a>
 (EKS, AKS, GKE, OpenShift): rendered and schema-checked in CI, installed on
 kind by the <code>kind-e2e</code> job with its own values, not verified on the clouds.
 Where a guide below shows plain manifests for one of these, the chart's
@@ -188,7 +188,7 @@ verification, chart values, External Secrets). After installing,
 <code>kubectl exec deploy/&lt;release&gt;-guard-spec-gateway -c gateway -- ./doctor</code>
 (images from 0.2.0) checks the database, migrations, models,
 layers, upstream and security settings.</p>
-<p>Since chart 0.1.1 (see the <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/CHANGELOG.md">CHANGELOG</a>): <code>/models</code> is
+<p>Since chart 0.1.1 (see the <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CHANGELOG.md">CHANGELOG</a>): <code>/models</code> is
 mounted only with a models claim (or <code>models.pull</code>), so
 <code>guard-spec-gateway-full</code> works with
 <code>models.persistence.enabled=false</code>; the gateway defaults to a 2Gi memory
@@ -201,16 +201,92 @@ post-renderer plugin, or render and apply without a Helm release: write
 <code>helm template</code> output into a kustomization's resources, then
 <code>kubectl kustomize &lt;dir&gt; | kubectl apply -f -</code>. Hooks such as <code>dbRoles</code> then
 run as ordinary Jobs, not before the services.</p>
+<h2 id="gpu-optional">GPU (optional)<a class="anchor" href="#gpu-optional" aria-hidden="true">#</a></h2>
+<p>The CPU is the default: the published gateway image runs the INT8
+classifier on ONNX Runtime's CPU provider and needs nothing else.
+<a href="/docs/operations/sizing/">Sizing</a> gives the CPU numbers; for long documents (100k+
+tokens) the CPU path needs many cores, and a GPU is the option.</p>
+<p>The GPU path is supported in the code and measured (GPU rows in
+<a href="/docs/operations/sizing/">sizing</a>), but <strong>no GPU image is published</strong>: build your own
+from <code>build/gateway-gpu.Dockerfile</code> (linux/amd64; the same gateway binary
+with ONNX Runtime's CUDA 12 build on NVIDIA's CUDA 12 + cuDNN 9 runtime
+image, about 5.7 GB unpacked) and push it to your registry:</p>
+<pre><code class="language-sh">docker build --platform linux/amd64 -f build/gateway-gpu.Dockerfile \
+  -t &lt;registry&gt;/guard-spec-gateway:&lt;version&gt;-gpu .
+docker push &lt;registry&gt;/guard-spec-gateway:&lt;version&gt;-gpu
+</code></pre>
+<p>By building and running it you accept NVIDIA's terms for the CUDA and cuDNN
+libraries of its base image (see NOTICE). CI builds this Dockerfile on every
+pull request, without pushing, to keep it working. It needs:</p>
+<ul>
+<li>an NVIDIA GPU with driver 525 or newer;</li>
+<li>the NVIDIA container runtime (<code>docker run --gpus all ...</code>), or on
+Kubernetes the NVIDIA device plugin or GPU Operator;</li>
+<li>the FP16 classifier, <code>model_fp16.onnx</code>, next to the INT8 one:
+<code>./models pull -provider cuda</code> (the <code>models.pull</code> init container does
+this when <code>gateway.gpu.enabled</code>). Without it CUDA runs the INT8 model,
+slowly, and <code>doctor</code> warns.</li>
+</ul>
+<p><code>INFERENCE_PROVIDER</code> picks the provider (the GPU image sets <code>cuda</code>):</p>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Value</th>
+  <th>Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>cpu</code></td>
+  <td>The default. CPU provider, INT8 model; nothing changes.</td>
+</tr>
+<tr>
+  <td><code>cuda</code></td>
+  <td>CUDA execution provider on <code>INFERENCE_CUDA_DEVICE_ID</code> (default 0), FP16 model. If CUDA cannot start (no GPU, no driver, the CPU image) the gateway exits at start with an error that says what is missing, rather than running slowly on the CPU.</td>
+</tr>
+<tr>
+  <td><code>auto</code></td>
+  <td>CUDA when it starts, else the CPU with a warning (and the reason in <code>/readyz</code>).</td>
+</tr>
+</tbody>
+</table></div>
+<p>On CUDA, <code>INFERENCE_BATCH_SIZE</code> defaults to 8 windows per run (the short and
+the long path; the fastest on an L4) and <code>INFERENCE_MAX_CONCURRENCY</code> to 2; tune them with the GPU
+numbers in <a href="/docs/operations/sizing/">sizing</a>. <code>GET /readyz</code> reports
+<code>detector.inference</code> (requested and active provider, GPU, driver, CUDA and
+ONNX Runtime versions, batch size, <code>l2_model_file</code>), and <code>./doctor</code> checks
+the same before the gateway starts (<code>inference</code>).</p>
+<p>With the Helm chart, name your image; the chart refuses <code>gpu.enabled</code>
+without it:</p>
+<pre><code class="language-yaml">gateway:
+  gpu:
+    enabled: true     # your image, resources.limits[&quot;nvidia.com/gpu&quot;]: 1, INFERENCE_PROVIDER=cuda
+    # provider: auto  # fall back to the CPU instead of refusing to start
+    image:
+      repository: &lt;registry&gt;/guard-spec-gateway
+      tag: &lt;version&gt;-gpu
+  nodeSelector:
+    nvidia.com/gpu.present: &quot;true&quot;
+  tolerations:
+    - {key: nvidia.com/gpu, operator: Exists, effect: NoSchedule}
+models:
+  pull:
+    enabled: true     # also fetches model_fp16.onnx
+</code></pre>
+<p>The chart's <code>ci/gpu-values.yaml</code> is rendered and schema-checked in CI. In
+CI the image runs on a runner without a GPU, where it must refuse to start
+with <code>cuda</code> and fall back with <code>auto</code>; GPU numbers are measured separately
+and marked as such in <a href="/docs/operations/sizing/">sizing</a>.</p>
 <h2 id="contributing">Contributing<a class="anchor" href="#contributing" aria-hidden="true">#</a></h2>
 <p>If you run Guard Spec on one of these platforms, a short report helps more
 than a polished guide: platform and versions, what you changed from the
 guide, and what failed. Open an
 <a href="https://github.com/guard-spec/guard-spec/issues/new/choose">issue</a> or a pull
-request against <code>docs/deploy/</code> (see <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/CONTRIBUTING.md">CONTRIBUTING.md</a>;
+request against <code>docs/deploy/</code> (see <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CONTRIBUTING.md">CONTRIBUTING.md</a>;
 commits need a DCO sign-off). Security problems go through
 <a href="/docs/security/policy/">SECURITY.md</a>, never a public issue.</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/affcb7e339946b3d5bdfeeef8bdcba77ec5b30be/docs/deploy/README.md">docs/deploy/README.md</a> @ <code>affcb7e33994</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/deploy/README.md">docs/deploy/README.md</a> @ <code>c81d88c99140</code></p>
   </main>
 </div>
 
