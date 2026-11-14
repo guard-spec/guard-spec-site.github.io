@@ -91,7 +91,7 @@ go run ./cmd/models list --available                   # versions in the manifes
 <p><strong>L2 classifier from source.</strong> Instead of pulling it:</p>
 <ol>
 <li><p>Build it from <code>train/</code> (deterministic data build; training takes about 40
-minutes on an Apple M3 Max with MPS; see <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/MODEL_CARD.md">train/MODEL_CARD.md</a>).
+minutes on an Apple M3 Max with MPS; see <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md">train/MODEL_CARD.md</a>).
 v3b also trains on owner-supplied rows that are not in this repository; without
 them these commands reproduce the v3 recipe, not v3b exactly:</p>
 <pre><code class="language-bash">cd train
@@ -121,10 +121,10 @@ version other than the running one. Switch without a restart with
 <a href="/docs/operations/#shadow-mode-and-model-reload">Shadow mode and model reload</a>.</p>
 <p><strong>Know before enabling L2/L3.</strong> On our eval set they raise recall but also
 block about 1.4% of benign prompts with classifier v3b (L1 alone: 0.1%),
-mostly Vietnamese teencode (3.5%) and English (1.7%). See <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#benchmarks">Benchmarks</a>. Where
+mostly Vietnamese teencode (3.5%) and English (1.7%). See <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.md#benchmarks">Benchmarks</a>. Where
 false positives cost more than missed attacks, keep <code>DETECTOR_LAYERS=l1</code>.</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#models">README.md#models</a> @ <code>c81d88c99140</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.md#models">README.md#models</a> @ <code>c3fd2723983b</code></p>
   </main>
 </div>
 

@@ -91,7 +91,7 @@ docker compose -f docker-compose.yml up -d
 <p><code>models-init</code> pulls only what the layers need, and <code>/readyz</code> shows the active
 layers (<code>&quot;layers&quot;:[&quot;l1&quot;,&quot;l2&quot;]</code>). What each layer detects and how they are
 fused: README, <a href="/docs/models/">Models</a> and
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#benchmarks">Benchmarks</a>.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.md#benchmarks">Benchmarks</a>.</p>
 <h2 id="measured-resource-use">Measured resource use<a class="anchor" href="#measured-resource-use" aria-hidden="true">#</a></h2>
 <p><strong>Source.</strong> Measured on 2026-11-06 by the maintainers on one machine: an
 Apple M3 Max (arm64) MacBook Pro, Docker Desktop 28.4 with a Linux VM of
@@ -279,9 +279,9 @@ queueing up behind the model layers.</li>
 memory limit) fit the full detector's measured peak; set
 <code>INFERENCE_MAX_CONCURRENCY</code> and <code>INFERENCE_INTRA_OP_THREADS</code> to the CPU
 limit as above (<code>gateway.env</code>), and scale with <code>gateway.autoscaling</code> (HPA). See
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/deploy/helm/guard-spec/values.yaml"><code>values.yaml</code></a>, the per-cloud
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/deploy/helm/guard-spec/values.yaml"><code>values.yaml</code></a>, the per-cloud
 examples in
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/deploy/helm/guard-spec/examples"><code>deploy/helm/guard-spec/examples/</code></a>
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/deploy/helm/guard-spec/examples"><code>deploy/helm/guard-spec/examples/</code></a>
 and <a href="/docs/operations/#kubernetes">README, Kubernetes</a>.</li>
 </ul>
 <h2 id="long-inputs">Long inputs<a class="anchor" href="#long-inputs" aria-hidden="true">#</a></h2>
@@ -425,9 +425,9 @@ profile's 128 documents (18.0M tokens after the sanitizer) in 19 minutes,
 50 CPU-seconds on this machine, about 26 s of wall time each when four
 are scored at once on its 14 cores (not measured alone).</li>
 <li>The full per-run tables (L2 alone, every K, wall time per document) are in
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/bench/results/long-m3max-local.md"><code>bench/results/long-m3max-local.md</code></a>,
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/bench/results/long-gh-ubuntu-24.04-4vcpu.md"><code>long-gh-ubuntu-24.04-4vcpu.md</code></a>
-and <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/bench/results/long-gh-ubuntu-24.04-2vcpu.md"><code>long-gh-ubuntu-24.04-2vcpu.md</code></a>.
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/bench/results/long-m3max-local.md"><code>bench/results/long-m3max-local.md</code></a>,
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/bench/results/long-gh-ubuntu-24.04-4vcpu.md"><code>long-gh-ubuntu-24.04-4vcpu.md</code></a>
+and <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/bench/results/long-gh-ubuntu-24.04-2vcpu.md"><code>long-gh-ubuntu-24.04-2vcpu.md</code></a>.
 The runner runs predate the 0.4.2 code/log fixes, so their false-positive
 tables show the 0.4.1 detector; latency is unaffected.</li>
 </ul>
@@ -515,7 +515,7 @@ The parity criterion for FP16 is: decisions 100% identical, mean
 difference at most 1e-4, largest difference at most 1e-2 (1e-3 applies
 to FP32). The FP16 model itself differs
 from the INT8 CPU model on about 1% of decisions near the threshold
-(<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/reports/fp16_agreement_v6.md">train/reports/fp16_agreement_v6.md</a>).</li>
+(<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/reports/fp16_agreement_v6.md">train/reports/fp16_agreement_v6.md</a>).</li>
 <li>The gateway on the same VM (PostgreSQL 17, the CUDA provider) reported
 <code>&quot;provider&quot;:&quot;cuda&quot;</code> on <code>/readyz</code> and blocked an injection request.</li>
 <li>T4 was not measured.</li>
@@ -646,7 +646,7 @@ docker compose exec postgres psql -U ps -d guardspec -c \
 once per <code>DETECTOR_LAYERS</code> value you consider. Reports with other hardware
 are welcome in an issue.</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/sizing.md">docs/sizing.md</a> @ <code>c81d88c99140</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/docs/sizing.md">docs/sizing.md</a> @ <code>c3fd2723983b</code></p>
   </main>
 </div>
 

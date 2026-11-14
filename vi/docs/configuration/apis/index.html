@@ -53,7 +53,10 @@ chỉ tới upstream có provider <code>openai</code>, <code>azure_openai</code>
 <code>openai_compatible</code>), <code>POST /v1/embeddings</code>, <code>GET /v1/models</code>,
 <code>POST /guardrail/scan</code> (chấm <code>text</code> và <code>documents</code>
 không gọi model), <code>POST /guardrail/scan/tools</code> (chấm định nghĩa tool MCP),
-<code>POST /guardrail/sanitize</code>.</p>
+<code>POST /guardrail/sanitize</code>, <code>/v1/backend/{upstream}/{path}</code> (API JSON của
+chính tổ chức, upstream có provider <code>custom</code>: quét các trường đã khai báo rồi
+chuyển tiếp nguyên vẹn; xem
+<a href="/vi/docs/quickstart/integrations/#backend-tùy-chỉnh">docs/integrations.vi.md</a>).</p>
 <p>Control plane (cổng 8081, compose mở ra 18081): đăng nhập, tổ chức, API key,
 project, policy, guard settings, exemplar, lời mời, audit log. Bảng đầy đủ và
 ví dụ curl ở mục <a href="/docs/configuration/apis/">APIs</a>. Các endpoint quản trị (lịch sử
@@ -105,7 +108,7 @@ luật mới không được dùng chúng, còn luật đã lưu có dùng thì 
 <code>0</code> như trước. Chi tiết ở mục <a href="/docs/configuration/apis/">APIs</a>.</p>
 <h2 id="dữ-liệu-cá-nhân-trong-request">Dữ liệu cá nhân trong request<a class="anchor" href="#dữ-liệu-cá-nhân-trong-request" aria-hidden="true">#</a></h2>
 <p>Một tổ chức có thể cho gateway đếm dữ liệu cá nhân trong mỗi request và đưa kết
-quả cho các luật (<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>).
+quả cho các luật (<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>).
 <strong>Mặc định tắt</strong>; bật bằng <code>input_pii: true</code> trong guard settings của tổ chức
 (<code>PUT /v1/organizations/:orgId/guard-settings</code>, hoặc giao diện: Thiết lập bảo
 vệ → Phát hiện dữ liệu cá nhân trong request). Thay đổi có hiệu lực từ request
@@ -136,8 +139,9 @@ gửi lại, gồm cả văn bản assistant và tham số tool call (số JSON 
 được giữ nguyên). Giữ nguyên: system prompt và developer prompt, khối thinking
 có chữ ký, kết quả web search và fetch của chính nhà cung cấp. Token chỉ nằm
 trong bộ nhớ cho request đó. Giá trị được trả lại vẫn đi qua output guard như
-mọi văn bản khác, nên với <code>OUTPUT_REDACT_PII=true</code> câu trả lời hiện dạng đã
-che. Dòng audit có <code>input:pii_tokenized_&lt;loại&gt;=&lt;số&gt;</code> hoặc
+mọi văn bản khác, nên với <code>OUTPUT_PII_REDACT=true</code> câu trả lời hiện dạng đã
+che; với <code>output_pii_action: off</code> client nhận lại đúng giá trị đã gửi. Dòng
+audit có <code>input:pii_tokenized_&lt;loại&gt;=&lt;số&gt;</code> hoặc
 <code>input:pii_redacted_&lt;loại&gt;=&lt;số&gt;</code>.</li>
 <li><strong>Luật, audit, cảnh báo.</strong> Luật có thể <code>log</code> hoặc <code>block</code> theo
 <code>input.pii.kinds</code> và <code>input.pii.count</code>. Dòng audit có thẻ
@@ -148,6 +152,26 @@ request 2 KB và khoảng 57 µs cho request 20 KB; p50 cả đường HTTP vớ
 1,18 lên 1,20 ms (2 KB) và từ 11,08 lên 11,19 ms (20 KB). Khi tắt thì không
 chạy gì.</li>
 </ul>
+<h2 id="dữ-liệu-cá-nhân-trong-câu-trả-lời">Dữ liệu cá nhân trong câu trả lời<a class="anchor" href="#dữ-liệu-cá-nhân-trong-câu-trả-lời" aria-hidden="true">#</a></h2>
+<p>Output guard che dữ liệu cá nhân trong câu trả lời theo <code>OUTPUT_PII_REDACT</code>
+(mặc định bật: email, số điện thoại, số thẻ, CCCD) và <code>OUTPUT_PII_IPV4</code> (mặc
+định tắt). Mỗi tổ chức có thể đặt riêng trong guard settings (giao diện: Thiết
+lập bảo vệ → Dữ liệu cá nhân trong câu trả lời):</p>
+<ul>
+<li><code>output_pii_action</code>: <code>off</code> (câu trả lời giữ nguyên dữ liệu cá nhân) hoặc
+<code>redact</code> (luôn che, bất kể <code>OUTPUT_PII_REDACT</code>). Không đặt: theo gateway,
+như trước đây.</li>
+<li><code>output_pii_kinds</code>: các loại cần che (<code>email</code>, <code>phone</code>, <code>card</code>, <code>cccd</code>,
+<code>ipv4</code>), thay cho danh sách của gateway. Không đặt: mọi loại trừ IPv4 (có
+cả IPv4 khi bật <code>OUTPUT_PII_IPV4</code>).</li>
+</ul>
+<p>Áp dụng cho <code>/v1/chat/completions</code>, <code>/v1/completions</code>, <code>/v1/messages</code> và
+<code>/v1/responses</code>, streaming hay không. Liên kết, hình ảnh, HTML và canary vẫn
+được kiểm tra như cũ. Khi gateway chạy với <code>OUTPUT_GUARD=off</code>, thiết lập này
+không có tác dụng: tổ chức không bật được output guard. Giá trị đã được thay
+bằng token (<code>input_pii_action: tokenize</code>) luôn được trả lại trong câu trả lời;
+với <code>redact</code> chúng bị che lại, với <code>off</code> client nhận đúng giá trị đã gửi. Giá
+trị không hợp lệ bị từ chối (400), ví dụ <code>guard settings: output_pii_action must be off or redact</code>.</p>
 <h2 id="phần-gateway-không-đọc-được">Phần gateway không đọc được<a class="anchor" href="#phần-gateway-không-đọc-được" aria-hidden="true">#</a></h2>
 <p>Bộ phát hiện chỉ đọc văn bản. Ảnh, âm thanh và file trong request được chuyển
 tới model, và model đọc được chúng (model vision đọc chữ trong ảnh, nhà cung
@@ -409,7 +433,7 @@ lành tính dài có thể bị chặn nhiều hơn tài liệu ngắn. Trần c
 dung không tin cậy (<code>l2_untrusted_max</code>, do calibration của bản ứng viên v5 đặt,
 hiện chạy shadow mode) giảm việc này cho tool result và tài liệu; mục tiêu tối
 đa 1% với tài liệu 100k–200k token chưa đạt (task RF-895d3533 kết thúc mà
-không đạt; lần thử tiếp theo là task nháp RF-3a9ce3f9). Hãy thử với tài
+không đạt, vòng sau đó là R7, task RF-3a9ce3f9, cũng không đạt). Hãy thử với tài
 liệu của bạn và xem điểm trong
 nhật ký yêu cầu trước. Quét một tài liệu 200k token mất vài chục giây trên vài
 lõi CPU. <code>POST /guardrail/scan</code> và <code>/v1/embeddings</code> giữ giới hạn hiện tại.</p>
@@ -552,9 +576,9 @@ và tải CSV theo khoảng thời gian.</li>
 (<code>e2e/a11y.spec.ts</code>): lỗi WCAG 2.1 A hoặc AA mức nghiêm trọng làm build
 thất bại.</li>
 </ul>
-<p><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/images/admin-flow-dark-vi.png" alt="Luồng xử lý, giao diện tối" /></p>
+<p><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/c3fd2723983b7abc7fa9527f158f7606453768bd/docs/images/admin-flow-dark-vi.png" alt="Luồng xử lý, giao diện tối" /></p>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.vi.md#api">README.vi.md#api</a> @ <code>c81d88c99140</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.vi.md#api">README.vi.md#api</a> @ <code>c3fd2723983b</code></p>
   </main>
 </div>
 

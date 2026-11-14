@@ -103,6 +103,10 @@ nhận, sau đó đến từng công cụ, kèm theo những gì đã chạy th�
   <td>Các endpoint quét riêng của Guard Spec, không gọi model</td>
 </tr>
 <tr>
+  <td><code>/v1/backend/{upstream}/{path}</code></td>
+  <td>API JSON của chính tổ chức, một upstream có provider <code>custom</code>: xem <a href="#backend-tùy-chỉnh">Backend tùy chỉnh</a></td>
+</tr>
+<tr>
   <td>Không phục vụ (404)</td>
   <td><code>GET</code>/<code>DELETE /v1/responses/{id}</code>, <code>/v1/responses/{id}/input_items</code>, <code>/v1/conversations</code>, audio, images, files, assistants, batches, realtime và chế độ WebSocket</td>
 </tr>
@@ -279,7 +283,7 @@ try {
 <p>Các wrapper khác bọc quanh SDK này cũng chạy giống vậy khi chúng gọi chat
 completions. Provider OpenAI của Vercel AI SDK chạy được với
 <code>createOpenAI({ baseURL, apiKey }).chat(model)</code>
-(<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/examples/typescript/vercel-ai-sdk">examples/typescript/vercel-ai-sdk</a>):
+(<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/examples/typescript/vercel-ai-sdk">examples/typescript/vercel-ai-sdk</a>):
 model mặc định của nó, <code>openai(model)</code>, và <code>openai.responses(...)</code> gọi
 Responses API, mà gateway chỉ phục vụ khi upstream có API này (OpenAI, Azure
 OpenAI): nếu sau gateway là Ollama hoặc vLLM, hãy dùng <code>.chat</code>.</p>
@@ -347,7 +351,7 @@ trong chat request, nên chúng được quét cùng với text của người d
 điểm từng tài liệu một trước khi index hoặc trước khi đưa vào prompt, hãy gọi
 <code>POST /guardrail/scan</code> với <code>documents[]</code>
 (<a href="/docs/operations/#indirect-injection-and-tool-poisoning">README</a>).
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/examples/python/rag">examples/python/rag</a> làm cả hai: nó gửi các tài
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/examples/python/rag">examples/python/rag</a> làm cả hai: nó gửi các tài
 liệu truy xuất được dưới dạng kết quả tool, gateway chấm điểm từng cái rồi
 chặn hoặc che (<code>INDIRECT_ACTION</code>), và nó cũng quét chúng lúc ingest.</p>
 <h2 id="claude-code-đã-kiểm-tra-qua-gateway">Claude Code (đã kiểm tra qua gateway)<a class="anchor" href="#claude-code-đã-kiểm-tra-qua-gateway" aria-hidden="true">#</a></h2>
@@ -691,7 +695,7 @@ kết quả.</li>
 tin cậy hơn: định nghĩa tool MCP qua <code>POST /guardrail/scan/tools</code>, kết quả
 tool và tài liệu qua <code>POST /guardrail/scan</code>.</p>
 <h2 id="n8n-đã-kiểm-tra">n8n (đã kiểm tra)<a class="anchor" href="#n8n-đã-kiểm-tra" aria-hidden="true">#</a></h2>
-<p>Import <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/examples/n8n/guardspec-workflow.json">examples/n8n/guardspec-workflow.json</a>
+<p>Import <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/examples/n8n/guardspec-workflow.json">examples/n8n/guardspec-workflow.json</a>
 (đã kiểm tra với n8n 2.46.6). Workflow này gọi gateway bằng node HTTP Request
 (một credential Header Auth <code>Authorization: Bearer gs_...</code>, bật <em>Never Error</em>
 để một lần chặn vẫn tới được node kế tiếp) và bằng node OpenAI Chat Model (một
@@ -699,7 +703,151 @@ credential OpenAI có Base URL là gateway cộng thêm <code>/v1</code>, tắt 
 API</em>, cách này chạy với mọi upstream). Node OpenAI của n8n báo một lần chặn là
 &quot;Bad request - please check your parameters&quot; mà không kèm lý do của gateway;
 node HTTP Request thì giữ lại lý do đó.
-Các bước: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/examples/n8n/README.md">examples/n8n</a>.</p>
+Các bước: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/examples/n8n/README.md">examples/n8n</a>.</p>
+<h2 id="backend-tùy-chỉnh">Backend tùy chỉnh<a class="anchor" href="#backend-tùy-chỉnh" aria-hidden="true">#</a></h2>
+<p>Gateway cũng có thể đứng trước API JSON của chính tổ chức, ví dụ dịch vụ tìm
+kiếm, hỗ trợ khách hàng hay đơn hàng nhận văn bản của người dùng rồi chuyển
+cho một mô hình hoặc agent. Ứng dụng gọi</p>
+<pre><code>&lt;METHOD&gt; https://&lt;GATEWAY_HOST&gt;/v1/backend/{upstream}/{path}?{query}
+Authorization: Bearer gs_...
+</code></pre>
+<p>và gateway gửi yêu cầu tới <code>{base_url}{path}?{query}</code> của upstream
+<code>{upstream}</code> thuộc tổ chức, upstream này phải có provider <code>custom</code>. Tạo trong
+giao diện quản trị (Nhà cung cấp mô hình → Thêm nhà cung cấp → Backend tùy
+chỉnh) hoặc bằng <code>POST /v1/organizations/{id}/upstreams</code>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;search&quot;,
+  &quot;provider&quot;: &quot;custom&quot;,
+  &quot;base_url&quot;: &quot;https://search.internal.example/api&quot;,
+  &quot;api_key_env&quot;: &quot;UPSTREAM_KEY_SEARCH&quot;,
+  &quot;timeout_ms&quot;: 30000,
+  &quot;backend&quot;: {
+    &quot;path_prefixes&quot;: [&quot;/search&quot;],
+    &quot;methods&quot;: [&quot;POST&quot;],
+    &quot;key_header&quot;: &quot;&quot;,
+    &quot;scan&quot;: {
+      &quot;request&quot;: [&quot;$.query&quot;, &quot;$.filters[*]&quot;],
+      &quot;response&quot;: [&quot;$.results[*].snippet&quot;],
+      &quot;all_strings&quot;: false,
+      &quot;raw_text&quot;: false
+    }
+  }
+}
+</code></pre>
+<div class="table"><table>
+<thead>
+<tr>
+  <th>Trường</th>
+  <th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>path_prefixes</code></td>
+  <td>1 đến 20 tiền tố, so khớp theo từng đoạn: <code>/search</code> cho phép <code>/search</code> và <code>/search/v2</code>, không cho <code>/search-admin</code>; <code>/</code> cho phép mọi đường dẫn. Đường dẫn khác: 403 <code>path_not_allowed</code></td>
+</tr>
+<tr>
+  <td><code>methods</code></td>
+  <td>Một số trong <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code>; để trống là <code>POST</code>. Phương thức khác: 405 <code>method_not_allowed</code> kèm header <code>Allow</code></td>
+</tr>
+<tr>
+  <td><code>scan.request</code></td>
+  <td>JSONPath của các trường yêu cầu được quét (tối đa 50). Đường dẫn tới một đối tượng hay danh sách sẽ quét mọi chuỗi bên trong</td>
+</tr>
+<tr>
+  <td><code>scan.response</code></td>
+  <td>JSONPath của các trường phản hồi mà bộ lọc đầu ra kiểm tra; để trống: phản hồi được trả về đúng như backend gửi</td>
+</tr>
+<tr>
+  <td><code>scan.all_strings</code></td>
+  <td>Tùy chọn bật: phía nào (yêu cầu hoặc phản hồi) không khai báo đường dẫn thì quét mọi giá trị chuỗi. Backend cần có đường dẫn yêu cầu hoặc bật tùy chọn này</td>
+</tr>
+<tr>
+  <td><code>scan.raw_text</code></td>
+  <td>Tùy chọn bật: chấp nhận nội dung yêu cầu không phải JSON và quét toàn bộ, phản hồi <code>text/*</code> được kiểm tra toàn bộ. Nếu tắt, nội dung không phải JSON nhận 415 <code>unsupported_media_type</code> và phản hồi dạng văn bản đi qua không kiểm tra</td>
+</tr>
+<tr>
+  <td><code>key_header</code></td>
+  <td>Không bắt buộc: khóa được gửi nguyên văn trong header này (<code>X-Api-Key</code>); để trống thì gửi <code>Authorization: Bearer</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>Tập con JSONPath được giữ nhỏ có chủ đích: <code>$</code> rồi <code>.name</code> (chữ, số, <code>_</code>,
+<code>-</code>), <code>[n]</code>, <code>[*]</code> và <code>.*</code>, ví dụ <code>$.query</code>, <code>$.messages[*].content</code>,
+<code>$.items[0].text</code>. Tìm đệ quy (<code>..</code>), bộ lọc, lát cắt và tên trong ngoặc kép
+bị từ chối khi lưu backend, kèm lỗi nêu rõ đường dẫn và lý do. Trường nào yêu
+cầu không có thì bỏ qua, nên hãy khai báo mọi trường backend đọc, hoặc dùng
+<code>all_strings</code>.</p>
+<p><strong>Gateway xử lý một yêu cầu</strong> theo thứ tự:</p>
+<ol>
+<li>API key và giới hạn tốc độ, như mọi route.</li>
+<li>Upstream: 404 <code>backend_not_found</code> khi tổ chức không có upstream tên đó,
+400 <code>not_a_backend</code> khi đó là nhà cung cấp mô hình, 502
+<code>route_unavailable</code> khi upstream bị tắt, cấu hình đã lưu không hợp lệ,
+<code>api_key_env</code> không được <code>UPSTREAM_KEY_ORGS</code> cho phép với tổ chức (hoặc
+chưa đặt), hay địa chỉ bị từ chối (cùng quy tắc địa chỉ với mọi upstream
+do tổ chức khai báo: luôn chặn địa chỉ metadata và link-local, chặn địa chỉ
+nội bộ trừ khi <code>UPSTREAM_ALLOW_PRIVATE=true</code>).</li>
+<li>Phương thức (405) và đường dẫn: đường dẫn có đoạn rỗng, <code>.</code> hoặc <code>..</code>,
+có <code>/</code>, <code>\</code> hoặc <code>.</code> được mã hóa, hay có ký tự điều khiển đều bị từ chối
+(400 <code>invalid_path</code>), để backend hiểu đúng đường dẫn mà gateway đã kiểm
+tra; sau đó là tiền tố (403).</li>
+<li>Nội dung: JSON (<code>application/json</code> hoặc <code>+json</code>), hoặc văn bản khi bật
+<code>raw_text</code>; ngoài ra là 415. JSON không hợp lệ, khóa bị lặp, hay khóa chỉ
+khác trường được quét ở chữ hoa chữ thường (<code>Query</code> cạnh <code>query</code>, mà một
+số backend lại đọc) đều bị từ chối (400 <code>invalid_body</code>).</li>
+<li>Quét: các trường đã khai báo và mọi giá trị trên query string được làm
+sạch và phân loại như văn bản người dùng, với cùng bộ phát hiện, ngưỡng,
+<code>max_input_tokens</code>, kiểm tra dữ liệu cá nhân đầu vào và chính sách như
+yêu cầu chat. Yêu cầu bị từ chối nhận 400 <code>content_filter</code> như thường lệ
+và <strong>không bao giờ tới backend</strong>. Quy tắc định tuyến không áp dụng ở đây:
+URL đã chỉ định backend. <em>Tên</em> tham số trên query không được quét, chỉ
+quét giá trị; query string mà Go không phân tích chặt chẽ được (dấu phân
+cách <code>;</code>, mã <code>%</code> sai) bị từ chối (400 <code>invalid_query</code>).</li>
+<li>Yêu cầu được chuyển tiếp <strong>nguyên từng byte</strong>: cùng nội dung, phương
+thức, đường dẫn và query. Ngoại lệ duy nhất là <code>input_pii_action</code> của tổ
+chức (<code>redact</code> hoặc <code>tokenize</code>): chỉ những giá trị chuỗi bị thay đổi được
+ghi lại tại chỗ, mọi byte khác giữ nguyên; query string bị thay đổi thì
+được mã hóa lại. Với <code>tokenize</code>, phản hồi nhận lại giá trị gốc.</li>
+<li>Header: header của client được chuyển tiếp, trừ thông tin xác thực với
+gateway (<code>Authorization</code>, <code>x-api-key</code> và mọi tên chứa key, token, secret,
+auth, cookie, session...), header hop-by-hop và những header được nêu
+trong <code>Connection</code>, <code>Host</code>, <code>Content-Length</code>, <code>X-Forwarded-*</code>,
+<code>Forwarded</code>, <code>Via</code>, <code>X-Real-IP</code> cùng các header địa chỉ client tương tự,
+và header trace. Các <code>headers</code> đã cấu hình của upstream và khóa của nó
+được đặt sau cùng và luôn thắng.</li>
+<li>Phản hồi: 2xx và 4xx được trả về với đúng mã trạng thái (kèm
+<code>Cache-Control</code>, <code>Content-Language</code>, <code>ETag</code>, <code>Last-Modified</code>, <code>Expires</code> và
+<code>Retry-After</code>; bỏ <code>ETag</code> khi bộ lọc đã sửa nội dung). 401 và 407 là lỗi
+khóa của gateway nên thành 502 <code>upstream_auth_failed</code>; 5xx thành 502;
+chuyển hướng không bao giờ được theo (502). Lỗi 403 của chính backend
+được trả về nguyên trạng: với khóa của gateway, đó là từ chối nghiệp vụ,
+không phải lỗi thông tin xác thực. Trong phản hồi JSON, các trường đã khai
+báo đi qua bộ lọc đầu ra: liên kết, và dữ liệu cá nhân theo
+<code>output_pii_action</code> và <code>output_pii_kinds</code> của tổ chức. Mọi kiểu nội dung
+khác đi qua nguyên trạng, không kiểm tra (kể cả văn bản khi tắt
+<code>raw_text</code>).</li>
+</ol>
+<p><strong>Event stream không được kiểm tra.</strong> Phản hồi <code>text/event-stream</code> được
+chuyển tiếp ngay khi tới, không qua bộ lọc đầu ra: không kiểm tra liên kết,
+không che dữ liệu cá nhân, và với <code>input_pii_action: tokenize</code>, các token mà
+backend nhận được (<code>⟦EMAIL_1⟧</code>) <strong>không</strong> được thay lại giá trị gốc, vì một
+token thường bị tách qua nhiều event. Tổ chức dùng tokenize cho dữ liệu cá
+nhân không nên stream từ backend đó, hoặc nên dùng <code>redact</code>.</p>
+<p>Mỗi yêu cầu ghi một dòng nhật ký yêu cầu (route <code>/v1/backend</code>, đích định tuyến là
+tên upstream), cùng metric và sự kiện cảnh báo như các route khác. Giới hạn
+kích thước nội dung (<code>MAX_REQUEST_BYTES</code>) và <code>timeout_ms</code> của upstream vẫn áp
+dụng; backend tùy chỉnh không thử lại, vì một yêu cầu nghiệp vụ có thể không an
+toàn khi gửi hai lần. Backend tùy chỉnh không bao giờ là upstream cho chat:
+không thể làm upstream mặc định hay đích của quy tắc định tuyến, và không có
+kiểm tra kết nối.</p>
+<pre><code class="language-bash">curl -s https://&lt;GATEWAY_HOST&gt;/v1/backend/search/search \
+  -H &quot;Authorization: Bearer $GUARDSPEC_API_KEY&quot; -H 'Content-Type: application/json' \
+  -d '{&quot;query&quot;:&quot;giày đỏ size 42&quot;,&quot;filters&quot;:[&quot;còn hàng&quot;]}'
+</code></pre>
+<p>Chạy thử: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/examples/custom-backend/README.vi.md">examples/custom-backend</a>,
+gồm một backend mẫu và script minh họa từng trường hợp; workflow CI
+<strong>Examples</strong> chạy nó.</p>
 <h2 id="file-pdf-và-ảnh">File, PDF và ảnh<a class="anchor" href="#file-pdf-và-ảnh" aria-hidden="true">#</a></h2>
 <p>Bộ phát hiện của gateway chỉ đọc văn bản. PDF gửi kèm trong request (part
 <code>file</code> có <code>file_data</code> trên chat completions, block <code>document</code> nguồn <code>base64</code>
@@ -782,7 +930,7 @@ state phía server), <code>/v1/embeddings</code>, <code>/v1/messages</code> (ups
 tài liệu của client, hoặc xem các request nó gửi qua một proxy ghi log như
 mitmproxy, trước khi bạn dựa vào nó.</p>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/integrations.vi.md">docs/integrations.vi.md</a> @ <code>c81d88c99140</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/docs/integrations.vi.md">docs/integrations.vi.md</a> @ <code>c3fd2723983b</code></p>
   </main>
 </div>
 
