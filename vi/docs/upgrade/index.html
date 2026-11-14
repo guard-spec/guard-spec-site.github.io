@@ -83,7 +83,7 @@ gốc repository) và
 </tbody>
 </table></div>
 <p>Trước 1.0, một phiên bản minor có thể thay đổi schema và cấu hình: hãy đọc
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CHANGELOG.md">CHANGELOG</a> của mọi phiên bản bạn bỏ qua.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/CHANGELOG.md">CHANGELOG</a> của mọi phiên bản bạn bỏ qua.</p>
 <h2 id="sao-lưu">Sao lưu<a class="anchor" href="#sao-lưu" aria-hidden="true">#</a></h2>
 <p><code>scripts/backup.sh</code> lưu những gì cần để khôi phục, trong khi stack vẫn chạy:</p>
 <pre><code class="language-bash">scripts/backup.sh                                                     # quick start
@@ -194,7 +194,7 @@ các thiết lập bảo mật; exit code 1 nghĩa là có một bước kiểm 
 </ul>
 <h3 id="ghi-chú-migration">Ghi chú migration<a class="anchor" href="#ghi-chú-migration" aria-hidden="true">#</a></h3>
 <p>Các migration của một bản làm gì ngoài việc thêm bảng, và cần kiểm tra gì sau
-đó. <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CHANGELOG.md">CHANGELOG</a> có đầy đủ ghi chú nâng cấp của từng phiên bản.</p>
+đó. <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/CHANGELOG.md">CHANGELOG</a> có đầy đủ ghi chú nâng cấp của từng phiên bản.</p>
 <ul>
 <li><strong>026 (phiên bản chính sách).</strong> Thêm <code>policies.log_only</code> và bảng
 <code>policy_versions</code>, và ghi một phiên bản cho mỗi chính sách đang có (trạng
@@ -232,6 +232,11 @@ chối an toàn với 503. Đặt <code>GATEWAY_URL</code> cho control plane đ�
 <code>max_input_tokens</code> theo <code>MAX_SCAN_TOKENS</code> của gateway (không đặt thì giới
 hạn là 40.000). Down: thiết lập và các yêu cầu nới lỏng đang chờ bị xóa, mọi
 tổ chức quay về hành vi của instance.</li>
+<li><strong>031 (custom backend).</strong> Thêm provider <code>custom</code> và cột <code>upstreams.backend</code>
+(những gì gateway chuyển tiếp và quét cho một custom backend). Các upstream
+hiện có không đổi. Gateway 0.8.0 đọc cột này với mọi upstream: hãy chạy
+migration trước khi gateway khởi động, như job <code>migrate</code> của compose. Down:
+các custom backend bị xóa (không có gì khác trỏ tới chúng).</li>
 </ul>
 <h2 id="rollback">Rollback<a class="anchor" href="#rollback" aria-hidden="true">#</a></h2>
 <h3 id="image-không-đổi-schema">Image, không đổi schema<a class="anchor" href="#image-không-đổi-schema" aria-hidden="true">#</a></h3>
@@ -283,7 +288,7 @@ bản backup thay vì ép phiên bản.</li>
 động, đây là chủ ý thiết kế.</li>
 </ul>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/upgrade.vi.md">docs/upgrade.vi.md</a> @ <code>c81d88c99140</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/docs/upgrade.vi.md">docs/upgrade.vi.md</a> @ <code>c3fd2723983b</code></p>
   </main>
 </div>
 

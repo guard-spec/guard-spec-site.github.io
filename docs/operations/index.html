@@ -194,7 +194,20 @@ stands.</li>
 <li><strong>Personal data.</strong> Each match is replaced with <code>[REDACTED:&lt;type&gt;]</code>:
 <code>email</code>, <code>phone</code> (Vietnamese numbers in the +84, 84 and 0 forms, mobile and
 landline), <code>cccd</code> (12 digits starting with 0), <code>card</code> (13 to 19 digits that
-pass the Luhn check) and, when enabled, <code>ipv4</code>.</li>
+pass the Luhn check) and, when enabled, <code>ipv4</code>. An organization can
+override this for its own requests in its guard settings (admin UI: Guard
+settings → Personal data in responses): <code>output_pii_action</code> is <code>off</code>
+(answers keep the personal data) or <code>redact</code> (redacted whatever
+<code>OUTPUT_PII_REDACT</code> says), and <code>output_pii_kinds</code> lists the kinds to redact
+(<code>email</code>, <code>phone</code>, <code>card</code>, <code>cccd</code>, <code>ipv4</code>) in place of the gateway's. Left
+unset, the gateway's <code>OUTPUT_PII_REDACT</code> and <code>OUTPUT_PII_IPV4</code> apply, as
+before. It applies to <code>/v1/chat/completions</code>, <code>/v1/completions</code>,
+<code>/v1/messages</code> and <code>/v1/responses</code>, streamed or not; links, images, HTML
+and the canary are guarded as before. With <code>OUTPUT_GUARD=off</code> the setting
+has no effect: an org cannot turn the output guard on. Values that
+<code>input_pii_action: tokenize</code> replaced in the request come back in the
+answer either way; with <code>redact</code> they are redacted again, with <code>off</code> the
+client gets them as sent.</li>
 <li><strong>Canary.</strong> When enabled, the gateway puts a random token for each request
 in the system prompt (appended to a leading system message, or as a new
 one; legacy completions get none). If the model repeats it, the response is
@@ -466,11 +479,11 @@ is single-turn, so the window does not change its numbers (L1: FPR 0.1 %,
 L1+L2+L3: FPR 1.4 % at the gateway decision, as before).</p>
 <p><strong>Latency.</strong> One more detector run per request that has a new window, and a
 cache lookup otherwise (<code>BenchmarkConversationWindow</code>, see
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>).</p>
 <h2 id="personal-data-in-requests">Personal data in requests<a class="anchor" href="#personal-data-in-requests" aria-hidden="true">#</a></h2>
 <p>An organization can have the gateway count the personal data in each request
 and give the result to its policy rules
-(<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>). It is <strong>off by
+(<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>). It is <strong>off by
 default</strong>; turn it on with <code>input_pii: true</code> in the org's guard settings
 (<code>PUT /v1/organizations/:orgId/guard-settings</code>, or admin UI: Guard settings →
 Detect personal data in requests). The setting is read per request, so a
@@ -515,7 +528,8 @@ tool-call arguments included (a JSON number in the arguments is left
 alone). Left as they are: system and developer prompts, signed thinking
 blocks, the provider's own web search and fetch results. Tokens live only in
 memory for the request. A restored value passes the output guard like any
-other text, so <code>OUTPUT_REDACT_PII=true</code> shows the redaction in the answer.
+other text, so with <code>OUTPUT_PII_REDACT=true</code> the answer shows the redaction;
+<code>output_pii_action: off</code> gives the client the values as sent.
 The audit row gets <code>input:pii_tokenized_&lt;kind&gt;=&lt;n&gt;</code> or
 <code>input:pii_redacted_&lt;kind&gt;=&lt;n&gt;</code>.</li>
 <li><strong>Audit and alerts.</strong> The audit row's <code>pii_entities</code> gets
@@ -528,7 +542,7 @@ with an e-mail address and a phone number): the check adds about 11 µs to
 a 2 KB request (sanitize step 148 → 159 µs) and about 57 µs to a 20 KB one
 (1.62 → 1.68 ms); end to end with L1 the p50 goes from 1.18 to 1.20 ms
 (2 KB) and from 11.08 to 11.19 ms (20 KB). With the setting off nothing
-runs. See <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>.</li>
+runs. See <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>.</li>
 </ul>
 <h2 id="content-the-gateway-cannot-read">Content the gateway cannot read<a class="anchor" href="#content-the-gateway-cannot-read" aria-hidden="true">#</a></h2>
 <p>The detector reads text. Images, audio and files in a request are forwarded
@@ -790,8 +804,8 @@ Expect long benign documents to be blocked more often than short ones. The
 classifier cap for untrusted content (<code>l2_untrusted_max</code>, set by the v5
 candidate's calibration, in shadow mode for now) lowers this for tool
 results and documents; at most 1% on 100k–200k-token documents is not
-reached (task RF-895d3533 ended without meeting it; a further attempt is
-the draft task RF-3a9ce3f9). Try it on your own
+reached (task RF-895d3533 ended without meeting it, and so did the later
+round R7, task RF-3a9ce3f9). Try it on your own
 documents with <code>AUDIT_STORE_CONTENT</code> off and the request log's scores first.
 A 200k-token document takes tens of seconds to scan on a few cores (see
 <a href="/docs/operations/sizing/">docs/sizing.md</a>). <code>POST /guardrail/scan</code> and
@@ -1515,7 +1529,7 @@ and <code>dbRoles</code> hooks, network policies, and EN / VI injections blocked
 L1 only.</li>
 </ul>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#operations">README.md#operations</a> @ <code>c81d88c99140</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.md#operations">README.md#operations</a> @ <code>c3fd2723983b</code></p>
   </main>
 </div>
 

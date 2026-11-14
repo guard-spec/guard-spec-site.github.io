@@ -83,7 +83,7 @@ repository root) and the
 </tbody>
 </table></div>
 <p>Before 1.0, a minor version can change the schema and the configuration:
-read the <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CHANGELOG.md">CHANGELOG</a> for every version you skip.</p>
+read the <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/CHANGELOG.md">CHANGELOG</a> for every version you skip.</p>
 <h2 id="backups">Backups<a class="anchor" href="#backups" aria-hidden="true">#</a></h2>
 <p><code>scripts/backup.sh</code> saves what a restore needs, while the stack runs:</p>
 <pre><code class="language-bash">scripts/backup.sh                                                     # quick start
@@ -192,7 +192,7 @@ also fails on warnings, <code>-json</code> for scripts). See
 </ul>
 <h3 id="migration-notes">Migration notes<a class="anchor" href="#migration-notes" aria-hidden="true">#</a></h3>
 <p>What a release's migrations do beyond adding tables, and what to check
-after them. The <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/CHANGELOG.md">CHANGELOG</a> has the full upgrade notes of
+after them. The <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/CHANGELOG.md">CHANGELOG</a> has the full upgrade notes of
 every version.</p>
 <ul>
 <li><strong>026 (policy versions).</strong> Adds <code>policies.log_only</code> and <code>policy_versions</code>,
@@ -234,6 +234,12 @@ closed with 503. Set <code>GATEWAY_URL</code> on the control plane so that it ch
 <code>max_input_tokens</code> against the gateway's <code>MAX_SCAN_TOKENS</code> (without it,
 40,000). Down: the settings and pending loosening requests are dropped,
 and every organization is back to the instance's behaviour.</li>
+<li><strong>031 (custom backends).</strong> Adds the provider <code>custom</code> and the column
+<code>upstreams.backend</code> (what the gateway forwards and scans for a custom
+backend). Existing upstreams are not changed. A 0.8.0 gateway reads the
+column with every upstream: apply the migration before it starts, as the
+compose <code>migrate</code> job does. Down: custom backends are deleted (nothing
+else refers to them).</li>
 </ul>
 <h2 id="rolling-back">Rolling back<a class="anchor" href="#rolling-back" aria-hidden="true">#</a></h2>
 <h3 id="images-no-schema-change">Images, no schema change<a class="anchor" href="#images-no-schema-change" aria-hidden="true">#</a></h3>
@@ -283,7 +289,7 @@ again.</li>
 <code>DETECTOR_REQUIRE_ML=true</code> a missing model stops it at start, by design.</li>
 </ul>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/upgrade.md">docs/upgrade.md</a> @ <code>c81d88c99140</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/docs/upgrade.md">docs/upgrade.md</a> @ <code>c3fd2723983b</code></p>
   </main>
 </div>
 

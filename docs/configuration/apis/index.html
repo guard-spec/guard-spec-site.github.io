@@ -103,6 +103,10 @@ or <code>x-api-key: gs_...</code>.</p>
   <td><code>POST /guardrail/sanitize</code></td>
   <td>Return the sanitized text and the sanitizer report</td>
 </tr>
+<tr>
+  <td><code>GET</code>/<code>POST</code>/<code>PUT</code>/<code>PATCH</code>/<code>DELETE /v1/backend/{upstream}/{path}</code></td>
+  <td>An organization's own JSON API (an upstream of provider <code>custom</code>): the method and path are checked against its configuration (405, 403), the declared request fields are scanned like chat, and an allowed request is forwarded unchanged; declared answer fields go through the output guard. <a href="/docs/quickstart/integrations/#custom-backend">docs/integrations.md</a></td>
+</tr>
 </tbody>
 </table></div>
 <p>A refused request gets HTTP 400 with
@@ -498,7 +502,7 @@ recorded in the request log (tag <code>policy:would_block=&lt;rule id&gt;</code>
 request goes on to the next policy. Every save is kept as a version
 (see <a href="/docs/operations/#governance">Governance</a>).</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#apis">README.md#apis</a> @ <code>c81d88c99140</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.md#apis">README.md#apis</a> @ <code>c3fd2723983b</code></p>
   </main>
 </div>
 

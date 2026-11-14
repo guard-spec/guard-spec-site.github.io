@@ -160,7 +160,7 @@ in a second table.</p>
 <tr>
   <td><code>TOOL_CODE_CORROBORATION</code></td>
   <td><code>on</code></td>
-  <td>Tool results and documents that look like source code, configuration, a diff, a stack trace or a log (six or more lines, 60% of them code-like) are blocked only when L1 (a rule, not just keywords) or L3 agrees with the classifier (L2), which over-scores such text. <code>off</code> lets L2 alone block them again, as before 0.4.2. User, system and tool-description text is never affected; without the model layers it changes nothing. On the long path (<code>MAX_SCAN_TOKENS</code>) the rule applies to each token window, where L3 does not run, so only L1 can agree. Independently of this setting, a classifier whose <code>calibration.json</code> sets <code>l2_untrusted_max</code> counts up to that calibrated score only on tool results and documents (<code>fusion.l2_capped</code> in the rules), so that it never blocks untrusted content alone; the shipped v3b sets none. See <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#security-model-and-limitations">Security model</a></td>
+  <td>Tool results and documents that look like source code, configuration, a diff, a stack trace or a log (six or more lines, 60% of them code-like) are blocked only when L1 (a rule, not just keywords) or L3 agrees with the classifier (L2), which over-scores such text. <code>off</code> lets L2 alone block them again, as before 0.4.2. User, system and tool-description text is never affected; without the model layers it changes nothing. On the long path (<code>MAX_SCAN_TOKENS</code>) the rule applies to each token window, where L3 does not run, so only L1 can agree. Independently of this setting, a classifier whose <code>calibration.json</code> sets <code>l2_untrusted_max</code> counts up to that calibrated score only on tool results and documents (<code>fusion.l2_capped</code> in the rules), so that it never blocks untrusted content alone; the shipped v3b sets none. See <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.md#security-model-and-limitations">Security model</a></td>
 </tr>
 <tr>
   <td><code>SCAN_HISTORY</code></td>
@@ -170,7 +170,7 @@ in a second table.</p>
 <tr>
   <td><code>RESPONSES_SERVER_STATE</code></td>
   <td><code>refuse</code></td>
-  <td><code>/v1/responses</code> requests that refer to conversation state the upstream keeps (<code>previous_response_id</code>, <code>conversation</code>, <code>item_reference</code> input items) carry turns the gateway never sees in the request and cannot scan again: <code>refuse</code> answers them with 400 (<code>server_state_refused</code>); <code>allow</code> passes them and tags the audit row <code>input:server_state=1</code>. See <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#security-model-and-limitations">Security model</a></td>
+  <td><code>/v1/responses</code> requests that refer to conversation state the upstream keeps (<code>previous_response_id</code>, <code>conversation</code>, <code>item_reference</code> input items) carry turns the gateway never sees in the request and cannot scan again: <code>refuse</code> answers them with 400 (<code>server_state_refused</code>); <code>allow</code> passes them and tags the audit row <code>input:server_state=1</code>. See <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.md#security-model-and-limitations">Security model</a></td>
 </tr>
 <tr>
   <td><code>UNSCANNED_PARTS</code></td>
@@ -215,7 +215,7 @@ in a second table.</p>
 <tr>
   <td><code>OUTPUT_GUARD</code></td>
   <td><code>on</code></td>
-  <td><code>off</code> passes responses through unchanged</td>
+  <td><code>off</code> passes responses through unchanged (values that <code>input_pii_action: tokenize</code> replaced still come back). An org's <code>output_pii_action</code> cannot turn the guard on</td>
 </tr>
 <tr>
   <td><code>OUTPUT_LINK_ALLOWLIST</code></td>
@@ -225,12 +225,12 @@ in a second table.</p>
 <tr>
   <td><code>OUTPUT_PII_REDACT</code></td>
   <td><code>true</code></td>
-  <td>Redact e-mail, phone, CCCD and card numbers</td>
+  <td>Redact e-mail, phone, CCCD and card numbers. An org can override it (<code>output_pii_action</code> in guard settings). See <a href="/docs/operations/#output-guard">Output guard</a></td>
 </tr>
 <tr>
   <td><code>OUTPUT_PII_IPV4</code></td>
   <td><code>false</code></td>
-  <td>Also redact IPv4 addresses</td>
+  <td>Also redact IPv4 addresses. An org's <code>output_pii_kinds</code> replaces the kinds</td>
 </tr>
 <tr>
   <td><code>OUTPUT_CANARY</code></td>
@@ -632,7 +632,7 @@ URL tried before Hugging Face: <code>&lt;mirror&gt;/&lt;name&gt;/&lt;version&gt;
 </tr>
 <tr>
   <td><code>GUARDSPEC_VERSION</code></td>
-  <td><code>0.7.0</code></td>
+  <td><code>0.8.0</code></td>
   <td>Tag of the <code>ghcr.io/guard-spec/guard-spec-*</code> images in <code>docker-compose.yml</code> (the dev override builds from source instead)</td>
 </tr>
 <tr>
@@ -648,7 +648,7 @@ URL tried before Hugging Face: <code>&lt;mirror&gt;/&lt;name&gt;/&lt;version&gt;
 </tbody>
 </table></div>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/README.md#configuration">README.md#configuration</a> @ <code>c81d88c99140</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.md#configuration">README.md#configuration</a> @ <code>c3fd2723983b</code></p>
   </main>
 </div>
 

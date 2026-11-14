@@ -242,7 +242,7 @@ the Python detectors; <code>cmd/eval</code> times every row, model loading exclu
 <p>Every dataset was checked on its Hugging Face card at the pinned commit. The
 benchmark downloads them at run time; no row from them is stored in this
 repository beyond what <code>eval/</code> already contains (see
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/eval/LICENSES.md">eval/LICENSES.md</a>).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/eval/LICENSES.md">eval/LICENSES.md</a>).</p>
 <div class="table"><table>
 <thead>
 <tr>
@@ -306,7 +306,7 @@ repository beyond what <code>eval/</code> already contains (see
 <p>Row counts and languages per run are in the generated tables below.</p>
 <p><strong>Vietnamese.</strong> We found no public, licensed Vietnamese prompt-injection
 dataset. The only Vietnamese rows here are those of <code>eval/</code>, which are
-synthetic and labelled by AI agents (see <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/eval/README.md">eval/README.md</a>).</p>
+synthetic and labelled by AI agents (see <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/eval/README.md">eval/README.md</a>).</p>
 <p><strong>Language column.</strong> <code>eval/</code> carries a language per row (<code>en</code>, <code>vi</code>). For the
 public sets, rows with German, Spanish or Cyrillic markers (the rule of
 <code>eval/build/build.py</code>) are <code>other</code>, the rest <code>en</code>. Only <code>deepset</code> has a
@@ -315,7 +315,7 @@ sizeable <code>other</code> share.</p>
 <ul>
 <li>Guard Spec's classifier (L2, v3b) was trained on the <code>train</code> splits of
 <code>deepset/prompt-injections</code>, <code>Lakera/gandalf_ignore_instructions</code> and
-<code>jackhhao/jailbreak-classification</code> (<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/DATA_LICENSES.md">train/DATA_LICENSES.md</a>).
+<code>jackhhao/jailbreak-classification</code> (<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/DATA_LICENSES.md">train/DATA_LICENSES.md</a>).
 The benchmark uses only their <code>test</code> splits, but those come from the same
 distribution, which favours Guard Spec on these three sets.</li>
 <li>ProtectAI v2 lists <code>jackhhao/jailbreak-classification</code> among its training
@@ -323,7 +323,7 @@ sets (split not stated), so the same holds for it there.</li>
 <li>The English <code>test</code> rows of <code>deepset</code> and <code>Gandalf</code> are also part of
 <code>eval/</code> (60 of 116 and 111 of 112 rows).</li>
 <li>Guard Spec's L1 rules were refined by reading failures on the &quot;dev&quot; half of
-<code>eval/</code> (<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/eval/README.md">eval/README.md</a>); L1 numbers on <code>eval/</code> are
+<code>eval/</code> (<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/eval/README.md">eval/README.md</a>); L1 numbers on <code>eval/</code> are
 optimistic. L2, L3 and the fusion were never fitted on <code>eval/</code>.</li>
 <li>Nothing in this benchmark was used to change Guard Spec.</li>
 </ul>
@@ -1139,7 +1139,7 @@ measures that, with <code>make bench-long</code> (<code>bench/long/</code>, <cod
 <p><strong>Setup.</strong> The corpus is built from pinned public sources (Wikipedia EN/VI,
 the U.S. Code, Go source code, Vietnamese public-domain literature and laws
 from vi.wikisource; licences in
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/bench/long/corpus.yaml"><code>bench/long/corpus.yaml</code></a>), plus seeded synthetic
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/bench/long/corpus.yaml"><code>bench/long/corpus.yaml</code></a>), plus seeded synthetic
 logs, JSON, CSV, e-mail threads, chat transcripts and hard negatives (benign
 text about prompt injection). Texts of one genre are joined to 20k, 50k,
 100k, 200k and 500k tokens. Attack documents put one payload from the
@@ -1180,7 +1180,7 @@ language, 13 / 11). Before that date the payloads were the <code>eval/</code> ho
 half; the benign and host documents did not change, but the numbers published
 below from earlier runs were measured on holdout payloads and are not directly
 comparable with runs on the current corpus (<code>outputs</code> in
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/bench/long/corpus.yaml"><code>bench/long/corpus.yaml</code></a> pins both).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/bench/long/corpus.yaml"><code>bench/long/corpus.yaml</code></a> pins both).</p>
 <p><strong>Baselines on the current corpus (full profile, dev / holdout).</strong> Apple M3
 Max (14 cores), ONNX Runtime 1.31.1, 2026-11-11, the working tree of the
 payload change on top of <code>b381615</code>; full profile (912 documents, 9.4M tokens,
@@ -1323,7 +1323,7 @@ dev documents of the v6 gate G6). The <code>long</code> profile
 benign documents, 32 English and 33 / 31 Vietnamese per size (100k / 200k
 tokens; 19.08M tokens in all, 66 dev / 62 holdout), and no attacks, from
 sources whose text is disjoint from the quick/full ones (licences in
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/bench/long/corpus.yaml"><code>bench/long/corpus.yaml</code></a>):</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/bench/long/corpus.yaml"><code>bench/long/corpus.yaml</code></a>):</p>
 <ul>
 <li>English: Wikipedia (6 per size), the U.S. Code titles 5, 7, 10, 12, 15, 18
 and 29 (5), Go standard library and toolchain files interleaved with
@@ -1339,7 +1339,7 @@ and hard negatives (1 each).</li>
 </ul>
 <p>Every source is pinned (revision or commit, file or subtree SHA, SHA-256 of
 the extracted text), the synthetic genres use their own seed, and
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/bench/long/exclude.json"><code>bench/long/exclude.json</code></a> lists the source
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/bench/long/exclude.json"><code>bench/long/exclude.json</code></a> lists the source
 units that share a run of 50 classifier tokens with a v6 training or
 validation row (<code>train/data/bench_guard.py</code>, 22,461 rows): 2,467 units over
 10 sources, mostly U.S. Code statutory notes and Vietnamese laws (the v6 data
@@ -1511,7 +1511,7 @@ the v6 gate G7, each in a long document of its own language and slice) are
 caught as well as alone: 95.9% of 221 dev and 88.1% of 218 holdout documents,
 against 93.8% and 90.6% for the payloads alone. Four document-level rules
 were pre-registered and fitted on dev only
-(<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/reports/r3_preregistration.md"><code>train/reports/r3_preregistration.md</code></a>):
+(<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/reports/r3_preregistration.md"><code>train/reports/r3_preregistration.md</code></a>):
 counting a window over 0.85 only when the rules (L1) corroborate it, a
 threshold that grows with the number of windows (extreme-value fit), both, or
 k windows over 0.85. None reached 1% without losing the embedded attacks: on
@@ -1522,7 +1522,7 @@ windows score 0.92 to 0.985, and the payloads' windows score in the same range
 documents (21.3%, 95% interval 11.9% to 33.7%) at an unchanged 88.1%
 detection, so it is not used; <code>calibration.json</code> can carry such a rule
 (<code>long_doc</code>) but no shipped model has one. Details in
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/MODEL_CARD.md"><code>train/MODEL_CARD.md</code></a> (v6, R3).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md"><code>train/MODEL_CARD.md</code></a> (v6, R3).</p>
 <p><strong>New long documents, tightened rules and a stricter decision (task RF-895d3533 R5).</strong>
 Because both halves of <code>long</code> had been scored, R5 built a new profile,
 <code>long5</code> (150 benign documents of 100k and 200k tokens from sources and units
@@ -1534,7 +1534,7 @@ corroboration bar, tighter hidden-note, refusal-suppression, password-trick
 and decode rules) with five long-path decisions (today's, R3's L1
 corroboration, an L1 floor counting only when L2 agrees, and two higher
 corroboration bars)
-(<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/reports/r5_preregistration.md"><code>train/reports/r5_preregistration.md</code></a>).
+(<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/reports/r5_preregistration.md"><code>train/reports/r5_preregistration.md</code></a>).
 The R5 rules leave eval/data and val_v3 unchanged. On dev no combination
 blocked no benign document; the one blocking fewest (R5 rules, bar at a raw
 rule weight 0.75) blocked 4 / 74 against 13 / 74 for v6 as it is. Scored once
@@ -1542,7 +1542,7 @@ on the holdout it blocks <strong>5 / 76 documents (6.6%, 95% interval 2.2% to
 14.7%)</strong> against 11 / 76 (14.5%) for v6, and catches 86.3% of 227 embedded
 payloads against 81.8% for the same payloads alone (v6 as it is: 89.9%). The
 1% target is not met at either size, so the decision is not shipped; the R5
-rules are kept. Details in <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/train/MODEL_CARD.md"><code>train/MODEL_CARD.md</code></a>
+rules are kept. Details in <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md"><code>train/MODEL_CARD.md</code></a>
 (v6, R5).</p>
 <p>The quick profile was run the same day with both models (and the <code>l1,l2,l3</code>
 set as well); its numbers agree with the full ones within the sample sizes.
@@ -1553,9 +1553,9 @@ Runtime 1.31.1, <code>guardspec-classifier-v3b</code>, 2026-11-09, run from the
 branch that added the benchmark; 26 benign documents (0.86M tokens), 12
 payloads per language. Small samples: one 100k document per language, and
 12 attacks per cell (one attack is 8 points). Full tables:
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/bench/results/long-m3max-local.md"><code>bench/results/long-m3max-local.md</code></a>.
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/bench/results/long-m3max-local.md"><code>bench/results/long-m3max-local.md</code></a>.
 The 4 vCPU and 2 vCPU runs on GitHub's runners come from
-<a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/.github/workflows/bench-long.yml"><code>bench-long.yml</code></a> after merge.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/.github/workflows/bench-long.yml"><code>bench-long.yml</code></a> after merge.</p>
 <p>False positives of benign text at the 0.85 block threshold (<code>l1,l2</code>):</p>
 <div class="table"><table>
 <thead>
@@ -1681,7 +1681,7 @@ hardware or your own documents.</p>
 <p>The results will also appear on <a href="https://guardspec.io/docs/">guardspec.io/docs</a>,
 which is built from this page.</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c81d88c991406e7029c9945a9350f0f58f6ea220/docs/benchmark.md">docs/benchmark.md</a> @ <code>c81d88c99140</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/docs/benchmark.md">docs/benchmark.md</a> @ <code>c3fd2723983b</code></p>
   </main>
 </div>
 

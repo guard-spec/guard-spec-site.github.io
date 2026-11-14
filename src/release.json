@@ -1,52 +1,61 @@
 {
   "_comment": "The current release, shown on the landing page (hero badge, 'New in' link, What's new section). On each release: update this file, bump ref in src/docs.json, run build.py, run check_site.py --external. Text may hold inline HTML (<code>). 'previous' lists the newest first; keep about four. Optional 'also' (label, text): a highlighted note at the top of What's new for a release that is not a gateway version (for example a model candidate); remove it when the next gateway release covers it.",
-  "version": "v0.7.0",
-  "date": "2026-11-13",
-  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.7.0",
-  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.7.0/CHANGELOG.md#070---2026-11-13",
+  "version": "v0.8.0",
+  "date": "2026-11-14",
+  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.8.0",
+  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.8.0/CHANGELOG.md#080---2026-11-14",
   "status": {
     "en": "pre-1.0",
     "vi": "trước 1.0"
   },
   "tagline": {
-    "en": "Policy history and two-person approval, per-org input settings, a GPU option",
-    "vi": "Lịch sử policy và duyệt 2 người, cấu hình input theo org, tùy chọn GPU"
+    "en": "Guard your own JSON APIs, and per-org redaction of personal data in answers",
+    "vi": "Bảo vệ API JSON của chính bạn, và che dữ liệu cá nhân trong câu trả lời theo org"
   },
   "upgrade": {
-    "en": "Upgrading: apply migrations 026–030 before a 0.7.0 gateway starts (the compose <code>migrate</code> job does). Behind a proxy, set <code>TRUSTED_PROXIES</code> before using <code>allowed_cidrs</code>. Approval, key limits and input settings stay off until an admin turns them on. The images fix CVE-2026-84243 (glibc). v3b stays the classifier.",
-    "vi": "Khi nâng cấp: chạy migration 026–030 trước khi gateway 0.7.0 khởi động (job <code>migrate</code> của compose làm việc này). Đứng sau proxy thì đặt <code>TRUSTED_PROXIES</code> trước khi dùng <code>allowed_cidrs</code>. Duyệt 2 người, giới hạn key và cấu hình input đều tắt cho tới khi admin bật. Image đã vá CVE-2026-84243 (glibc). Classifier vẫn là v3b."
+    "en": "Upgrading: apply migration 031 before a 0.8.0 gateway starts (the compose <code>migrate</code> job does). Nothing else changes by default: organizations keep <code>OUTPUT_PII_REDACT</code> until an admin sets their own choice. v3b stays the classifier.",
+    "vi": "Khi nâng cấp: chạy migration 031 trước khi gateway 0.8.0 khởi động (job <code>migrate</code> của compose làm việc này). Mặc định không có gì khác: các org vẫn theo <code>OUTPUT_PII_REDACT</code> cho tới khi admin chọn riêng. Classifier vẫn là v3b."
   },
   "highlights": {
     "en": [
       {
-        "title": "Governance",
-        "text": "Policy history with diff and rollback, opt-in two-person approval for disabling a policy or storing content, API keys limited by network (<code>allowed_cidrs</code>), lifetime and rotation, and a CSV report of the request log."
+        "title": "Custom backends",
+        "text": "Put the gateway in front of your own JSON API, not only an LLM provider: <code>/v1/backend/{upstream}/{path}</code> scans the request fields you declare (JSONPath) with the same detectors and policies as chat, forwards clean requests byte for byte, and guards the declared answer fields. Allowed paths and methods, keys kept on the gateway, no redirects."
       },
       {
-        "title": "Input settings and false positives",
-        "text": "Per organization: <code>text_only</code> or <code>hybrid</code> input, unreadable-file handling and a token limit. A getting-started checklist, and one-click false-positive handling from the request details with each layer's score and an impact preview."
+        "title": "Personal data in answers, per organization",
+        "text": "<code>output_pii_action</code> (<code>off</code> or <code>redact</code>) and <code>output_pii_kinds</code> let each organization choose whether e-mail addresses, phone and card numbers, CCCD and IPv4 in answers are redacted, on every chat API, streamed or not. Admin UI: Guard settings."
       },
       {
-        "title": "GPU option",
-        "text": "<code>INFERENCE_PROVIDER=cuda</code> runs the models on ONNX Runtime's CUDA provider: a 200k-token document in about 3 s on an NVIDIA L4. The CPU stays the default; build your GPU image from <code>build/gateway-gpu.Dockerfile</code>."
+        "title": "Research: R7 not met",
+        "text": "A pre-registered training round on long documents blocked 2 of 180 clean long documents on a new holdout (v6: 10) and caught 95.1% of embedded attacks, but lost precision on short prompts, so no new model is released. The reports and v6's long-document numbers are published."
       }
     ],
     "vi": [
       {
-        "title": "Quản trị",
-        "text": "Lịch sử policy có diff và rollback, duyệt 2 người (tùy chọn) khi tắt policy hay lưu nội dung, API key giới hạn theo mạng (<code>allowed_cidrs</code>), thời hạn và xoay key, cùng báo cáo CSV của request log."
+        "title": "Custom backend",
+        "text": "Đặt gateway trước API JSON của chính bạn, không chỉ nhà cung cấp LLM: <code>/v1/backend/{upstream}/{path}</code> quét các trường request bạn khai báo (JSONPath) bằng cùng bộ phát hiện và policy như chat, chuyển tiếp nguyên từng byte request sạch, và bảo vệ các trường câu trả lời đã khai báo. Giới hạn path và method, khoá nằm trên gateway, không theo redirect."
       },
       {
-        "title": "Cấu hình input và chặn nhầm",
-        "text": "Theo từng org: input <code>text_only</code> hoặc <code>hybrid</code>, cách xử lý file không đọc được và giới hạn token. Có danh sách việc cần làm khi bắt đầu, và xử lý chặn nhầm một chạm ngay trong chi tiết request, kèm điểm từng lớp và ước tính ảnh hưởng."
+        "title": "Dữ liệu cá nhân trong câu trả lời, theo org",
+        "text": "<code>output_pii_action</code> (<code>off</code> hoặc <code>redact</code>) và <code>output_pii_kinds</code> cho mỗi tổ chức tự chọn có che email, số điện thoại, số thẻ, CCCD và IPv4 trong câu trả lời hay không, trên mọi API chat, stream hay không. Admin UI: Thiết lập bảo vệ."
       },
       {
-        "title": "Tùy chọn GPU",
-        "text": "<code>INFERENCE_PROVIDER=cuda</code> chạy model trên CUDA provider của ONNX Runtime: tài liệu 200k token mất khoảng 3 s trên NVIDIA L4. CPU vẫn là mặc định; tự build image GPU từ <code>build/gateway-gpu.Dockerfile</code>."
+        "title": "Nghiên cứu: R7 chưa đạt",
+        "text": "Một vòng train đăng ký trước cho tài liệu dài chặn nhầm 2/180 tài liệu dài sạch trên holdout mới (v6: 10) và bắt 95,1% tấn công nhúng, nhưng kém chính xác hơn với prompt ngắn, nên không phát hành model mới. Báo cáo và số liệu tài liệu dài của v6 đã được công bố."
       }
     ]
   },
   "previous": [
+    {
+      "version": "v0.7.0",
+      "date": "2026-11-13",
+      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.7.0",
+      "summary": {
+        "en": "Policy history and two-person approval, per-org input settings, a GPU option; CVE-2026-84243 fixed.",
+        "vi": "Lịch sử policy và duyệt 2 người, cấu hình input theo org, tùy chọn GPU; vá CVE-2026-84243."
+      }
+    },
     {
       "version": "v0.6.0",
       "date": "2026-11-11",
@@ -73,25 +82,6 @@
         "en": "Fewer false positives on code and logs in tool output: code-like tool results need L1 or L3 to agree with the classifier before they are blocked.",
         "vi": "Giảm chặn nhầm code và log trong tool output: tool result dạng code chỉ bị chặn khi L1 hoặc L3 cùng xác nhận với classifier."
       }
-    },
-    {
-      "version": "v0.4.1",
-      "date": "2026-11-09",
-      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.4.1",
-      "summary": {
-        "en": "Security fix: saving an organization's security settings no longer lifts its login method restriction.",
-        "vi": "Vá bảo mật: lưu cài đặt bảo mật của tổ chức không còn làm mất giới hạn phương thức đăng nhập."
-      }
     }
-  ],
-  "also": {
-    "label": {
-      "en": "Classifier v6 candidate",
-      "vi": "Classifier v6 (ứng viên)"
-    },
-    "text": {
-      "en": "<a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v6\"><code>guardspec-classifier@v6</code></a> is published as a signed pre-release (Hugging Face branch <code>v6</code>), with an FP16 file for the GPU option. Not the default: run it in shadow mode first. The goal of at most 1% blocked clean 100k–200k-token documents is not met yet.",
-      "vi": "<a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v6\"><code>guardspec-classifier@v6</code></a> đã phát hành dạng pre-release có chữ ký (nhánh <code>v6</code> trên Hugging Face), có file FP16 cho tùy chọn GPU. Không phải mặc định: chạy shadow mode trước. Mục tiêu chặn nhầm tối đa 1% tài liệu sạch 100k–200k token vẫn chưa đạt."
-    }
-  }
+  ]
 }
