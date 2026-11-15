@@ -83,5 +83,15 @@
         "vi": "Giảm chặn nhầm code và log trong tool output: tool result dạng code chỉ bị chặn khi L1 hoặc L3 cùng xác nhận với classifier."
       }
     }
-  ]
+  ],
+  "also": {
+    "label": {
+      "en": "Classifier v8e candidate",
+      "vi": "Classifier v8e (ứng viên)"
+    },
+    "text": {
+      "en": "<a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v8e\"><code>guardspec-classifier@v8e</code></a> is published as a signed pre-release (Hugging Face branch <code>v8e</code>), with an FP16 file for the GPU option. On a fresh holdout it blocked 1 of 602 clean 100k–200k-token documents. Not the default: it catches fewer email injections than v3b, so run it in shadow mode first, and use it with the gateway release after v0.8.0 (or main), which reads its long-document rule.",
+      "vi": "<a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v8e\"><code>guardspec-classifier@v8e</code></a> đã phát hành dạng pre-release có chữ ký (nhánh <code>v8e</code> trên Hugging Face), có file FP16 cho tùy chọn GPU. Trên holdout mới, nó chặn nhầm 1/602 tài liệu sạch 100k–200k token. Không phải mặc định: nó bắt ít email injection hơn v3b, nên hãy chạy shadow mode trước, và dùng với bản gateway sau v0.8.0 (hoặc main), bản có đọc luật tài liệu dài của nó."
+    }
+  }
 }
