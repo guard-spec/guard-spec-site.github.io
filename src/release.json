@@ -1,52 +1,61 @@
 {
   "_comment": "The current release, shown on the landing page (hero badge, 'New in' link, What's new section). On each release: update this file, bump ref in src/docs.json, run build.py, run check_site.py --external. Text may hold inline HTML (<code>). 'previous' lists the newest first; keep about four. Optional 'also' (label, text): a highlighted note at the top of What's new for a release that is not a gateway version (for example a model candidate); remove it when the next gateway release covers it.",
-  "version": "v0.8.0",
-  "date": "2026-11-14",
-  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.8.0",
-  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.8.0/CHANGELOG.md#080---2026-11-14",
+  "version": "v0.9.0",
+  "date": "2026-11-17",
+  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.9.0",
+  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.9.0/CHANGELOG.md#090---2026-11-17",
   "status": {
     "en": "pre-1.0",
     "vi": "trước 1.0"
   },
   "tagline": {
-    "en": "Guard your own JSON APIs, and per-org redaction of personal data in answers",
-    "vi": "Bảo vệ API JSON của chính bạn, và che dữ liệu cá nhân trong câu trả lời theo org"
+    "en": "Classifier v8e by default, and far more email and tool-result injections caught",
+    "vi": "Classifier v8e làm mặc định, và bắt được nhiều hơn hẳn injection trong email và kết quả tool"
   },
   "upgrade": {
-    "en": "Upgrading: apply migration 031 before a 0.8.0 gateway starts (the compose <code>migrate</code> job does). Nothing else changes by default: organizations keep <code>OUTPUT_PII_REDACT</code> until an admin sets their own choice. v3b stays the classifier.",
-    "vi": "Khi nâng cấp: chạy migration 031 trước khi gateway 0.8.0 khởi động (job <code>migrate</code> của compose làm việc này). Mặc định không có gì khác: các org vẫn theo <code>OUTPUT_PII_REDACT</code> cho tới khi admin chọn riêng. Classifier vẫn là v3b."
+    "en": "Upgrading: <code>models-init</code> (or <code>models pull</code>) fetches v8e; until then a gateway with only v3b keeps using it and warns. Keep v3b with <code>L2_MODEL=guardspec-classifier@v3b</code>. <code>UNTRUSTED_L1_FLOOR=0.90</code> is on by default (<code>off</code> restores the old behaviour). No migration.",
+    "vi": "Khi nâng cấp: <code>models-init</code> (hoặc <code>models pull</code>) tải v8e; trong lúc chờ, gateway chỉ có v3b vẫn dùng v3b và cảnh báo. Giữ v3b bằng <code>L2_MODEL=guardspec-classifier@v3b</code>. <code>UNTRUSTED_L1_FLOOR=0.90</code> bật mặc định (<code>off</code> để quay về hành vi cũ). Không có migration."
   },
   "highlights": {
     "en": [
       {
-        "title": "Custom backends",
-        "text": "Put the gateway in front of your own JSON API, not only an LLM provider: <code>/v1/backend/{upstream}/{path}</code> scans the request fields you declare (JSONPath) with the same detectors and policies as chat, forwards clean requests byte for byte, and guards the declared answer fields. Allowed paths and methods, keys kept on the gateway, no redirects."
+        "title": "Classifier v8e is the default",
+        "text": "On a fresh long-document holdout it blocks 1 of 602 clean documents of 100k–200k tokens and catches 88% of hidden attacks; on user messages, TPR 0.960 at FPR ≤ 1% with no benign row blocked at the threshold. An FP16 file ships for the GPU option. v3b stays one setting away."
       },
       {
-        "title": "Personal data in answers, per organization",
-        "text": "<code>output_pii_action</code> (<code>off</code> or <code>redact</code>) and <code>output_pii_kinds</code> let each organization choose whether e-mail addresses, phone and card numbers, CCCD and IPv4 in answers are redacted, on every chat API, streamed or not. Admin UI: Guard settings."
+        "title": "Injections inside emails and tool results",
+        "text": "New <code>ei.*</code> rules and an L1 floor for untrusted content: an instruction to send mail to an address or a task handed to the agent now blocks even when the classifier finds the text clean. On a fresh holdout scored once, v8e catches 72.3% of attacks (26.2% before), v3b 77.0% (47.7%)."
       },
       {
-        "title": "Research: R7 not met",
-        "text": "A pre-registered training round on long documents blocked 2 of 180 clean long documents on a new holdout (v6: 10) and caught 95.1% of embedded attacks, but lost precision on short prompts, so no new model is released. The reports and v6's long-document numbers are published."
+        "title": "Fewer false positives, sanitizer fixed",
+        "text": "Benign persona exemplars cut blocked English persona and enterprise system prompts to 3.3% (v3b); Vietnamese enterprise prompts: 1% with v8e. The sanitizer now forwards text as written, so JSX, HTML and <code>&lt;key&gt;</code> placeholders reach the model, and text after a <code>&lt;script&gt;</code> mention is scanned."
       }
     ],
     "vi": [
       {
-        "title": "Custom backend",
-        "text": "Đặt gateway trước API JSON của chính bạn, không chỉ nhà cung cấp LLM: <code>/v1/backend/{upstream}/{path}</code> quét các trường request bạn khai báo (JSONPath) bằng cùng bộ phát hiện và policy như chat, chuyển tiếp nguyên từng byte request sạch, và bảo vệ các trường câu trả lời đã khai báo. Giới hạn path và method, khoá nằm trên gateway, không theo redirect."
+        "title": "Classifier v8e làm mặc định",
+        "text": "Trên holdout tài liệu dài mới, v8e chặn nhầm 1/602 tài liệu sạch 100k–200k token và bắt 88% tấn công ẩn; với tin nhắn người dùng, TPR 0,960 ở FPR ≤ 1% và không chặn nhầm dòng lành nào ở ngưỡng. Có file FP16 cho tùy chọn GPU. Muốn dùng lại v3b chỉ cần một cấu hình."
       },
       {
-        "title": "Dữ liệu cá nhân trong câu trả lời, theo org",
-        "text": "<code>output_pii_action</code> (<code>off</code> hoặc <code>redact</code>) và <code>output_pii_kinds</code> cho mỗi tổ chức tự chọn có che email, số điện thoại, số thẻ, CCCD và IPv4 trong câu trả lời hay không, trên mọi API chat, stream hay không. Admin UI: Thiết lập bảo vệ."
+        "title": "Injection trong email và kết quả tool",
+        "text": "Luật <code>ei.*</code> mới và sàn L1 cho nội dung không tin cậy: lệnh gửi thư tới một địa chỉ hay giao việc cho agent giờ bị chặn dù classifier thấy văn bản sạch. Trên holdout mới chấm một lần, v8e bắt 72,3% tấn công (trước 26,2%), v3b 77,0% (trước 47,7%)."
       },
       {
-        "title": "Nghiên cứu: R7 chưa đạt",
-        "text": "Một vòng train đăng ký trước cho tài liệu dài chặn nhầm 2/180 tài liệu dài sạch trên holdout mới (v6: 10) và bắt 95,1% tấn công nhúng, nhưng kém chính xác hơn với prompt ngắn, nên không phát hành model mới. Báo cáo và số liệu tài liệu dài của v6 đã được công bố."
+        "title": "Ít chặn nhầm hơn, sửa sanitizer",
+        "text": "Exemplar persona lành giảm chặn nhầm prompt persona và system prompt doanh nghiệp tiếng Anh còn 3,3% (v3b); system prompt tiếng Việt: 1% với v8e. Sanitizer giờ chuyển văn bản giữ nguyên, nên JSX, HTML và placeholder <code>&lt;key&gt;</code> tới được model, và phần sau một lần nhắc <code>&lt;script&gt;</code> vẫn được quét."
       }
     ]
   },
   "previous": [
+    {
+      "version": "v0.8.0",
+      "date": "2026-11-14",
+      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.8.0",
+      "summary": {
+        "en": "Custom backends for your own JSON APIs, and per-org redaction of personal data in answers.",
+        "vi": "Custom backend cho API JSON của chính bạn, và che dữ liệu cá nhân trong câu trả lời theo org."
+      }
+    },
     {
       "version": "v0.7.0",
       "date": "2026-11-13",
@@ -73,25 +82,6 @@
         "en": "Large inputs scanned in full, SAML and SCIM, unscanned images and files recorded, a classifier cap for tool output; classifier v5 released as a shadow-mode candidate.",
         "vi": "Quét đủ input lớn, SAML và SCIM, ghi lại ảnh và file không quét được, trần classifier cho tool output; classifier v5 phát hành dạng ứng viên shadow mode."
       }
-    },
-    {
-      "version": "v0.4.2",
-      "date": "2026-11-09",
-      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.4.2",
-      "summary": {
-        "en": "Fewer false positives on code and logs in tool output: code-like tool results need L1 or L3 to agree with the classifier before they are blocked.",
-        "vi": "Giảm chặn nhầm code và log trong tool output: tool result dạng code chỉ bị chặn khi L1 hoặc L3 cùng xác nhận với classifier."
-      }
     }
-  ],
-  "also": {
-    "label": {
-      "en": "Classifier v8e candidate",
-      "vi": "Classifier v8e (ứng viên)"
-    },
-    "text": {
-      "en": "<a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v8e\"><code>guardspec-classifier@v8e</code></a> is published as a signed pre-release (Hugging Face branch <code>v8e</code>), with an FP16 file for the GPU option. On a fresh holdout it blocked 1 of 602 clean 100k–200k-token documents. Not the default: it catches fewer email injections than v3b, so run it in shadow mode first, and use it with the gateway release after v0.8.0 (or main), which reads its long-document rule.",
-      "vi": "<a href=\"https://github.com/guard-spec/guard-spec/releases/tag/model-guardspec-classifier-v8e\"><code>guardspec-classifier@v8e</code></a> đã phát hành dạng pre-release có chữ ký (nhánh <code>v8e</code> trên Hugging Face), có file FP16 cho tùy chọn GPU. Trên holdout mới, nó chặn nhầm 1/602 tài liệu sạch 100k–200k token. Không phải mặc định: nó bắt ít email injection hơn v3b, nên hãy chạy shadow mode trước, và dùng với bản gateway sau v0.8.0 (hoặc main), bản có đọc luật tài liệu dài của nó."
-    }
-  }
+  ]
 }

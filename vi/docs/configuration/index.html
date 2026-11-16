@@ -87,6 +87,11 @@ dùng nhất:</p>
   <td>Kết quả tool và tài liệu trông như mã nguồn, cấu hình, diff, stack trace hoặc log chỉ bị chặn khi L1 (một luật, không chỉ từ khoá) hoặc L3 đồng ý với bộ phân loại (L2), vốn chấm quá tay loại văn bản này. <code>off</code>: L2 một mình lại chặn được như trước 0.4.2. Không áp dụng cho văn bản người dùng, system và mô tả tool. Trên đường dài (<code>MAX_SCAN_TOKENS</code>) luật áp dụng cho từng cửa sổ token, nơi L3 không chạy, nên chỉ L1 có thể đồng ý</td>
 </tr>
 <tr>
+  <td><code>UNTRUSTED_L1_FLOOR</code></td>
+  <td><code>0.90</code></td>
+  <td>Chỉ với kết quả tool và tài liệu: điểm L1 đã hiệu chỉnh từ giá trị này trở lên là sàn của điểm chung, nên chỉ dẫn mà luật nhận ra trong email hay kết quả tool không bị bộ phân loại &quot;át&quot; đi. Nội dung không tin cậy không có lý do gì để ra lệnh cho model. <code>off</code> hoặc <code>0</code> để tắt; ngoài ra là số trong (0.5, 1]</td>
+</tr>
+<tr>
   <td><code>CONVERSATION_WINDOW_TURNS</code> / <code>CONVERSATION_WINDOW_BYTES</code></td>
   <td><code>4</code> / <code>8192</code></td>
   <td>Cửa sổ hội thoại: ghép các lượt người dùng gần nhất (tối đa bấy nhiêu lượt và byte) rồi chấm điểm chung, để bắt chỉ dẫn bị chia nhỏ qua nhiều tin nhắn; <code>0</code> là tắt</td>
@@ -214,7 +219,7 @@ dùng nhất:</p>
 </tbody>
 </table></div>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.vi.md#cấu-hình">README.vi.md#cấu-hình</a> @ <code>c3fd2723983b</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/README.vi.md#cấu-hình">README.vi.md#cấu-hình</a> @ <code>89dc5fb2ebc0</code></p>
   </main>
 </div>
 
