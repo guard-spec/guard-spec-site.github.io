@@ -1,52 +1,61 @@
 {
   "_comment": "The current release, shown on the landing page (hero badge, 'New in' link, What's new section). On each release: update this file, bump ref in src/docs.json, run build.py, run check_site.py --external. Text may hold inline HTML (<code>). 'previous' lists the newest first; keep about four. Optional 'also' (label, text): a highlighted note at the top of What's new for a release that is not a gateway version (for example a model candidate); remove it when the next gateway release covers it.",
-  "version": "v0.9.0",
+  "version": "v0.10.0",
   "date": "2026-11-17",
-  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.9.0",
-  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.9.0/CHANGELOG.md#090---2026-11-17",
+  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.10.0",
+  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.10.0/CHANGELOG.md#0100---2026-11-17",
   "status": {
     "en": "pre-1.0",
     "vi": "trước 1.0"
   },
   "tagline": {
-    "en": "Classifier v8e by default, and far more email and tool-result injections caught",
-    "vi": "Classifier v8e làm mặc định, và bắt được nhiều hơn hẳn injection trong email và kết quả tool"
+    "en": "Long conversations scanned window by window, with a cache that keeps every window",
+    "vi": "Hội thoại dài được quét theo từng cửa sổ, với cache giữ lại mọi cửa sổ"
   },
   "upgrade": {
-    "en": "Upgrading: <code>models-init</code> (or <code>models pull</code>) fetches v8e; until then a gateway with only v3b keeps using it and warns. Keep v3b with <code>L2_MODEL=guardspec-classifier@v3b</code>. <code>UNTRUSTED_L1_FLOOR=0.90</code> is on by default (<code>off</code> restores the old behaviour). No migration.",
-    "vi": "Khi nâng cấp: <code>models-init</code> (hoặc <code>models pull</code>) tải v8e; trong lúc chờ, gateway chỉ có v3b vẫn dùng v3b và cảnh báo. Giữ v3b bằng <code>L2_MODEL=guardspec-classifier@v3b</code>. <code>UNTRUSTED_L1_FLOOR=0.90</code> bật mặc định (<code>off</code> để quay về hành vi cũ). Không có migration."
+    "en": "Upgrading: the shared scan cache's key format is now <code>v2</code>, so running sessions are scanned again once (old entries expire within 6 hours). The cache holds more entries (about 100 bytes per window). No migration.",
+    "vi": "Khi nâng cấp: định dạng khoá của scan cache dùng chung đổi sang <code>v2</code>, nên các phiên đang chạy được quét lại một lần (mục cũ hết hạn trong 6 giờ). Cache giữ nhiều mục hơn (khoảng 100 byte mỗi cửa sổ). Không có migration."
   },
   "highlights": {
     "en": [
       {
-        "title": "Classifier v8e is the default",
-        "text": "On a fresh long-document holdout it blocks 1 of 602 clean documents of 100k–200k tokens and catches 88% of hidden attacks; on user messages, TPR 0.960 at FPR ≤ 1% with no benign row blocked at the threshold. An FP16 file ships for the GPU option. v3b stays one setting away."
+        "title": "A scan cache per window",
+        "text": "With <code>MAX_SCAN_TOKENS</code>, each 256-token window keeps its score. A chat over a 183k-token document takes 22.7 s on its first turn and 85 ms at the median after that, with 99.9% of windows from the cache; a second replica reading Redis takes 53–60 ms."
       },
       {
-        "title": "Injections inside emails and tool results",
-        "text": "New <code>ei.*</code> rules and an L1 floor for untrusted content: an instruction to send mail to an address or a task handed to the agent now blocks even when the classifier finds the text clean. On a fresh holdout scored once, v8e catches 72.3% of attacks (26.2% before), v3b 77.0% (47.7%)."
+        "title": "Scan files ahead",
+        "text": "<code>/guardrail/scan</code> with <code>\"cache\": true</code> scores documents through the cache, on the long path when allowed. A 183k-token file scanned at upload made the chat that carried it take 126 ms; with an attack appended, it was blocked in 160 ms."
       },
       {
-        "title": "Fewer false positives, sanitizer fixed",
-        "text": "Benign persona exemplars cut blocked English persona and enterprise system prompts to 3.3% (v3b); Vietnamese enterprise prompts: 1% with v8e. The sanitizer now forwards text as written, so JSX, HTML and <code>&lt;key&gt;</code> placeholders reach the model, and text after a <code>&lt;script&gt;</code> mention is scanned."
+        "title": "Chat completions cached too",
+        "text": "Tool results, documents, tool definitions and the conversation window are no longer scored again on every turn. Long texts are tokenized in cached segments (exactly the whole text's tokens), and the shared cache now keys on <code>UNTRUSTED_L1_FLOOR</code> and code corroboration."
       }
     ],
     "vi": [
       {
-        "title": "Classifier v8e làm mặc định",
-        "text": "Trên holdout tài liệu dài mới, v8e chặn nhầm 1/602 tài liệu sạch 100k–200k token và bắt 88% tấn công ẩn; với tin nhắn người dùng, TPR 0,960 ở FPR ≤ 1% và không chặn nhầm dòng lành nào ở ngưỡng. Có file FP16 cho tùy chọn GPU. Muốn dùng lại v3b chỉ cần một cấu hình."
+        "title": "Scan cache theo từng cửa sổ",
+        "text": "Khi đặt <code>MAX_SCAN_TOKENS</code>, mỗi cửa sổ 256 token được giữ điểm. Hội thoại trên tài liệu 183k token mất 22,7 giây ở lượt đầu và p50 85 ms ở các lượt sau, 99,9% cửa sổ lấy từ cache; replica thứ hai đọc từ Redis mất 53–60 ms."
       },
       {
-        "title": "Injection trong email và kết quả tool",
-        "text": "Luật <code>ei.*</code> mới và sàn L1 cho nội dung không tin cậy: lệnh gửi thư tới một địa chỉ hay giao việc cho agent giờ bị chặn dù classifier thấy văn bản sạch. Trên holdout mới chấm một lần, v8e bắt 72,3% tấn công (trước 26,2%), v3b 77,0% (trước 47,7%)."
+        "title": "Quét trước file",
+        "text": "<code>/guardrail/scan</code> với <code>\"cache\": true</code> chấm tài liệu qua cache, theo đường dài khi được phép. File 183k token quét lúc upload giúp request chat mang file đó chỉ mất 126 ms; chèn tấn công vào cuối vẫn bị chặn sau 160 ms."
       },
       {
-        "title": "Ít chặn nhầm hơn, sửa sanitizer",
-        "text": "Exemplar persona lành giảm chặn nhầm prompt persona và system prompt doanh nghiệp tiếng Anh còn 3,3% (v3b); system prompt tiếng Việt: 1% với v8e. Sanitizer giờ chuyển văn bản giữ nguyên, nên JSX, HTML và placeholder <code>&lt;key&gt;</code> tới được model, và phần sau một lần nhắc <code>&lt;script&gt;</code> vẫn được quét."
+        "title": "Chat completions cũng có cache",
+        "text": "Kết quả tool, tài liệu, mô tả tool và cửa sổ hội thoại không còn bị chấm lại mỗi lượt. Văn bản dài được tách token theo đoạn có cache (giống hệt tách cả văn bản), và cache dùng chung nay tính cả <code>UNTRUSTED_L1_FLOOR</code> và code corroboration."
       }
     ]
   },
   "previous": [
+    {
+      "version": "v0.9.0",
+      "date": "2026-11-17",
+      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.9.0",
+      "summary": {
+        "en": "Classifier v8e by default, far more email and tool-result injections caught, fewer false positives.",
+        "vi": "Classifier v8e làm mặc định, bắt nhiều hơn hẳn injection trong email và kết quả tool, ít chặn nhầm hơn."
+      }
+    },
     {
       "version": "v0.8.0",
       "date": "2026-11-14",
@@ -72,15 +81,6 @@
       "summary": {
         "en": "PDFs sent inline are read and scanned (hidden text included), unreadable ones recorded; Go 1.26.11 for GO-2026-6859.",
         "vi": "PDF gửi kèm được đọc và quét (kể cả chữ ẩn), file không đọc được được ghi lại; Go 1.26.11 vá GO-2026-6859."
-      }
-    },
-    {
-      "version": "v0.5.0",
-      "date": "2026-11-10",
-      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.5.0",
-      "summary": {
-        "en": "Large inputs scanned in full, SAML and SCIM, unscanned images and files recorded, a classifier cap for tool output; classifier v5 released as a shadow-mode candidate.",
-        "vi": "Quét đủ input lớn, SAML và SCIM, ghi lại ảnh và file không quét được, trần classifier cho tool output; classifier v5 phát hành dạng ứng viên shadow mode."
       }
     }
   ]

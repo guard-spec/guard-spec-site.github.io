@@ -52,7 +52,7 @@ binary. L2 (our classifier, <code>guardspec-classifier</code>) and L3 (the
 <code>multilingual-e5-small</code> embedder) are ONNX models that are never baked into
 an image or committed to git: they are downloaded, verified and mounted at
 <code>/models</code>.</p>
-<p><a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/models/manifest.yaml"><code>models/manifest.yaml</code></a> lists every model version
+<p><a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/models/manifest.yaml"><code>models/manifest.yaml</code></a> lists every model version
 that can be pulled. The same file is built into the gateway and the <code>models</code>
 tool, so the binary always knows its recommended models.</p>
 <div class="table"><table>
@@ -257,7 +257,7 @@ shadow mode. v4 is v3b's architecture and recipe trained on more Vietnamese
 data (owner-written teencode, no-diacritics and banking rows, and new hard
 negatives); it blocks fewer benign Vietnamese messages. The comparison with
 v3b is below (<a href="#v3b-vs-v4">v3b vs v4</a>) and in
-<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v4&quot;).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v4&quot;).</p>
 <pre><code class="language-bash"># 1. Install it next to v3b (files checked against the manifest's SHA-256).
 #    It comes from the Hugging Face branch v4 at the pinned commit, with the
 #    GitHub release model-guardspec-classifier-v4 as the mirror.
@@ -335,7 +335,7 @@ trained on.</p>
 attacks (eval: 7 fewer of 1,171; lower on Vietnamese data exfiltration and
 tool poisoning and on English leet). It did not pass the pre-registered
 decision rule, which is why it is a candidate for shadow mode and not the
-default. <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v4&quot;) has every
+default. <a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v4&quot;) has every
 table.</p>
 <h3 id="guardspec-classifier-v5-candidate">guardspec-classifier v5 (candidate)<a class="anchor" href="#guardspec-classifier-v5-candidate" aria-hidden="true">#</a></h3>
 <p><code>guardspec-classifier@v5</code> is listed in the manifest but is <strong>not</strong> the
@@ -439,12 +439,12 @@ the owner hold-outs it catches more attacks at the cost of 4 more blocked
 benign rows (8 of 272 vs 4). Its known limitations: on documents of 100k to
 200k tokens the false-positive goal is not met (the later rounds of the
 long-document work, RF-895d3533, did not meet it either; see
-<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a>, &quot;v6&quot;); it catches fewer of the
+<a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/train/MODEL_CARD.md">train/MODEL_CARD.md</a>, &quot;v6&quot;); it catches fewer of the
 generated <code>val_v3_holdout</code> attacks at the block threshold (0.887 vs 0.953);
 and on the tool path the cap keeps embedded attacks that only the classifier
 recognises below the block threshold (<code>val_v5_holdout</code>: 0.623 vs 0.665 at
 0.85, although it ranks them far better). The selection rule, every table
-and the data are in <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v5&quot;).</p>
+and the data are in <a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v5&quot;).</p>
 <h3 id="guardspec-classifier-v6-candidate">guardspec-classifier v6 (candidate)<a class="anchor" href="#guardspec-classifier-v6-candidate" aria-hidden="true">#</a></h3>
 <p><code>guardspec-classifier@v6</code> is listed in the manifest but is <strong>not</strong> the
 recommended version: v3b stays the default, and v6 runs in shadow mode
@@ -461,7 +461,7 @@ in the manifest). Its decisions at 0.85 agree with the INT8 file's on 98.8%
 to 99.9% of rows, under the 99.5% asked for on two sets, so
 <code>calibration.json</code> has an <code>fp16</code> block, fitted on the same validation rows,
 which applies only when the classifier is loaded from <code>model_fp16.onnx</code>
-(<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/fp16_agreement_v6.md">train/reports/fp16_agreement_v6.md</a>).
+(<a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/train/reports/fp16_agreement_v6.md">train/reports/fp16_agreement_v6.md</a>).
 Expect about 1% of decisions near the threshold to differ between a GPU and
 a CPU gateway.</p>
 <p><strong>Published</strong> on 2026-11-13: Hugging Face branch <code>v6</code> (revision
@@ -564,10 +564,10 @@ attacks, which meets the target. The gateway now reads that decision from
 <code>calibration.json</code>, and E is packaged as the candidate v8e. On a fresh
 short-prompt holdout v8e did not meet the bar for replacing v3b (fewer email
 injections caught on the tool path), so it is a shadow-mode candidate
-(<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/v8e_short_holdout.md">train/reports/v8e_short_holdout.md</a>). Embedded-attack
+(<a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/train/reports/v8e_short_holdout.md">train/reports/v8e_short_holdout.md</a>). Embedded-attack
 detection is a little under v5's, and <code>val_v3_holdout</code> and
 <code>val_realistic_holdout</code> stay under v3b. Every table is in
-<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v6&quot;).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v6&quot;).</p>
 <h3 id="guardspec-classifier-v8e-the-default-since-v090">guardspec-classifier v8e (the default since v0.9.0)<a class="anchor" href="#guardspec-classifier-v8e-the-default-since-v090" aria-hidden="true">#</a></h3>
 <p><code>guardspec-classifier@v8e</code> is the recommended version since v0.9.0 (v3b
 before). It is round R7's arm E (v6's data plus pairs of benign and attack
@@ -584,15 +584,15 @@ option, with its own <code>fp16</code> block.</p>
 short-prompt holdout (scored once) it first did not meet the bar for replacing
 v3b: it caught 12.0% of email injections on the tool path against v3b's
 27.8%, mostly because of the cap
-(<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/v8e_short_holdout.md">train/reports/v8e_short_holdout.md</a>).
+(<a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/train/reports/v8e_short_holdout.md">train/reports/v8e_short_holdout.md</a>).
 Why it became the default:</p>
 <ul>
 <li><strong>Email injection.</strong> With the untrusted-content L1 floor and the <code>ei.*</code>
 rules (v0.9.0), it catches 72.3% of the fresh <code>indirect1</code> holdout's attacks
-on the tool path, against 26.2% before (<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/indirect1_holdout.md">indirect1_holdout.md</a>).</li>
+on the tool path, against 26.2% before (<a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/train/reports/indirect1_holdout.md">indirect1_holdout.md</a>).</li>
 <li><strong>Persona prompts.</strong> On the fresh <code>persona2</code> holdout it blocks 0% of
 Vietnamese and 3.3% of English enterprise and persona prompts
-(<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/r8b_report.md">r8b_report.md</a>).</li>
+(<a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/train/reports/r8b_report.md">r8b_report.md</a>).</li>
 <li><strong>User messages.</strong> On the <code>eval/data</code> hold-out half, its TPR at FPR ≤ 1% is
 0.960 and it blocks 0 of 511 benign rows at 0.85. It is the best of three
 training seeds of its recipe (R8b).</li>
@@ -651,7 +651,7 @@ no restart.</li>
 <h2 id="releasing-a-new-model-version">Releasing a new model version<a class="anchor" href="#releasing-a-new-model-version" aria-hidden="true">#</a></h2>
 <p>For maintainers. The example releases <code>guardspec-classifier</code> <code>v4</code>.</p>
 <ol>
-<li><strong>Train</strong> with <code>train/</code> (see <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a>).
+<li><strong>Train</strong> with <code>train/</code> (see <a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/train/MODEL_CARD.md">train/MODEL_CARD.md</a>).
 Choose epochs, thresholds and calibration on the validation splits only.
 <code>eval/</code> is never used for tuning.</li>
 <li><strong>Calibrate</strong>: <code>go run -tags onnx ./cmd/calibrate fit -write</code> writes
@@ -688,7 +688,7 @@ its cosign bundle
 </ol>
 <p>The next software release then ships the manifest that recommends v4.</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/docs/models.md">docs/models.md</a> @ <code>89dc5fb2ebc0</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/docs/models.md">docs/models.md</a> @ <code>684663b822f3</code></p>
   </main>
 </div>
 

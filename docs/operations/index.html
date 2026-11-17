@@ -479,11 +479,11 @@ is single-turn, so the window does not change its numbers (L1: FPR 0.1 %,
 L1+L2+L3: FPR 1.4 % at the gateway decision, as before).</p>
 <p><strong>Latency.</strong> One more detector run per request that has a new window, and a
 cache lookup otherwise (<code>BenchmarkConversationWindow</code>, see
-<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>).</p>
 <h2 id="personal-data-in-requests">Personal data in requests<a class="anchor" href="#personal-data-in-requests" aria-hidden="true">#</a></h2>
 <p>An organization can have the gateway count the personal data in each request
 and give the result to its policy rules
-(<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>). It is <strong>off by
+(<a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>). It is <strong>off by
 default</strong>; turn it on with <code>input_pii: true</code> in the org's guard settings
 (<code>PUT /v1/organizations/:orgId/guard-settings</code>, or admin UI: Guard settings →
 Detect personal data in requests). The setting is read per request, so a
@@ -542,7 +542,7 @@ with an e-mail address and a phone number): the check adds about 11 µs to
 a 2 KB request (sanitize step 148 → 159 µs) and about 57 µs to a 20 KB one
 (1.62 → 1.68 ms); end to end with L1 the p50 goes from 1.18 to 1.20 ms
 (2 KB) and from 11.08 to 11.19 ms (20 KB). With the setting off nothing
-runs. See <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>.</li>
+runs. See <a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/README.md#go-benchmarks-sanitizer-output-guard-policy-and-http-path">Go benchmarks</a>.</li>
 </ul>
 <h2 id="content-the-gateway-cannot-read">Content the gateway cannot read<a class="anchor" href="#content-the-gateway-cannot-read" aria-hidden="true">#</a></h2>
 <p>The detector reads text. Images, audio and files in a request are forwarded
@@ -809,7 +809,9 @@ round R7, task RF-3a9ce3f9). Try it on your own
 documents with <code>AUDIT_STORE_CONTENT</code> off and the request log's scores first.
 A 200k-token document takes tens of seconds to scan on a few cores (see
 <a href="/docs/operations/sizing/">docs/sizing.md</a>). <code>POST /guardrail/scan</code> and
-<code>/v1/embeddings</code> keep today's limits.</p>
+<code>/v1/embeddings</code> keep today's limits, except <code>/guardrail/scan</code> with
+<code>&quot;cache&quot;: true</code>, whose documents take the long path (<a href="#scan-cache">Scan
+cache</a>).</p>
 <h2 id="per-organization-exemplars">Per-organization exemplars<a class="anchor" href="#per-organization-exemplars" aria-hidden="true">#</a></h2>
 <p><code>/v1/organizations/:orgId/exemplars</code> stores <code>{&quot;label&quot;: &quot;block&quot;|&quot;allow&quot;, &quot;text&quot;: &quot;...&quot;, &quot;source&quot;: &quot;...&quot;}</code> (at most 1,000 per org, 4,000 characters
 each). A <code>block</code> text counts as an attack for that org's requests
@@ -880,7 +882,7 @@ Keep that port on the internal network.</p>
 </tr>
 <tr>
   <td><code>scan_windows_total</code></td>
-  <td><code>result</code> (<code>scored</code>, <code>duplicate</code>: an identical window was scored, <code>skipped</code>: its text was already refused): token windows of long-path scans (<a href="#large-inputs">Large inputs</a>)</td>
+  <td><code>result</code> (<code>scored</code>, <code>cached</code>: from the scan cache, <code>duplicate</code>: an identical window was scored, <code>skipped</code>: its text was already refused): token windows of long-path scans (<a href="#large-inputs">Large inputs</a>)</td>
 </tr>
 <tr>
   <td><code>scan_tokens</code></td>
@@ -1379,7 +1381,41 @@ definitions and every earlier tool result. With <code>SCAN_HISTORY=latest</code>
 gateway classifies each of those texts once and keeps its scores in a scan
 cache keyed by the org, the kind of text and the SHA-256 of its full content,
 for 6 hours. A request may classify at most 128 KiB of new untrusted text,
-plus 1 MiB of earlier turns that the cache does not have.</p>
+plus 1 MiB of earlier turns that the cache does not have. Chat completions
+(<code>/v1/chat/completions</code>, <code>/v1/completions</code>) use the same cache for tool
+results, documents, tool definitions and the conversation window; their user
+turns are still classified every turn.</p>
+<p><strong>Long texts, window by window.</strong> On the <a href="#large-inputs">long path</a>
+(<code>MAX_SCAN_TOKENS</code>) the cache also keeps the score of each 256-token window
+(kind <code>chunk</code>): the fused L1 + L2 result of the window alone, before the
+per-source adjustments (<code>CAP_L2</code>, <code>UNTRUSTED_L1_FLOOR</code>, code corroboration)
+and the long document rule, which every request applies again. A conversation
+that grows turn by turn, or a document edited near its end, keeps the windows
+it had: only the windows that changed are scored. The key is the window's
+token ids and text; the long path leaves L3 out, so per-org exemplars do not
+change a window's entry. Windows an early exit skipped are not stored. These
+entries have their own in-process LRU (8 × <code>SCAN_CACHE_SIZE</code>), and a request
+looks up at most 8,192 windows in one call;
+<code>guardspec_gateway_scan_windows_total{result=&quot;cached&quot;}</code> counts them.</p>
+<p>Two smaller caches in each process help the same case: the tokens of a long
+text are kept per segment of about 16 KB, cut at a single space, so only the
+end of a grown text is tokenized again (the result is exactly the whole text's
+tokens; a tokenizer that does not split exactly at spaces tokenizes whole
+texts), and the sanitizer's result of an input of 32 KB or more is kept by its
+SHA-256 (32 MiB). Measured on 2026-11-17 on an Apple M-series laptop with v8e
+(<code>go test -tags onnx ./cmd/gateway -run ChunkCacheChatLoop</code>): a chat
+completions conversation over a 183k-token document takes 22.7 s on its first
+turn and 85 ms at the median on each later turn (99.9% of windows from the
+cache; the rest is scoring the changed last window, about 50 ms on one ONNX
+thread, <code>ONNX_INTRA_OP_THREADS=1</code>; the gateway's default with L2 and L3 is up
+to 4, and the conversation window). With Redis, a second replica with an
+empty in-process cache took 53 to 60 ms for the whole conversation.</p>
+<p><strong>Scanning ahead.</strong> <code>/guardrail/scan</code> with <code>&quot;cache&quot;: true</code> scores its
+<code>documents</code> through the same cache, with the org's scan settings, and on the
+long path when <code>MAX_SCAN_TOKENS</code> allows it (the 128 KiB document limit then
+does not apply). An application can scan a file when it is uploaded; the
+chat request that carries it later finds its score (or its windows) in the
+cache. Without <code>&quot;cache&quot;: true</code> the endpoint works as before.</p>
 <p>That cache is in each gateway process (<code>SCAN_CACHE_SIZE</code>). With more than one
 replica, a turn that lands on another replica, or any turn after a restart,
 finds the earlier tool results missing and classifies them again; past 1 MiB
@@ -1420,14 +1456,16 @@ Nothing is ever skipped because the cache is unavailable.</p>
 <p><strong>What is stored.</strong> Per text: the detector's scores (fused score, layer
 scores, category, rule ids, PII types and offsets) and the verdict of a tool
 result or tool definition, or the scores of a <a href="#conversation-window">conversation
-window</a>, plus the model identity they were computed with.
+window</a>; per long-path window, its fused result (score,
+layer scores, categories, rule ids); plus the model identity they were
+computed with.
 Never the text, a tool name or anything else from the request; the key is a
 SHA-256.</p>
 <p><strong>Model identity.</strong> The shared key also covers the identity of the running
 detector: a SHA-256 of the gateway binary, of every file of the L2 classifier
 and L3 embedder, of the calibration in use and of the configuration that
 changes a score (<code>DETECTOR_LAYERS</code>, <code>DETECTOR_FUSION</code>, <code>FUSION_L1_FLOOR</code>,
-<code>DETECTOR_CASCADE*</code>). Replicas that run different models or versions, say
+<code>UNTRUSTED_L1_FLOOR</code>, <code>TOOL_CODE_CORROBORATION</code>, <code>DETECTOR_CASCADE*</code>). Replicas that run different models or versions, say
 during a rolling upgrade or a canary, never read each other's entries. A model
 reload (<code>SIGHUP</code>, <code>/admin/models/reload</code>) gives the new models a new identity
 and so new keys: nothing needs flushing, the old entries expire. Hashing the
@@ -1529,7 +1567,7 @@ and <code>dbRoles</code> hooks, network policies, and EN / VI injections blocked
 L1 only.</li>
 </ul>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/README.md#operations">README.md#operations</a> @ <code>89dc5fb2ebc0</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/README.md#operations">README.md#operations</a> @ <code>684663b822f3</code></p>
   </main>
 </div>
 
