@@ -108,7 +108,7 @@ luật mới không được dùng chúng, còn luật đã lưu có dùng thì 
 <code>0</code> như trước. Chi tiết ở mục <a href="/docs/configuration/apis/">APIs</a>.</p>
 <h2 id="dữ-liệu-cá-nhân-trong-request">Dữ liệu cá nhân trong request<a class="anchor" href="#dữ-liệu-cá-nhân-trong-request" aria-hidden="true">#</a></h2>
 <p>Một tổ chức có thể cho gateway đếm dữ liệu cá nhân trong mỗi request và đưa kết
-quả cho các luật (<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>).
+quả cho các luật (<a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>).
 <strong>Mặc định tắt</strong>; bật bằng <code>input_pii: true</code> trong guard settings của tổ chức
 (<code>PUT /v1/organizations/:orgId/guard-settings</code>, hoặc giao diện: Thiết lập bảo
 vệ → Phát hiện dữ liệu cá nhân trong request). Thay đổi có hiệu lực từ request
@@ -422,8 +422,33 @@ khi <code>MAX_SCAN_TOKENS</code> không đặt, nó chỉ hạ giới hạn hi�
 <li><strong>Lượt cũ</strong> mà scan cache chưa có được tối đa <code>max(1 MiB, 32 × MAX_SCAN_TOKENS)</code>
 byte và không tính vào trần. Kết quả đường dài được cache riêng với kết quả
 quét theo đoạn; kết quả dừng sớm không được cache.</li>
+<li><strong>Cache theo cửa sổ.</strong> Scan cache còn giữ điểm của từng cửa sổ 256 token
+(kind <code>chunk</code>): kết quả hợp nhất L1 + L2 của riêng cửa sổ đó, trước các
+điều chỉnh theo nguồn (<code>CAP_L2</code>, <code>UNTRUSTED_L1_FLOOR</code>, code corroboration)
+và quy tắc tài liệu dài; mỗi request áp lại các bước này. Hội thoại dài dần
+qua từng lượt, hay tài liệu sửa ở gần cuối, giữ được các cửa sổ cũ: chỉ cửa
+sổ thay đổi mới phải chấm. Khoá là token id và văn bản của cửa sổ; đường dài
+bỏ L3 nên exemplar theo tổ chức không làm cũ mục cache. Cửa sổ bị bỏ qua do
+dừng sớm không được lưu. Các mục này có LRU riêng trong process (8 ×
+<code>SCAN_CACHE_SIZE</code>); mỗi request tra tối đa 8.192 cửa sổ trong một lần gọi.
+Chat completions (<code>/v1/chat/completions</code>, <code>/v1/completions</code>) nay cũng dùng
+scan cache cho kết quả tool, tài liệu, mô tả tool và cửa sổ hội thoại.
+Thêm hai cache nhỏ trong process: token của văn bản dài được giữ theo từng
+đoạn khoảng 16 KB (cắt tại một dấu cách đơn, kết quả giống hệt tách cả văn
+bản), và kết quả sanitizer của input từ 32 KB được giữ theo SHA-256 (32
+MiB). Đo ngày 17/11/2026 trên laptop Apple M-series với v8e: hội thoại chat
+completions trên tài liệu 183k token mất 22,7 giây ở lượt đầu và p50 85 ms ở
+các lượt sau (99,9% cửa sổ lấy từ cache; phần còn lại là chấm cửa sổ cuối
+vừa thay đổi, khoảng 50 ms trên một luồng ONNX, và cửa sổ hội thoại). Với
+Redis, replica thứ hai có cache trong process trống xử lý cả hội thoại trong
+54–60 ms.</li>
+<li><strong>Quét trước.</strong> <code>/guardrail/scan</code> với <code>&quot;cache&quot;: true</code> chấm <code>documents</code> qua
+cùng cache, theo cài đặt quét của tổ chức, và theo đường dài khi
+<code>MAX_SCAN_TOKENS</code> cho phép (khi đó không áp giới hạn 128 KiB). Ứng dụng có
+thể quét file lúc upload; request chat mang file đó sau này lấy điểm (hoặc
+các cửa sổ) từ cache. Không có <code>&quot;cache&quot;: true</code> thì endpoint hoạt động như cũ.</li>
 <li><strong>Số liệu.</strong> <code>guardspec_gateway_scan_windows_total{result}</code> (<code>scored</code>,
-<code>duplicate</code>, <code>skipped</code>), <code>guardspec_gateway_scan_tokens</code> (histogram số
+<code>cached</code>, <code>duplicate</code>, <code>skipped</code>), <code>guardspec_gateway_scan_tokens</code> (histogram số
 token mỗi request lớn), <code>guardspec_gateway_scan_queue_wait_seconds{outcome}</code>
 (<code>admitted</code>, <code>timeout</code>, <code>full</code>, <code>canceled</code>).</li>
 </ul>
@@ -436,7 +461,8 @@ hiện chạy shadow mode) giảm việc này cho tool result và tài liệu; m
 không đạt, vòng sau đó là R7, task RF-3a9ce3f9, cũng không đạt). Hãy thử với tài
 liệu của bạn và xem điểm trong
 nhật ký yêu cầu trước. Quét một tài liệu 200k token mất vài chục giây trên vài
-lõi CPU. <code>POST /guardrail/scan</code> và <code>/v1/embeddings</code> giữ giới hạn hiện tại.</p>
+lõi CPU. <code>POST /guardrail/scan</code> và <code>/v1/embeddings</code> giữ giới hạn hiện tại, trừ
+<code>/guardrail/scan</code> với <code>&quot;cache&quot;: true</code> (tài liệu đi đường dài).</p>
 <h2 id="quản-trị">Quản trị<a class="anchor" href="#quản-trị" aria-hidden="true">#</a></h2>
 <p>Bốn công cụ cho người vận hành một tổ chức (migration 026 đến 029); mặc định
 đều tắt hoặc không đổi gì, trừ hai điều: xóa tổ chức luôn cần hai người, và chỉ
@@ -576,9 +602,9 @@ và tải CSV theo khoảng thời gian.</li>
 (<code>e2e/a11y.spec.ts</code>): lỗi WCAG 2.1 A hoặc AA mức nghiêm trọng làm build
 thất bại.</li>
 </ul>
-<p><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/docs/images/admin-flow-dark-vi.png" alt="Luồng xử lý, giao diện tối" /></p>
+<p><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/684663b822f38478163608cfebc8b9222fe875f6/docs/images/admin-flow-dark-vi.png" alt="Luồng xử lý, giao diện tối" /></p>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/README.vi.md#api">README.vi.md#api</a> @ <code>89dc5fb2ebc0</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/README.vi.md#api">README.vi.md#api</a> @ <code>684663b822f3</code></p>
   </main>
 </div>
 

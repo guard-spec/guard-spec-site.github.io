@@ -82,7 +82,7 @@ statement depends on a setting, the setting is named.</p>
   <td>Reporting a vulnerability, supported versions, response targets</td>
 </tr>
 <tr>
-  <td><a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/README.md#security-model-and-limitations">Security model and limitations</a></td>
+  <td><a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/README.md#security-model-and-limitations">Security model and limitations</a></td>
   <td>What detection does and does not protect against</td>
 </tr>
 </tbody>
@@ -498,14 +498,17 @@ settings fails the request closed (503).</p>
 <h2 id="shared-scan-cache">Shared scan cache<a class="anchor" href="#shared-scan-cache" aria-hidden="true">#</a></h2>
 <p>With more than one gateway replica, <code>SCAN_CACHE_BACKEND=redis</code> or <code>postgres</code>
 shares the scan cache (README, <a href="/docs/operations/#scan-cache">Scan cache</a>), so a
-long <code>/v1/messages</code> or <code>/v1/responses</code> session does not have to classify its whole history again
+long chat session does not have to classify its whole history again
 on another replica or after a restart.</p>
 <p><strong>What it stores.</strong> For each text: the detector's scores and verdict metadata,
 and the identity of the models that computed them. The key is a SHA-256 of the
 org, the kind of text, its full content and the model identity. No text, no
 tool name, nothing an attacker who reads the cache could turn back into the
 content, except by guessing a text and hashing it (the key is unsalted, so a
-reader can confirm that a known text was sent by that org within 6 hours).</p>
+reader can confirm that a known text was sent by that org within 6 hours).
+For a long text on the long path it also stores, per 256-token window, the
+window's fused scores (kind <code>chunk</code>), keyed on the window's token ids and text
+in the same way: a reader can confirm a guessed window, never read one.</p>
 <p><strong>Threats.</strong></p>
 <ul>
 <li><em>Cache poisoning.</em> An attacker who can <strong>write</strong> to the backend can store a
@@ -520,7 +523,8 @@ or more. With Postgres, the table is written by the gateway's role only and
 row level security binds every row to its org: a replica or a stolen
 connection scoped to one org cannot plant entries for another.</li>
 <li><em>Stale scores.</em> An entry keys on the exact model identity (gateway binary,
-model files, calibration, detector configuration), so a model change can
+model files, calibration, detector configuration, <code>UNTRUSTED_L1_FLOOR</code>,
+<code>TOOL_CODE_CORROBORATION</code>), so a model change can
 never reuse an old score; per-org exemplars added later apply once an entry
 expires (6 h), as with the in-process cache.</li>
 <li><em>Availability.</em> A slow or failing backend is skipped after
@@ -641,7 +645,7 @@ entries are readable from pull requests, not the other way round), and even
 a tampered entry cannot change what is used, only cost a download. Releases
 (<code>release.yml</code>) use no cache: they always download and check.</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/docs/security/README.md">docs/security/README.md</a> @ <code>89dc5fb2ebc0</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/docs/security/README.md">docs/security/README.md</a> @ <code>684663b822f3</code></p>
   </main>
 </div>
 
