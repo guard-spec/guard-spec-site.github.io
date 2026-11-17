@@ -160,7 +160,7 @@ in a second table.</p>
 <tr>
   <td><code>TOOL_CODE_CORROBORATION</code></td>
   <td><code>on</code></td>
-  <td>Tool results and documents that look like source code, configuration, a diff, a stack trace or a log (six or more lines, 60% of them code-like) are blocked only when L1 (a rule, not just keywords) or L3 agrees with the classifier (L2), which over-scores such text. <code>off</code> lets L2 alone block them again, as before 0.4.2. User, system and tool-description text is never affected; without the model layers it changes nothing. On the long path (<code>MAX_SCAN_TOKENS</code>) the rule applies to each token window, where L3 does not run, so only L1 can agree. Independently of this setting, a classifier whose <code>calibration.json</code> sets <code>l2_untrusted_max</code> counts up to that calibrated score only on tool results and documents (<code>fusion.l2_capped</code> in the rules), so that it never blocks untrusted content alone; the shipped v3b sets none. See <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.md#security-model-and-limitations">Security model</a></td>
+  <td>Tool results and documents that look like source code, configuration, a diff, a stack trace or a log (six or more lines, 60% of them code-like) are blocked only when L1 (a rule, not just keywords) or L3 agrees with the classifier (L2), which over-scores such text. <code>off</code> lets L2 alone block them again, as before 0.4.2. User, system and tool-description text is never affected; without the model layers it changes nothing. On the long path (<code>MAX_SCAN_TOKENS</code>) the rule applies to each token window, where L3 does not run, so only L1 can agree. Independently of this setting, a classifier whose <code>calibration.json</code> sets <code>l2_untrusted_max</code> counts up to that calibrated score only on tool results and documents (<code>fusion.l2_capped</code> in the rules), so that it never blocks untrusted content alone; the shipped v3b sets none. See <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/README.md#security-model-and-limitations">Security model</a></td>
 </tr>
 <tr>
   <td><code>SCAN_HISTORY</code></td>
@@ -170,7 +170,7 @@ in a second table.</p>
 <tr>
   <td><code>RESPONSES_SERVER_STATE</code></td>
   <td><code>refuse</code></td>
-  <td><code>/v1/responses</code> requests that refer to conversation state the upstream keeps (<code>previous_response_id</code>, <code>conversation</code>, <code>item_reference</code> input items) carry turns the gateway never sees in the request and cannot scan again: <code>refuse</code> answers them with 400 (<code>server_state_refused</code>); <code>allow</code> passes them and tags the audit row <code>input:server_state=1</code>. See <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.md#security-model-and-limitations">Security model</a></td>
+  <td><code>/v1/responses</code> requests that refer to conversation state the upstream keeps (<code>previous_response_id</code>, <code>conversation</code>, <code>item_reference</code> input items) carry turns the gateway never sees in the request and cannot scan again: <code>refuse</code> answers them with 400 (<code>server_state_refused</code>); <code>allow</code> passes them and tags the audit row <code>input:server_state=1</code>. See <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/README.md#security-model-and-limitations">Security model</a></td>
 </tr>
 <tr>
   <td><code>UNSCANNED_PARTS</code></td>
@@ -254,13 +254,13 @@ in a second table.</p>
 </tr>
 <tr>
   <td><code>L2_MODEL</code></td>
-  <td>the manifest's recommended classifier (<code>guardspec-classifier@v3b</code>)</td>
+  <td>the manifest's recommended classifier (<code>guardspec-classifier@v8e</code> since v0.9.0; v3b before)</td>
   <td>Classifier as <code>name@version</code> (a bare name: its recommended version), loaded from <code>$MODEL_DIR/cache/&lt;name&gt;/&lt;version&gt;</code>. Pin or roll back with it; see <a href="/docs/models/versions/">docs/models.md</a></td>
 </tr>
 <tr>
   <td><code>L2_MODEL_DIR</code></td>
   <td>empty</td>
-  <td>Classifier directory; wins over <code>L2_MODEL</code>. With neither set: the recommended version when installed, else <code>$MODEL_DIR/local/guardspec-classifier-v3b</code>, <code>-v2</code>, <code>-v1</code>, <code>-v0</code></td>
+  <td>Classifier directory; wins over <code>L2_MODEL</code>. With neither set: the recommended version when installed, else another installed version of it (with a warning), else <code>$MODEL_DIR/local/guardspec-classifier-v3b</code>, <code>-v2</code>, <code>-v1</code>, <code>-v0</code></td>
 </tr>
 <tr>
   <td><code>L3_MODEL</code></td>
@@ -296,6 +296,11 @@ in a second table.</p>
   <td><code>FUSION_L1_FLOOR</code></td>
   <td><code>0.985</code></td>
   <td>With <code>logreg</code> fusion, a decisive L1 rule match whose calibrated score is at least this value is a lower bound of the fused score. <code>off</code> or <code>0</code> disables it; otherwise a number in (0.5, 1]</td>
+</tr>
+<tr>
+  <td><code>UNTRUSTED_L1_FLOOR</code></td>
+  <td><code>0.90</code></td>
+  <td>On tool results and documents only, a calibrated L1 score at or above this value is a lower bound of the fused score, so a rule match on an instruction inside an email or a tool result is not outvoted by the classifier. <code>off</code> or <code>0</code> disables it; otherwise a number in (0.5, 1]</td>
 </tr>
 <tr>
   <td><code>DETECTOR_REQUIRE_ML</code></td>
@@ -632,7 +637,7 @@ URL tried before Hugging Face: <code>&lt;mirror&gt;/&lt;name&gt;/&lt;version&gt;
 </tr>
 <tr>
   <td><code>GUARDSPEC_VERSION</code></td>
-  <td><code>0.8.0</code></td>
+  <td><code>0.9.0</code></td>
   <td>Tag of the <code>ghcr.io/guard-spec/guard-spec-*</code> images in <code>docker-compose.yml</code> (the dev override builds from source instead)</td>
 </tr>
 <tr>
@@ -648,7 +653,7 @@ URL tried before Hugging Face: <code>&lt;mirror&gt;/&lt;name&gt;/&lt;version&gt;
 </tbody>
 </table></div>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/README.md#configuration">README.md#configuration</a> @ <code>c3fd2723983b</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/README.md#configuration">README.md#configuration</a> @ <code>89dc5fb2ebc0</code></p>
   </main>
 </div>
 

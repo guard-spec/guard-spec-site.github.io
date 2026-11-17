@@ -52,7 +52,7 @@ binary. L2 (our classifier, <code>guardspec-classifier</code>) and L3 (the
 <code>multilingual-e5-small</code> embedder) are ONNX models that are never baked into
 an image or committed to git: they are downloaded, verified and mounted at
 <code>/models</code>.</p>
-<p><a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/models/manifest.yaml"><code>models/manifest.yaml</code></a> lists every model version
+<p><a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/models/manifest.yaml"><code>models/manifest.yaml</code></a> lists every model version
 that can be pulled. The same file is built into the gateway and the <code>models</code>
 tool, so the binary always knows its recommended models.</p>
 <div class="table"><table>
@@ -70,8 +70,8 @@ tool, so the binary always knows its recommended models.</p>
   <td><code>guardspec-classifier</code></td>
   <td><code>v3b</code></td>
   <td>L2</td>
-  <td>yes</td>
-  <td>Hugging Face (not published yet), then the GitHub Release <code>model-guardspec-classifier-v3b</code></td>
+  <td>no: the default before v0.9.0, kept for rollback (<code>L2_MODEL=guardspec-classifier@v3b</code>)</td>
+  <td>Hugging Face <code>guard-spec/guardspec-classifier</code> (branch <code>main</code>), then the GitHub Release <code>model-guardspec-classifier-v3b</code></td>
 </tr>
 <tr>
   <td><code>guardspec-classifier</code></td>
@@ -93,6 +93,13 @@ tool, so the binary always knows its recommended models.</p>
   <td>L2</td>
   <td>no: candidate for long documents, with an FP16 file for the GPU option, <a href="#guardspec-classifier-v6-candidate">shadow mode first</a></td>
   <td>Hugging Face <code>guard-spec/guardspec-classifier</code> (branch <code>v6</code>), then the GitHub Release <code>model-guardspec-classifier-v6</code></td>
+</tr>
+<tr>
+  <td><code>guardspec-classifier</code></td>
+  <td><code>v8e</code></td>
+  <td>L2</td>
+  <td><strong>yes, since v0.9.0</strong> (<a href="#guardspec-classifier-v8e-the-default-since-v090">why</a>), with the long-path decision in <code>calibration.json</code> and an FP16 file</td>
+  <td>Hugging Face <code>guard-spec/guardspec-classifier</code> (branch <code>v8e</code>), then the GitHub Release <code>model-guardspec-classifier-v8e</code></td>
 </tr>
 <tr>
   <td><code>multilingual-e5-small</code></td>
@@ -124,7 +131,7 @@ revision.</p>
 <p>A version is installed in <code>&lt;dir&gt;/&lt;name&gt;/&lt;version&gt;/</code>; with compose,
 <code>&lt;dir&gt;</code> is <code>./models/cache</code>:</p>
 <pre><code>models/cache/
-  guardspec-classifier/v3b/     model_int8.onnx tokenizer.json config.json thresholds.json calibration.json
+  guardspec-classifier/v8e/     model_int8.onnx tokenizer.json config.json thresholds.json calibration.json
   multilingual-e5-small/614241f/  model.onnx tokenizer.json config.json
 </code></pre>
 <p>Several versions of one model can sit side by side; that is what makes a
@@ -135,16 +142,16 @@ ONNX Runtime's CUDA execution provider (<code>train/export.py --fp16</code>). Th
 manifest marks it <code>provider: cuda</code>: <code>models pull -provider cuda</code> (or
 <code>INFERENCE_PROVIDER=cuda</code>/<code>auto</code>, as in the GPU image) fetches it, a CPU
 install never does, and the CPU keeps loading <code>model_int8.onnx</code>. So far only
-<code>guardspec-classifier@v6</code> has one; with another version (v3b, the default,
+<code>guardspec-classifier@v6</code> and <code>@v8e</code> (the default) have one; with another version (v3b
 included) CUDA runs the INT8 file, slowly, and <code>doctor</code> warns.</p>
 <h2 id="pulling">Pulling<a class="anchor" href="#pulling" aria-hidden="true">#</a></h2>
 <pre><code class="language-bash"># Docker: models-init does this before the gateway starts, on every `up`
 docker compose --profile models run --rm models-pull                           # recommended versions
-docker compose --profile models run --rm models-pull guardspec-classifier@v3b  # one version
+docker compose --profile models run --rm models-pull guardspec-classifier@v8e  # one version
 
 # Without Docker
 go run ./cmd/models pull                              # recommended version of every non-optional model
-go run ./cmd/models pull guardspec-classifier@v3b     # one version
+go run ./cmd/models pull guardspec-classifier@v8e     # one version
 go run ./cmd/models pull -models a,b@v1               # the older flag form still works
 go run ./cmd/models list                              # what is installed
 go run ./cmd/models list --available                  # what the manifest offers
@@ -180,7 +187,10 @@ over a copy of <code>models/cache</code> works, for example
 variables; they win when set);</li>
 <li><code>L2_MODEL</code> / <code>L3_MODEL</code> = <code>name@version</code>: <code>$MODEL_DIR/cache/&lt;name&gt;/&lt;version&gt;</code>.
 A bare name means its recommended version;</li>
-<li>nothing set: the manifest's recommended model, when installed;</li>
+<li>nothing set: the manifest's recommended model, when installed; else
+another installed version of the same model (in manifest order), with a
+warning in the log, so an upgrade does not drop the layer before
+<code>models pull</code> has fetched the new recommended version;</li>
 <li>the directories from before versions: <code>$MODEL_DIR/local/guardspec-classifier-v3b</code>
 (then <code>-v2</code>, <code>-v1</code>, <code>-v0</code>) for L2 and <code>$MODEL_DIR/cache/multilingual-e5-small</code>
 for L3.</li>
@@ -189,14 +199,14 @@ for L3.</li>
 model: the layer stays off and <code>/readyz</code> says why. <code>MODEL_DIR</code> is <code>/models</code>
 in the image and <code>./models</code> otherwise.</p>
 <p><code>GET /readyz</code> shows what loaded:</p>
-<pre><code class="language-json">{&quot;detector&quot;:{&quot;layers&quot;:[&quot;l1&quot;,&quot;l2&quot;,&quot;l3&quot;],&quot;degraded&quot;:false,&quot;onnx&quot;:true,&quot;fusion&quot;:&quot;logreg&quot;,&quot;l2_model&quot;:&quot;guardspec-classifier-v3b&quot;},&quot;status&quot;:&quot;ready&quot;,&quot;version&quot;:&quot;0.1.0&quot;}
+<pre><code class="language-json">{&quot;detector&quot;:{&quot;layers&quot;:[&quot;l1&quot;,&quot;l2&quot;,&quot;l3&quot;],&quot;degraded&quot;:false,&quot;onnx&quot;:true,&quot;fusion&quot;:&quot;logreg&quot;,&quot;l2_model&quot;:&quot;guardspec-classifier@v8e&quot;},&quot;status&quot;:&quot;ready&quot;,&quot;version&quot;:&quot;0.1.0&quot;}
 </code></pre>
 <h2 id="pinning">Pinning<a class="anchor" href="#pinning" aria-hidden="true">#</a></h2>
 <ul>
 <li><strong>Images</strong> are pinned by <code>GUARDSPEC_VERSION</code> (default <code>0.1.0</code>). Each image
 contains the manifest of its release, so the models it recommends are
 pinned with it.</li>
-<li><strong>Models</strong> are pinned by <code>L2_MODEL=guardspec-classifier@v3b</code> (and
+<li><strong>Models</strong> are pinned by <code>L2_MODEL=guardspec-classifier@v8e</code> (and
 <code>L3_MODEL</code>). Set them in <code>.env</code> to keep a version across image upgrades
 that recommend a newer one; models-init still pulls the new recommended
 version, but the gateway keeps loading the pinned one.</li>
@@ -247,7 +257,7 @@ shadow mode. v4 is v3b's architecture and recipe trained on more Vietnamese
 data (owner-written teencode, no-diacritics and banking rows, and new hard
 negatives); it blocks fewer benign Vietnamese messages. The comparison with
 v3b is below (<a href="#v3b-vs-v4">v3b vs v4</a>) and in
-<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v4&quot;).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v4&quot;).</p>
 <pre><code class="language-bash"># 1. Install it next to v3b (files checked against the manifest's SHA-256).
 #    It comes from the Hugging Face branch v4 at the pinned commit, with the
 #    GitHub release model-guardspec-classifier-v4 as the mirror.
@@ -325,7 +335,7 @@ trained on.</p>
 attacks (eval: 7 fewer of 1,171; lower on Vietnamese data exfiltration and
 tool poisoning and on English leet). It did not pass the pre-registered
 decision rule, which is why it is a candidate for shadow mode and not the
-default. <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v4&quot;) has every
+default. <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v4&quot;) has every
 table.</p>
 <h3 id="guardspec-classifier-v5-candidate">guardspec-classifier v5 (candidate)<a class="anchor" href="#guardspec-classifier-v5-candidate" aria-hidden="true">#</a></h3>
 <p><code>guardspec-classifier@v5</code> is listed in the manifest but is <strong>not</strong> the
@@ -429,12 +439,12 @@ the owner hold-outs it catches more attacks at the cost of 4 more blocked
 benign rows (8 of 272 vs 4). Its known limitations: on documents of 100k to
 200k tokens the false-positive goal is not met (the later rounds of the
 long-document work, RF-895d3533, did not meet it either; see
-<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md">train/MODEL_CARD.md</a>, &quot;v6&quot;); it catches fewer of the
+<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a>, &quot;v6&quot;); it catches fewer of the
 generated <code>val_v3_holdout</code> attacks at the block threshold (0.887 vs 0.953);
 and on the tool path the cap keeps embedded attacks that only the classifier
 recognises below the block threshold (<code>val_v5_holdout</code>: 0.623 vs 0.665 at
 0.85, although it ranks them far better). The selection rule, every table
-and the data are in <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v5&quot;).</p>
+and the data are in <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v5&quot;).</p>
 <h3 id="guardspec-classifier-v6-candidate">guardspec-classifier v6 (candidate)<a class="anchor" href="#guardspec-classifier-v6-candidate" aria-hidden="true">#</a></h3>
 <p><code>guardspec-classifier@v6</code> is listed in the manifest but is <strong>not</strong> the
 recommended version: v3b stays the default, and v6 runs in shadow mode
@@ -451,7 +461,7 @@ in the manifest). Its decisions at 0.85 agree with the INT8 file's on 98.8%
 to 99.9% of rows, under the 99.5% asked for on two sets, so
 <code>calibration.json</code> has an <code>fp16</code> block, fitted on the same validation rows,
 which applies only when the classifier is loaded from <code>model_fp16.onnx</code>
-(<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/reports/fp16_agreement_v6.md">train/reports/fp16_agreement_v6.md</a>).
+(<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/fp16_agreement_v6.md">train/reports/fp16_agreement_v6.md</a>).
 Expect about 1% of decisions near the threshold to differ between a GPU and
 a CPU gateway.</p>
 <p><strong>Published</strong> on 2026-11-13: Hugging Face branch <code>v6</code> (revision
@@ -546,10 +556,59 @@ and a v7 training round (R6), which blocked no benign document but caught
 which blocked 2 of 180 benign documents and caught more embedded attacks
 but lost precision on short prompts, so is not released either. On R7's
 new holdout (<code>long7</code>, scored once) <strong>the released v6 blocks 10 of 180
-benign documents of 100k and 200k tokens (5.6%)</strong> under <code>strong75</code>. Embedded-attack
+benign documents of 100k and 200k tokens (5.6%)</strong> under <code>strong75</code>. On R8a's
+holdout (<code>long8</code>, 602 documents, scored once) it blocks 24 (4.0%). In the
+same round, R7's arm E under a stricter long-path decision (<code>strong75</code> and a
+calibrated L2 of at least 0.95) blocked 1 of 602 and caught 88.0% of embedded
+attacks, which meets the target. The gateway now reads that decision from
+<code>calibration.json</code>, and E is packaged as the candidate v8e. On a fresh
+short-prompt holdout v8e did not meet the bar for replacing v3b (fewer email
+injections caught on the tool path), so it is a shadow-mode candidate
+(<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/v8e_short_holdout.md">train/reports/v8e_short_holdout.md</a>). Embedded-attack
 detection is a little under v5's, and <code>val_v3_holdout</code> and
 <code>val_realistic_holdout</code> stay under v3b. Every table is in
-<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v6&quot;).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (&quot;v6&quot;).</p>
+<h3 id="guardspec-classifier-v8e-the-default-since-v090">guardspec-classifier v8e (the default since v0.9.0)<a class="anchor" href="#guardspec-classifier-v8e-the-default-since-v090" aria-hidden="true">#</a></h3>
+<p><code>guardspec-classifier@v8e</code> is the recommended version since v0.9.0 (v3b
+before). It is round R7's arm E (v6's data plus pairs of benign and attack
+windows cut from the same long hosts), and its <code>calibration.json</code> carries the
+long-path decision of R8a: in a text of more than 30 windows, a window blocks
+only if an L1 rule of raw weight 0.75 or more agrees (or a floor applied) and
+the calibrated L2 score is at least 0.95 (<code>long_doc</code>: <code>corroborate_l1</code>,
+<code>min_l2</code>). A gateway that does not know these fields ignores them and blocks
+many more benign long documents, so use a release that reads them. It keeps
+v6's cap (<code>l2_untrusted_max</code> 0.88) and ships <code>model_fp16.onnx</code> for the GPU
+option, with its own <code>fp16</code> block.</p>
+<p>On the <code>long8</code> holdout (scored once) it blocked 1 of 602 benign documents of
+100k and 200k tokens and caught 88.0% of embedded attacks. On the <code>short1</code>
+short-prompt holdout (scored once) it first did not meet the bar for replacing
+v3b: it caught 12.0% of email injections on the tool path against v3b's
+27.8%, mostly because of the cap
+(<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/v8e_short_holdout.md">train/reports/v8e_short_holdout.md</a>).
+Why it became the default:</p>
+<ul>
+<li><strong>Email injection.</strong> With the untrusted-content L1 floor and the <code>ei.*</code>
+rules (v0.9.0), it catches 72.3% of the fresh <code>indirect1</code> holdout's attacks
+on the tool path, against 26.2% before (<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/indirect1_holdout.md">indirect1_holdout.md</a>).</li>
+<li><strong>Persona prompts.</strong> On the fresh <code>persona2</code> holdout it blocks 0% of
+Vietnamese and 3.3% of English enterprise and persona prompts
+(<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/r8b_report.md">r8b_report.md</a>).</li>
+<li><strong>User messages.</strong> On the <code>eval/data</code> hold-out half, its TPR at FPR ≤ 1% is
+0.960 and it blocks 0 of 511 benign rows at 0.85. It is the best of three
+training seeds of its recipe (R8b).</li>
+</ul>
+<p>Upgrading from an earlier release: <code>models-init</code> (or <code>models pull</code>) fetches
+v8e. Until it is installed, a gateway that only has v3b keeps using v3b and
+logs a warning. To keep v3b, set <code>L2_MODEL=guardspec-classifier@v3b</code>.</p>
+<p><strong>Published</strong> on 2026-11-15: Hugging Face branch <code>v8e</code> (revision
+<code>c9ed6c3b</code>, pinned in the manifest) and the signed GitHub Release
+<code>model-guardspec-classifier-v8e</code> as the mirror.</p>
+<pre><code class="language-bash"># Compare before switching: keep v3b deciding, let v8e score the same traffic.
+docker compose --profile models run --rm models-pull guardspec-classifier@v8e guardspec-classifier@v3b
+L2_MODEL=guardspec-classifier@v3b
+SHADOW_L2_MODEL=guardspec-classifier@v8e
+SHADOW_SAMPLE=1
+</code></pre>
 <h2 id="reloading-without-a-restart">Reloading without a restart<a class="anchor" href="#reloading-without-a-restart" aria-hidden="true">#</a></h2>
 <p><code>kill -HUP</code> the gateway, or <code>POST /admin/models/reload</code> with
 <code>GATEWAY_ADMIN_TOKEN</code>, loads the classifier again (or another version), checks
@@ -592,7 +651,7 @@ no restart.</li>
 <h2 id="releasing-a-new-model-version">Releasing a new model version<a class="anchor" href="#releasing-a-new-model-version" aria-hidden="true">#</a></h2>
 <p>For maintainers. The example releases <code>guardspec-classifier</code> <code>v4</code>.</p>
 <ol>
-<li><strong>Train</strong> with <code>train/</code> (see <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md">train/MODEL_CARD.md</a>).
+<li><strong>Train</strong> with <code>train/</code> (see <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a>).
 Choose epochs, thresholds and calibration on the validation splits only.
 <code>eval/</code> is never used for tuning.</li>
 <li><strong>Calibrate</strong>: <code>go run -tags onnx ./cmd/calibrate fit -write</code> writes
@@ -629,7 +688,7 @@ its cosign bundle
 </ol>
 <p>The next software release then ships the manifest that recommends v4.</p>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/docs/models.md">docs/models.md</a> @ <code>c3fd2723983b</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/docs/models.md">docs/models.md</a> @ <code>89dc5fb2ebc0</code></p>
   </main>
 </div>
 

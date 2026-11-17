@@ -52,7 +52,7 @@ L2 (classifier của chúng tôi, <code>guardspec-classifier</code>) và L3 (emb
 <code>multilingual-e5-small</code>) là các model ONNX, không bao giờ được đóng sẵn vào
 image hay commit vào git: chúng được tải về, kiểm tra rồi mount vào
 <code>/models</code>.</p>
-<p><a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/models/manifest.yaml"><code>models/manifest.yaml</code></a> liệt kê mọi phiên bản model
+<p><a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/models/manifest.yaml"><code>models/manifest.yaml</code></a> liệt kê mọi phiên bản model
 có thể tải về. Cùng file này được build vào gateway và công cụ <code>models</code>, nên
 binary luôn biết các model nó khuyến nghị.</p>
 <div class="table"><table>
@@ -70,8 +70,8 @@ binary luôn biết các model nó khuyến nghị.</p>
   <td><code>guardspec-classifier</code></td>
   <td><code>v3b</code></td>
   <td>L2</td>
-  <td>có</td>
-  <td>Hugging Face (chưa công bố), sau đó là GitHub Release <code>model-guardspec-classifier-v3b</code></td>
+  <td>không: mặc định trước v0.9.0, giữ để quay lại (<code>L2_MODEL=guardspec-classifier@v3b</code>)</td>
+  <td>Hugging Face <code>guard-spec/guardspec-classifier</code> (nhánh <code>main</code>), sau đó là GitHub Release <code>model-guardspec-classifier-v3b</code></td>
 </tr>
 <tr>
   <td><code>guardspec-classifier</code></td>
@@ -93,6 +93,13 @@ binary luôn biết các model nó khuyến nghị.</p>
   <td>L2</td>
   <td>không: bản ứng viên cho tài liệu dài, có file FP16 cho tùy chọn GPU, <a href="#guardspec-classifier-v6-bản-ứng-viên">shadow mode trước</a></td>
   <td>Hugging Face <code>guard-spec/guardspec-classifier</code> (nhánh <code>v6</code>), sau đó là GitHub Release <code>model-guardspec-classifier-v6</code></td>
+</tr>
+<tr>
+  <td><code>guardspec-classifier</code></td>
+  <td><code>v8e</code></td>
+  <td>L2</td>
+  <td><strong>có, từ v0.9.0</strong> (<a href="#guardspec-classifier-v8e-mặc-định-từ-v090">lý do</a>), có cách quyết định trên đường dài trong <code>calibration.json</code> và file FP16</td>
+  <td>Hugging Face <code>guard-spec/guardspec-classifier</code> (nhánh <code>v8e</code>), sau đó là GitHub Release <code>model-guardspec-classifier-v8e</code></td>
 </tr>
 <tr>
   <td><code>multilingual-e5-small</code></td>
@@ -124,7 +131,7 @@ chúng tôi train, tên phiên bản là 7 ký tự đầu của revision Huggin
 <p>Mỗi phiên bản được cài vào <code>&lt;dir&gt;/&lt;name&gt;/&lt;version&gt;/</code>; với compose, <code>&lt;dir&gt;</code> là
 <code>./models/cache</code>:</p>
 <pre><code>models/cache/
-  guardspec-classifier/v3b/     model_int8.onnx tokenizer.json config.json thresholds.json calibration.json
+  guardspec-classifier/v8e/     model_int8.onnx tokenizer.json config.json thresholds.json calibration.json
   multilingual-e5-small/614241f/  model.onnx tokenizer.json config.json
 </code></pre>
 <p>Nhiều phiên bản của cùng một model có thể nằm cạnh nhau; nhờ vậy rollback chỉ
@@ -133,16 +140,16 @@ cần một lần khởi động lại.</p>
 phiên bản bộ phân loại có thể có thêm <code>model_fp16.onnx</code>: cùng checkpoint ở
 dạng FP16 cho CUDA execution provider của ONNX Runtime (<code>train/export.py --fp16</code>). Manifest đánh dấu file này <code>provider: cuda</code>: <code>models pull -provider cuda</code> (hoặc <code>INFERENCE_PROVIDER=cuda</code>/<code>auto</code>, như trong image GPU) sẽ tải
 nó, bản cài cho CPU không bao giờ tải, và CPU vẫn nạp <code>model_int8.onnx</code>.
-Hiện chỉ <code>guardspec-classifier@v6</code> có file này; với phiên bản khác (kể cả
-v3b, bản mặc định) CUDA chạy file INT8, chậm, và <code>doctor</code> cảnh báo.</p>
+Hiện chỉ <code>guardspec-classifier@v6</code> và <code>@v8e</code> (bản mặc định) có file này; với phiên bản khác (kể cả
+v3b) CUDA chạy file INT8, chậm, và <code>doctor</code> cảnh báo.</p>
 <h2 id="tải-model">Tải model<a class="anchor" href="#tải-model" aria-hidden="true">#</a></h2>
 <pre><code class="language-bash"># Docker: models-init does this before the gateway starts, on every `up`
 docker compose --profile models run --rm models-pull                           # recommended versions
-docker compose --profile models run --rm models-pull guardspec-classifier@v3b  # one version
+docker compose --profile models run --rm models-pull guardspec-classifier@v8e  # one version
 
 # Without Docker
 go run ./cmd/models pull                              # recommended version of every non-optional model
-go run ./cmd/models pull guardspec-classifier@v3b     # one version
+go run ./cmd/models pull guardspec-classifier@v8e     # one version
 go run ./cmd/models pull -models a,b@v1               # the older flag form still works
 go run ./cmd/models list                              # what is installed
 go run ./cmd/models list --available                  # what the manifest offers
@@ -178,7 +185,10 @@ nào phục vụ một bản sao của <code>models/cache</code> đều dùng đ
 được đặt thì chúng thắng);</li>
 <li><code>L2_MODEL</code> / <code>L3_MODEL</code> = <code>name@version</code>: <code>$MODEL_DIR/cache/&lt;name&gt;/&lt;version&gt;</code>.
 Chỉ ghi tên thì dùng phiên bản khuyến nghị của nó;</li>
-<li>không đặt gì: model khuyến nghị trong manifest, nếu đã cài;</li>
+<li>không đặt gì: model khuyến nghị trong manifest, nếu đã cài; nếu chưa thì
+một phiên bản khác của cùng model đã cài (theo thứ tự trong manifest), kèm
+cảnh báo trong log, để lúc nâng cấp không bị mất lớp L2 trước khi
+<code>models pull</code> tải xong phiên bản khuyến nghị mới;</li>
 <li>các thư mục từ trước khi có phiên bản: <code>$MODEL_DIR/local/guardspec-classifier-v3b</code>
 (rồi <code>-v2</code>, <code>-v1</code>, <code>-v0</code>) cho L2 và <code>$MODEL_DIR/cache/multilingual-e5-small</code>
 cho L3.</li>
@@ -187,14 +197,14 @@ cho L3.</li>
 model khác: lớp đó tắt và <code>/readyz</code> cho biết lý do. <code>MODEL_DIR</code> là <code>/models</code>
 trong image và <code>./models</code> trong các trường hợp khác.</p>
 <p><code>GET /readyz</code> cho biết model nào đã được nạp:</p>
-<pre><code class="language-json">{&quot;detector&quot;:{&quot;layers&quot;:[&quot;l1&quot;,&quot;l2&quot;,&quot;l3&quot;],&quot;degraded&quot;:false,&quot;onnx&quot;:true,&quot;fusion&quot;:&quot;logreg&quot;,&quot;l2_model&quot;:&quot;guardspec-classifier-v3b&quot;},&quot;status&quot;:&quot;ready&quot;,&quot;version&quot;:&quot;0.1.0&quot;}
+<pre><code class="language-json">{&quot;detector&quot;:{&quot;layers&quot;:[&quot;l1&quot;,&quot;l2&quot;,&quot;l3&quot;],&quot;degraded&quot;:false,&quot;onnx&quot;:true,&quot;fusion&quot;:&quot;logreg&quot;,&quot;l2_model&quot;:&quot;guardspec-classifier@v8e&quot;},&quot;status&quot;:&quot;ready&quot;,&quot;version&quot;:&quot;0.1.0&quot;}
 </code></pre>
 <h2 id="ghim-phiên-bản">Ghim phiên bản<a class="anchor" href="#ghim-phiên-bản" aria-hidden="true">#</a></h2>
 <ul>
 <li><strong>Image</strong> được ghim bằng <code>GUARDSPEC_VERSION</code> (mặc định <code>0.1.0</code>). Mỗi image
 chứa manifest của release đó, nên các model nó khuyến nghị cũng được ghim
 theo.</li>
-<li><strong>Model</strong> được ghim bằng <code>L2_MODEL=guardspec-classifier@v3b</code> (và
+<li><strong>Model</strong> được ghim bằng <code>L2_MODEL=guardspec-classifier@v8e</code> (và
 <code>L3_MODEL</code>). Đặt chúng trong <code>.env</code> để giữ một phiên bản qua các lần nâng
 cấp image có khuyến nghị phiên bản mới hơn; models-init vẫn tải phiên bản
 khuyến nghị mới, nhưng gateway tiếp tục nạp phiên bản đã ghim.</li>
@@ -246,7 +256,7 @@ v4 dùng cùng kiến trúc và công thức train của v3b nhưng train trên 
 liệu tiếng Việt hơn (các dòng teencode, không dấu và ngân hàng do chủ dự án
 viết, cùng các hard negative mới); nó chặn ít tin nhắn tiếng Việt vô hại hơn.
 Phần so sánh với v3b ở bên dưới (<a href="#v3b-so-với-v4">v3b so với v4</a>) và trong
-<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v4&quot;).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v4&quot;).</p>
 <pre><code class="language-bash"># 1. Install it next to v3b (files checked against the manifest's SHA-256).
 #    It comes from the Hugging Face branch v4 at the pinned commit, with the
 #    GitHub release model-guardspec-classifier-v4 as the mirror.
@@ -324,7 +334,7 @@ lần cho v4; owner hold-out là dữ liệu do chủ dự án viết mà không
 chút (eval: ít hơn 7 trên 1,171; thấp hơn ở rò rỉ dữ liệu và tool poisoning
 tiếng Việt, và ở leet tiếng Anh). Nó không vượt qua quy tắc quyết định đã đăng
 ký trước, nên nó là bản ứng viên cho shadow mode chứ không phải mặc định.
-<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v4&quot;) có đầy đủ các bảng.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v4&quot;) có đầy đủ các bảng.</p>
 <h3 id="guardspec-classifier-v5-bản-ứng-viên">guardspec-classifier v5 (bản ứng viên)<a class="anchor" href="#guardspec-classifier-v5-bản-ứng-viên" aria-hidden="true">#</a></h3>
 <p><code>guardspec-classifier@v5</code> có trong manifest nhưng <strong>không</strong> phải phiên bản
 khuyến nghị: v3b vẫn là mặc định cho đến khi v5 chạy ở shadow mode ít nhất 7
@@ -427,12 +437,12 @@ owner hold-out nó bắt được nhiều tấn công hơn với cái giá là c
 dòng vô hại (8 trên 272 so với 4). Hạn chế đã biết: với tài liệu 100k-200k
 token, mục tiêu false positive chưa đạt (các vòng sau của đợt làm việc với
 tài liệu dài, RF-895d3533, cũng không đạt; xem
-<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md">train/MODEL_CARD.md</a>, mục &quot;v6&quot;); nó bắt được ít tấn công sinh tự động
+<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a>, mục &quot;v6&quot;); nó bắt được ít tấn công sinh tự động
 của <code>val_v3_holdout</code> hơn ở ngưỡng chặn (0.887 so với 0.953); và trên đường
 tool, cap giữ các tấn công nhúng mà chỉ classifier nhận ra ở dưới ngưỡng chặn
 (<code>val_v5_holdout</code>: 0.623 so với 0.665 ở 0.85, dù xếp hạng tốt hơn nhiều). Quy
 tắc chọn, mọi bảng số và dữ liệu nằm trong
-<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v5&quot;).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v5&quot;).</p>
 <h3 id="guardspec-classifier-v6-bản-ứng-viên">guardspec-classifier v6 (bản ứng viên)<a class="anchor" href="#guardspec-classifier-v6-bản-ứng-viên" aria-hidden="true">#</a></h3>
 <p><code>guardspec-classifier@v6</code> có trong manifest nhưng <strong>không</strong> phải phiên bản
 khuyến nghị: v3b vẫn là mặc định, và v6 chạy ở shadow mode trước, như v5. Đây
@@ -449,7 +459,7 @@ trong manifest). Quyết định ở ngưỡng 0.85 của nó trùng với file 
 98.8% đến 99.9% số dòng, dưới mức 99.5% yêu cầu ở hai bộ, nên
 <code>calibration.json</code> có thêm khối <code>fp16</code>, fit trên cùng các dòng validation, chỉ
 áp dụng khi classifier được nạp từ <code>model_fp16.onnx</code>
-(<a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/reports/fp16_agreement_v6.md">train/reports/fp16_agreement_v6.md</a>).
+(<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/fp16_agreement_v6.md">train/reports/fp16_agreement_v6.md</a>).
 Khoảng 1% quyết định gần ngưỡng sẽ khác nhau giữa gateway chạy GPU và gateway
 chạy CPU.</p>
 <p><strong>Đã công bố</strong> ngày 2026-11-13: nhánh <code>v6</code> trên Hugging Face (revision
@@ -544,9 +554,58 @@ nhúng nên không được phát hành, và một vòng v8 (R7), chặn 2/180 t
 hại và bắt nhiều tấn công nhúng hơn nhưng kém chính xác hơn với prompt ngắn,
 nên cũng không được phát hành. Trên holdout mới của R7 (<code>long7</code>, chấm một
 lần), <strong>v6 đang phát hành chặn 10/180 tài liệu vô hại 100k và 200k token
-(5,6%)</strong> với <code>strong75</code>. Khả năng phát hiện tấn công nhúng thấp hơn v5
+(5,6%)</strong> với <code>strong75</code>. Trên holdout của R8a
+(<code>long8</code>, 602 tài liệu, chấm một lần), v6 chặn 24 tài liệu (4,0%). Cũng
+trong vòng này, nhánh E của R7 với cách quyết định chặt hơn trên đường dài
+(<code>strong75</code> và L2 đã hiệu chỉnh từ 0,95 trở lên) chỉ chặn 1/602 và bắt 88,0%
+tấn công nhúng, tức là đạt mục tiêu. Gateway nay đọc cách quyết định này từ
+<code>calibration.json</code>, và E được đóng gói thành ứng viên v8e. Trên holdout
+prompt ngắn mới, v8e chưa đạt mức để thay v3b (bắt ít email injection hơn
+trên đường tool), nên chỉ là ứng viên chạy shadow
+(<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/v8e_short_holdout.md">train/reports/v8e_short_holdout.md</a>). Khả năng phát hiện tấn công nhúng thấp hơn v5
 một chút, và <code>val_v3_holdout</code> cùng <code>val_realistic_holdout</code> vẫn dưới v3b. Mọi
-bảng số nằm trong <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v6&quot;).</p>
+bảng số nằm trong <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v6&quot;).</p>
+<h3 id="guardspec-classifier-v8e-mặc-định-từ-v090">guardspec-classifier v8e (mặc định từ v0.9.0)<a class="anchor" href="#guardspec-classifier-v8e-mặc-định-từ-v090" aria-hidden="true">#</a></h3>
+<p><code>guardspec-classifier@v8e</code> là phiên bản khuyến nghị từ v0.9.0 (trước đó là
+v3b). Đây là
+nhánh E của vòng R7 (dữ liệu của v6 cộng các cặp cửa sổ vô hại và cửa sổ tấn
+công cắt từ cùng các host dài). <code>calibration.json</code> của nó mang cách quyết
+định trên đường dài của R8a: với text dài hơn 30 cửa sổ, một cửa sổ chỉ bị
+chặn khi có luật L1 với trọng số thô từ 0,75 trở lên đồng ý (hoặc một floor
+được áp) và điểm L2 đã hiệu chỉnh từ 0,95 trở lên (<code>long_doc</code>:
+<code>corroborate_l1</code>, <code>min_l2</code>). Gateway không biết các trường này sẽ bỏ qua
+chúng và chặn nhiều tài liệu dài vô hại hơn hẳn, nên hãy dùng bản phát hành
+có đọc chúng. v8e giữ cap của v6 (<code>l2_untrusted_max</code> 0.88) và có
+<code>model_fp16.onnx</code> cho tùy chọn GPU, với khối <code>fp16</code> riêng.</p>
+<p>Trên holdout <code>long8</code> (chấm một lần), v8e chặn 1/602 tài liệu vô hại 100k và
+200k token và bắt 88,0% tấn công nhúng. Trên holdout prompt ngắn <code>short1</code>
+(chấm một lần), lúc đầu v8e chưa đạt mức để thay v3b: bắt 12,0% email injection
+trên đường tool, so với 27,8% của v3b, chủ yếu do cap
+(<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/v8e_short_holdout.md">train/reports/v8e_short_holdout.md</a>).
+Lý do v8e trở thành mặc định:</p>
+<ul>
+<li><strong>Email injection.</strong> Với sàn L1 cho nội dung không tin cậy và luật <code>ei.*</code>
+(v0.9.0), v8e bắt 72,3% tấn công của holdout mới <code>indirect1</code> trên đường
+tool, so với 26,2% trước đó (<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/indirect1_holdout.md">indirect1_holdout.md</a>).</li>
+<li><strong>Prompt persona.</strong> Trên holdout mới <code>persona2</code>, v8e chặn nhầm 0% prompt
+doanh nghiệp và persona tiếng Việt, 3,3% tiếng Anh
+(<a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/reports/r8b_report.md">r8b_report.md</a>).</li>
+<li><strong>Tin nhắn người dùng.</strong> Trên nửa holdout của <code>eval/data</code>, TPR ở FPR ≤ 1%
+là 0,960 và không chặn nhầm dòng nào trong 511 dòng lành ở ngưỡng 0,85. v8e
+là seed tốt nhất trong ba seed của cùng công thức (R8b).</li>
+</ul>
+<p>Nâng cấp từ bản trước: <code>models-init</code> (hoặc <code>models pull</code>) tải v8e. Trong lúc
+chưa cài, gateway chỉ có v3b vẫn dùng v3b và ghi cảnh báo. Muốn giữ v3b, đặt
+<code>L2_MODEL=guardspec-classifier@v3b</code>.</p>
+<p><strong>Đã công bố</strong> ngày 2026-11-15: nhánh <code>v8e</code> trên Hugging Face (revision
+<code>c9ed6c3b</code>, đã ghim trong manifest) và GitHub Release đã ký
+<code>model-guardspec-classifier-v8e</code> làm bản sao dự phòng.</p>
+<pre><code class="language-bash"># So sánh trước khi chuyển: v3b vẫn quyết định, v8e chấm cùng lưu lượng.
+docker compose --profile models run --rm models-pull guardspec-classifier@v8e guardspec-classifier@v3b
+L2_MODEL=guardspec-classifier@v3b
+SHADOW_L2_MODEL=guardspec-classifier@v8e
+SHADOW_SAMPLE=1
+</code></pre>
 <h2 id="nạp-lại-không-cần-khởi-động-lại">Nạp lại không cần khởi động lại<a class="anchor" href="#nạp-lại-không-cần-khởi-động-lại" aria-hidden="true">#</a></h2>
 <p><code>kill -HUP</code> gateway, hoặc <code>POST /admin/models/reload</code> với
 <code>GATEWAY_ADMIN_TOKEN</code>, sẽ nạp lại classifier (hoặc một phiên bản khác), kiểm
@@ -588,7 +647,7 @@ hợp một phần. Hãy báo những văn bản như vậy (không kèm dữ li
 <h2 id="phát-hành-phiên-bản-model-mới">Phát hành phiên bản model mới<a class="anchor" href="#phát-hành-phiên-bản-model-mới" aria-hidden="true">#</a></h2>
 <p>Dành cho maintainer. Ví dụ dưới đây phát hành <code>guardspec-classifier</code> <code>v4</code>.</p>
 <ol>
-<li><strong>Train</strong> bằng <code>train/</code> (xem <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/train/MODEL_CARD.md">train/MODEL_CARD.md</a>).
+<li><strong>Train</strong> bằng <code>train/</code> (xem <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/train/MODEL_CARD.md">train/MODEL_CARD.md</a>).
 Chọn số epoch, threshold và calibration chỉ dựa trên các validation split.
 <code>eval/</code> không bao giờ được dùng để tinh chỉnh.</li>
 <li><strong>Calibrate</strong>: <code>go run -tags onnx ./cmd/calibrate fit -write</code> ghi
@@ -621,7 +680,7 @@ Workflow kiểm tra mọi file với các giá trị ghim mới rồi đính kè
 </ol>
 <p>Release phần mềm kế tiếp sau đó sẽ mang manifest khuyến nghị v4.</p>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/c3fd2723983b7abc7fa9527f158f7606453768bd/docs/models.vi.md">docs/models.vi.md</a> @ <code>c3fd2723983b</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/89dc5fb2ebc04d5d92315d759c4fa78ae5384dc7/docs/models.vi.md">docs/models.vi.md</a> @ <code>89dc5fb2ebc0</code></p>
   </main>
 </div>
 
