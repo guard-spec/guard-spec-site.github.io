@@ -1,52 +1,61 @@
 {
   "_comment": "The current release, shown on the landing page (hero badge, 'New in' link, What's new section). On each release: update this file, bump ref in src/docs.json, run build.py, run check_site.py --external. Text may hold inline HTML (<code>). 'previous' lists the newest first; keep about four. Optional 'also' (label, text): a highlighted note at the top of What's new for a release that is not a gateway version (for example a model candidate); remove it when the next gateway release covers it.",
-  "version": "v0.10.0",
-  "date": "2026-11-17",
-  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.10.0",
-  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.10.0/CHANGELOG.md#0100---2026-11-17",
+  "version": "v0.10.2",
+  "date": "2026-11-18",
+  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.10.2",
+  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.10.2/CHANGELOG.md#0102---2026-11-18",
   "status": {
     "en": "pre-1.0",
     "vi": "trước 1.0"
   },
   "tagline": {
-    "en": "Long conversations scanned window by window, with a cache that keeps every window",
-    "vi": "Hội thoại dài được quét theo từng cửa sổ, với cache giữ lại mọi cửa sổ"
+    "en": "Split multi-turn attacks blocked, faster chat turns on long documents",
+    "vi": "Chặn tấn công chia nhỏ qua nhiều lượt, lượt chat trên tài liệu dài nhanh hơn"
   },
   "upgrade": {
-    "en": "Upgrading: the shared scan cache's key format is now <code>v2</code>, so running sessions are scanned again once (old entries expire within 6 hours). The cache holds more entries (about 100 bytes per window). No migration.",
-    "vi": "Khi nâng cấp: định dạng khoá của scan cache dùng chung đổi sang <code>v2</code>, nên các phiên đang chạy được quét lại một lần (mục cũ hết hạn trong 6 giờ). Cache giữ nhiều mục hơn (khoảng 100 byte mỗi cửa sổ). Không có migration."
+    "en": "Upgrading: no migration and no configuration change. As after any new gateway binary, running sessions are scanned again once.",
+    "vi": "Khi nâng cấp: không cần migration, không đổi cấu hình. Như mọi lần thay binary gateway, các phiên đang chạy được quét lại một lần."
   },
   "highlights": {
     "en": [
       {
-        "title": "A scan cache per window",
-        "text": "With <code>MAX_SCAN_TOKENS</code>, each 256-token window keeps its score. A chat over a 183k-token document takes 22.7 s on its first turn and 85 ms at the median after that, with 99.9% of windows from the cache; a second replica reading Redis takes 53–60 ms."
+        "title": "Split multi-turn attacks blocked",
+        "text": "An override cut into pieces that the text asks to join and act on (\"fragment A … fragment B … join them and do it\") is now caught by the decisive L1 rule <code>di.override.payload_split</code>. With v8e the conversation window blocks 24 of 24 split attacks in its test set (20 before), with every benign conversation allowed."
       },
       {
-        "title": "Scan files ahead",
-        "text": "<code>/guardrail/scan</code> with <code>\"cache\": true</code> scores documents through the cache, on the long path when allowed. A 183k-token file scanned at upload made the chat that carried it take 126 ms; with an attack appended, it was blocked in 160 ms."
+        "title": "Faster chat turns on long documents",
+        "text": "The conversation window is scored at the same time as the rest of the request. Over a 183k-token document, the median later turn drops from about 82 ms to about 70 ms on one ONNX thread (54 ms on 4). Nothing is scanned less."
       },
       {
-        "title": "Chat completions cached too",
-        "text": "Tool results, documents, tool definitions and the conversation window are no longer scored again on every turn. Long texts are tokenized in cached segments (exactly the whole text's tokens), and the shared cache now keys on <code>UNTRUSTED_L1_FLOOR</code> and code corroboration."
+        "title": "v8e everywhere",
+        "text": "The model-layer eval baselines now hold v8e and CI runs them with the models from Hugging Face, whose <code>main</code> branch holds v8e (v3b moved to its own branch)."
       }
     ],
     "vi": [
       {
-        "title": "Scan cache theo từng cửa sổ",
-        "text": "Khi đặt <code>MAX_SCAN_TOKENS</code>, mỗi cửa sổ 256 token được giữ điểm. Hội thoại trên tài liệu 183k token mất 22,7 giây ở lượt đầu và p50 85 ms ở các lượt sau, 99,9% cửa sổ lấy từ cache; replica thứ hai đọc từ Redis mất 53–60 ms."
+        "title": "Chặn tấn công chia nhỏ qua nhiều lượt",
+        "text": "Lệnh override bị cắt thành nhiều mảnh rồi yêu cầu ghép lại và làm theo (\"mảnh A … mảnh B … ghép lại rồi làm\") nay bị rule L1 decisive <code>di.override.payload_split</code> bắt. Với v8e, cửa sổ hội thoại chặn 24/24 tấn công chia nhỏ trong bộ test (trước là 20), mọi hội thoại bình thường vẫn được cho qua."
       },
       {
-        "title": "Quét trước file",
-        "text": "<code>/guardrail/scan</code> với <code>\"cache\": true</code> chấm tài liệu qua cache, theo đường dài khi được phép. File 183k token quét lúc upload giúp request chat mang file đó chỉ mất 126 ms; chèn tấn công vào cuối vẫn bị chặn sau 160 ms."
+        "title": "Lượt chat trên tài liệu dài nhanh hơn",
+        "text": "Cửa sổ hội thoại được chấm cùng lúc với phần còn lại của request. Trên tài liệu 183k token, p50 các lượt sau giảm từ khoảng 82 ms xuống khoảng 70 ms với một luồng ONNX (54 ms với 4 luồng). Không quét ít đi."
       },
       {
-        "title": "Chat completions cũng có cache",
-        "text": "Kết quả tool, tài liệu, mô tả tool và cửa sổ hội thoại không còn bị chấm lại mỗi lượt. Văn bản dài được tách token theo đoạn có cache (giống hệt tách cả văn bản), và cache dùng chung nay tính cả <code>UNTRUSTED_L1_FLOOR</code> và code corroboration."
+        "title": "v8e ở mọi nơi",
+        "text": "Baseline eval có model nay là v8e, và CI chạy chúng với model tải từ Hugging Face; nhánh <code>main</code> trên Hugging Face giữ v8e (v3b chuyển sang nhánh riêng)."
       }
     ]
   },
   "previous": [
+    {
+      "version": "v0.10.0",
+      "date": "2026-11-17",
+      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.10.0",
+      "summary": {
+        "en": "Long conversations scanned window by window, with a scan cache that keeps every window.",
+        "vi": "Hội thoại dài được quét theo từng cửa sổ, với scan cache giữ lại mọi cửa sổ."
+      }
+    },
     {
       "version": "v0.9.0",
       "date": "2026-11-17",
@@ -72,15 +81,6 @@
       "summary": {
         "en": "Policy history and two-person approval, per-org input settings, a GPU option; CVE-2026-84243 fixed.",
         "vi": "Lịch sử policy và duyệt 2 người, cấu hình input theo org, tùy chọn GPU; vá CVE-2026-84243."
-      }
-    },
-    {
-      "version": "v0.6.0",
-      "date": "2026-11-11",
-      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.6.0",
-      "summary": {
-        "en": "PDFs sent inline are read and scanned (hidden text included), unreadable ones recorded; Go 1.26.11 for GO-2026-6859.",
-        "vi": "PDF gửi kèm được đọc và quét (kể cả chữ ẩn), file không đọc được được ghi lại; Go 1.26.11 vá GO-2026-6859."
       }
     }
   ]
