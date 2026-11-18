@@ -1,9 +1,9 @@
 {
   "_comment": "The current release, shown on the landing page (hero badge, 'New in' link, What's new section). On each release: update this file, bump ref in src/docs.json, run build.py, run check_site.py --external. Text may hold inline HTML (<code>). 'previous' lists the newest first; keep about four. Optional 'also' (label, text): a highlighted note at the top of What's new for a release that is not a gateway version (for example a model candidate); remove it when the next gateway release covers it.",
-  "version": "v0.10.1",
+  "version": "v0.10.2",
   "date": "2026-11-18",
-  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.10.1",
-  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.10.1/CHANGELOG.md#0101---2026-11-18",
+  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.10.2",
+  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.10.2/CHANGELOG.md#0102---2026-11-18",
   "status": {
     "en": "pre-1.0",
     "vi": "trước 1.0"

@@ -52,7 +52,7 @@ L2 (classifier của chúng tôi, <code>guardspec-classifier</code>) và L3 (emb
 <code>multilingual-e5-small</code>) là các model ONNX, không bao giờ được đóng sẵn vào
 image hay commit vào git: chúng được tải về, kiểm tra rồi mount vào
 <code>/models</code>.</p>
-<p><a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/models/manifest.yaml"><code>models/manifest.yaml</code></a> liệt kê mọi phiên bản model
+<p><a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/models/manifest.yaml"><code>models/manifest.yaml</code></a> liệt kê mọi phiên bản model
 có thể tải về. Cùng file này được build vào gateway và công cụ <code>models</code>, nên
 binary luôn biết các model nó khuyến nghị.</p>
 <div class="table"><table>
@@ -256,7 +256,7 @@ v4 dùng cùng kiến trúc và công thức train của v3b nhưng train trên 
 liệu tiếng Việt hơn (các dòng teencode, không dấu và ngân hàng do chủ dự án
 viết, cùng các hard negative mới); nó chặn ít tin nhắn tiếng Việt vô hại hơn.
 Phần so sánh với v3b ở bên dưới (<a href="#v3b-so-với-v4">v3b so với v4</a>) và trong
-<a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v4&quot;).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v4&quot;).</p>
 <pre><code class="language-bash"># 1. Install it next to v3b (files checked against the manifest's SHA-256).
 #    It comes from the Hugging Face branch v4 at the pinned commit, with the
 #    GitHub release model-guardspec-classifier-v4 as the mirror.
@@ -334,7 +334,7 @@ lần cho v4; owner hold-out là dữ liệu do chủ dự án viết mà không
 chút (eval: ít hơn 7 trên 1,171; thấp hơn ở rò rỉ dữ liệu và tool poisoning
 tiếng Việt, và ở leet tiếng Anh). Nó không vượt qua quy tắc quyết định đã đăng
 ký trước, nên nó là bản ứng viên cho shadow mode chứ không phải mặc định.
-<a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v4&quot;) có đầy đủ các bảng.</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v4&quot;) có đầy đủ các bảng.</p>
 <h3 id="guardspec-classifier-v5-bản-ứng-viên">guardspec-classifier v5 (bản ứng viên)<a class="anchor" href="#guardspec-classifier-v5-bản-ứng-viên" aria-hidden="true">#</a></h3>
 <p><code>guardspec-classifier@v5</code> có trong manifest nhưng <strong>không</strong> phải phiên bản
 khuyến nghị: v3b vẫn là mặc định cho đến khi v5 chạy ở shadow mode ít nhất 7
@@ -437,12 +437,12 @@ owner hold-out nó bắt được nhiều tấn công hơn với cái giá là c
 dòng vô hại (8 trên 272 so với 4). Hạn chế đã biết: với tài liệu 100k-200k
 token, mục tiêu false positive chưa đạt (các vòng sau của đợt làm việc với
 tài liệu dài, RF-895d3533, cũng không đạt; xem
-<a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/train/MODEL_CARD.md">train/MODEL_CARD.md</a>, mục &quot;v6&quot;); nó bắt được ít tấn công sinh tự động
+<a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/train/MODEL_CARD.md">train/MODEL_CARD.md</a>, mục &quot;v6&quot;); nó bắt được ít tấn công sinh tự động
 của <code>val_v3_holdout</code> hơn ở ngưỡng chặn (0.887 so với 0.953); và trên đường
 tool, cap giữ các tấn công nhúng mà chỉ classifier nhận ra ở dưới ngưỡng chặn
 (<code>val_v5_holdout</code>: 0.623 so với 0.665 ở 0.85, dù xếp hạng tốt hơn nhiều). Quy
 tắc chọn, mọi bảng số và dữ liệu nằm trong
-<a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v5&quot;).</p>
+<a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v5&quot;).</p>
 <h3 id="guardspec-classifier-v6-bản-ứng-viên">guardspec-classifier v6 (bản ứng viên)<a class="anchor" href="#guardspec-classifier-v6-bản-ứng-viên" aria-hidden="true">#</a></h3>
 <p><code>guardspec-classifier@v6</code> có trong manifest nhưng <strong>không</strong> phải phiên bản
 khuyến nghị: v3b vẫn là mặc định, và v6 chạy ở shadow mode trước, như v5. Đây
@@ -459,7 +459,7 @@ trong manifest). Quyết định ở ngưỡng 0.85 của nó trùng với file 
 98.8% đến 99.9% số dòng, dưới mức 99.5% yêu cầu ở hai bộ, nên
 <code>calibration.json</code> có thêm khối <code>fp16</code>, fit trên cùng các dòng validation, chỉ
 áp dụng khi classifier được nạp từ <code>model_fp16.onnx</code>
-(<a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/train/reports/fp16_agreement_v6.md">train/reports/fp16_agreement_v6.md</a>).
+(<a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/train/reports/fp16_agreement_v6.md">train/reports/fp16_agreement_v6.md</a>).
 Khoảng 1% quyết định gần ngưỡng sẽ khác nhau giữa gateway chạy GPU và gateway
 chạy CPU.</p>
 <p><strong>Đã công bố</strong> ngày 2026-11-13: nhánh <code>v6</code> trên Hugging Face (revision
@@ -562,9 +562,9 @@ tấn công nhúng, tức là đạt mục tiêu. Gateway nay đọc cách quy�
 <code>calibration.json</code>, và E được đóng gói thành ứng viên v8e. Trên holdout
 prompt ngắn mới, v8e chưa đạt mức để thay v3b (bắt ít email injection hơn
 trên đường tool), nên chỉ là ứng viên chạy shadow
-(<a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/train/reports/v8e_short_holdout.md">train/reports/v8e_short_holdout.md</a>). Khả năng phát hiện tấn công nhúng thấp hơn v5
+(<a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/train/reports/v8e_short_holdout.md">train/reports/v8e_short_holdout.md</a>). Khả năng phát hiện tấn công nhúng thấp hơn v5
 một chút, và <code>val_v3_holdout</code> cùng <code>val_realistic_holdout</code> vẫn dưới v3b. Mọi
-bảng số nằm trong <a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v6&quot;).</p>
+bảng số nằm trong <a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/train/MODEL_CARD.md">train/MODEL_CARD.md</a> (mục &quot;v6&quot;).</p>
 <h3 id="guardspec-classifier-v8e-mặc-định-từ-v090">guardspec-classifier v8e (mặc định từ v0.9.0)<a class="anchor" href="#guardspec-classifier-v8e-mặc-định-từ-v090" aria-hidden="true">#</a></h3>
 <p><code>guardspec-classifier@v8e</code> là phiên bản khuyến nghị từ v0.9.0 (trước đó là
 v3b). Đây là
@@ -581,15 +581,15 @@ có đọc chúng. v8e giữ cap của v6 (<code>l2_untrusted_max</code> 0.88) v
 200k token và bắt 88,0% tấn công nhúng. Trên holdout prompt ngắn <code>short1</code>
 (chấm một lần), lúc đầu v8e chưa đạt mức để thay v3b: bắt 12,0% email injection
 trên đường tool, so với 27,8% của v3b, chủ yếu do cap
-(<a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/train/reports/v8e_short_holdout.md">train/reports/v8e_short_holdout.md</a>).
+(<a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/train/reports/v8e_short_holdout.md">train/reports/v8e_short_holdout.md</a>).
 Lý do v8e trở thành mặc định:</p>
 <ul>
 <li><strong>Email injection.</strong> Với sàn L1 cho nội dung không tin cậy và luật <code>ei.*</code>
 (v0.9.0), v8e bắt 72,3% tấn công của holdout mới <code>indirect1</code> trên đường
-tool, so với 26,2% trước đó (<a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/train/reports/indirect1_holdout.md">indirect1_holdout.md</a>).</li>
+tool, so với 26,2% trước đó (<a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/train/reports/indirect1_holdout.md">indirect1_holdout.md</a>).</li>
 <li><strong>Prompt persona.</strong> Trên holdout mới <code>persona2</code>, v8e chặn nhầm 0% prompt
 doanh nghiệp và persona tiếng Việt, 3,3% tiếng Anh
-(<a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/train/reports/r8b_report.md">r8b_report.md</a>).</li>
+(<a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/train/reports/r8b_report.md">r8b_report.md</a>).</li>
 <li><strong>Tin nhắn người dùng.</strong> Trên nửa holdout của <code>eval/data</code>, TPR ở FPR ≤ 1%
 là 0,960 và không chặn nhầm dòng nào trong 511 dòng lành ở ngưỡng 0,85. v8e
 là seed tốt nhất trong ba seed của cùng công thức (R8b).</li>
@@ -647,7 +647,7 @@ hợp một phần. Hãy báo những văn bản như vậy (không kèm dữ li
 <h2 id="phát-hành-phiên-bản-model-mới">Phát hành phiên bản model mới<a class="anchor" href="#phát-hành-phiên-bản-model-mới" aria-hidden="true">#</a></h2>
 <p>Dành cho maintainer. Ví dụ dưới đây phát hành <code>guardspec-classifier</code> <code>v4</code>.</p>
 <ol>
-<li><strong>Train</strong> bằng <code>train/</code> (xem <a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/train/MODEL_CARD.md">train/MODEL_CARD.md</a>).
+<li><strong>Train</strong> bằng <code>train/</code> (xem <a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/train/MODEL_CARD.md">train/MODEL_CARD.md</a>).
 Chọn số epoch, threshold và calibration chỉ dựa trên các validation split.
 <code>eval/</code> không bao giờ được dùng để tinh chỉnh.</li>
 <li><strong>Calibrate</strong>: <code>go run -tags onnx ./cmd/calibrate fit -write</code> ghi
@@ -680,7 +680,7 @@ Workflow kiểm tra mọi file với các giá trị ghim mới rồi đính kè
 </ol>
 <p>Release phần mềm kế tiếp sau đó sẽ mang manifest khuyến nghị v4.</p>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/docs/models.vi.md">docs/models.vi.md</a> @ <code>de8af8c5cb4a</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/docs/models.vi.md">docs/models.vi.md</a> @ <code>b60056ddf3b5</code></p>
   </main>
 </div>
 
