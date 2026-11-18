@@ -108,7 +108,7 @@ luật mới không được dùng chúng, còn luật đã lưu có dùng thì 
 <code>0</code> như trước. Chi tiết ở mục <a href="/docs/configuration/apis/">APIs</a>.</p>
 <h2 id="dữ-liệu-cá-nhân-trong-request">Dữ liệu cá nhân trong request<a class="anchor" href="#dữ-liệu-cá-nhân-trong-request" aria-hidden="true">#</a></h2>
 <p>Một tổ chức có thể cho gateway đếm dữ liệu cá nhân trong mỗi request và đưa kết
-quả cho các luật (<a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>).
+quả cho các luật (<a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/docs/adr/0003-input-pii-policy-signal.md">ADR 0003</a>).
 <strong>Mặc định tắt</strong>; bật bằng <code>input_pii: true</code> trong guard settings của tổ chức
 (<code>PUT /v1/organizations/:orgId/guard-settings</code>, hoặc giao diện: Thiết lập bảo
 vệ → Phát hiện dữ liệu cá nhân trong request). Thay đổi có hiệu lực từ request
@@ -437,9 +437,13 @@ Thêm hai cache nhỏ trong process: token của văn bản dài được giữ 
 đoạn khoảng 16 KB (cắt tại một dấu cách đơn, kết quả giống hệt tách cả văn
 bản), và kết quả sanitizer của input từ 32 KB được giữ theo SHA-256 (32
 MiB). Đo ngày 17/11/2026 trên laptop Apple M-series với v8e: hội thoại chat
-completions trên tài liệu 183k token mất 22,7 giây ở lượt đầu và p50 85 ms ở
-các lượt sau (99,9% cửa sổ lấy từ cache; phần còn lại là chấm cửa sổ cuối
-vừa thay đổi, khoảng 50 ms trên một luồng ONNX, và cửa sổ hội thoại). Với
+completions trên tài liệu 183k token mất 22,7 giây ở lượt đầu, p50 63–72 ms
+ở các lượt sau trên một luồng ONNX (<code>INFERENCE_INTRA_OP_THREADS=1</code>) và 54 ms
+trên 4 luồng (99,9% cửa sổ lấy từ cache; phần còn lại là chấm cửa sổ cuối
+vừa thay đổi, khoảng 50 ms trên một luồng, và cửa sổ hội thoại, chấm cùng
+lúc). Lượt thứ hai đến thứ tư mất khoảng 250 ms trên một luồng: cửa sổ hội
+thoại (4 lượt user gần nhất) còn chứa đầu và đuôi tài liệu, khoảng 3 cửa sổ
+model, chấm lại mỗi lượt vì phần chia cho mỗi lượt thay đổi. Với
 Redis, replica thứ hai có cache trong process trống xử lý cả hội thoại trong
 54–60 ms.</li>
 <li><strong>Quét trước.</strong> <code>/guardrail/scan</code> với <code>&quot;cache&quot;: true</code> chấm <code>documents</code> qua
@@ -602,9 +606,9 @@ và tải CSV theo khoảng thời gian.</li>
 (<code>e2e/a11y.spec.ts</code>): lỗi WCAG 2.1 A hoặc AA mức nghiêm trọng làm build
 thất bại.</li>
 </ul>
-<p><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/684663b822f38478163608cfebc8b9222fe875f6/docs/images/admin-flow-dark-vi.png" alt="Luồng xử lý, giao diện tối" /></p>
+<p><img src="https://raw.githubusercontent.com/guard-spec/guard-spec/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/docs/images/admin-flow-dark-vi.png" alt="Luồng xử lý, giao diện tối" /></p>
 
-    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/684663b822f38478163608cfebc8b9222fe875f6/README.vi.md#api">README.vi.md#api</a> @ <code>684663b822f3</code></p>
+    <p class="doc-source">Nguồn: <a href="https://github.com/guard-spec/guard-spec/blob/de8af8c5cb4a31a3a7dc875c7cee4d31d464b8ca/README.vi.md#api">README.vi.md#api</a> @ <code>de8af8c5cb4a</code></p>
   </main>
 </div>
 
