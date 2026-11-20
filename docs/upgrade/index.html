@@ -83,7 +83,7 @@ repository root) and the
 </tbody>
 </table></div>
 <p>Before 1.0, a minor version can change the schema and the configuration:
-read the <a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/CHANGELOG.md">CHANGELOG</a> for every version you skip.</p>
+read the <a href="https://github.com/guard-spec/guard-spec/blob/e752f0ceefb224fc1d1a7e0a6190a0ee4200b510/CHANGELOG.md">CHANGELOG</a> for every version you skip.</p>
 <h2 id="backups">Backups<a class="anchor" href="#backups" aria-hidden="true">#</a></h2>
 <p><code>scripts/backup.sh</code> saves what a restore needs, while the stack runs:</p>
 <pre><code class="language-bash">scripts/backup.sh                                                     # quick start
@@ -170,6 +170,17 @@ pulls it before the gateway starts (with <code>DETECTOR_REQUIRE_ML=true</code>, 
 production default, a failed pull stops <code>up</code> before the new gateway
 starts). With <code>L2_MODEL</code> / <code>L3_MODEL</code> pinned, the gateway
 keeps the pinned version.</li>
+<li><strong>v0.11.0 changes the recommended classifier from v8e to v8g.</strong><ul>
+<li><code>models-init</code> pulls v8g before the gateway starts.</li>
+<li>A gateway without <code>models-init</code> keeps using the newest installed former default (v8e, else v3b), with a warning
+in the log, until v8g is pulled.</li>
+<li>To stay on v8e, set <code>L2_MODEL=guardspec-classifier@v8e</code>. To compare first, run v8g in shadow mode (below).</li>
+<li>v8g blocks fewer persona prompts and benign long technical documents and catches more payload-splitting attacks,
+but catches fewer attacks embedded in long technical documentation and blocks a few more benign short messages
+(the <a href="/docs/models/versions/#guardspec-classifier-v8g-the-default-from-v0110">v8g section of docs/models.md</a>).</li>
+<li>No migration.</li>
+</ul>
+</li>
 <li><strong>0.10.2 needs no migration and no configuration change.</strong> As after any new gateway binary, the shared scan
 cache's entries of the previous release are not read (the key includes the binary's hash), so running sessions are
 scanned again once.</li>
@@ -208,7 +219,7 @@ also fails on warnings, <code>-json</code> for scripts). See
 </ul>
 <h3 id="migration-notes">Migration notes<a class="anchor" href="#migration-notes" aria-hidden="true">#</a></h3>
 <p>What a release's migrations do beyond adding tables, and what to check
-after them. The <a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/CHANGELOG.md">CHANGELOG</a> has the full upgrade notes of
+after them. The <a href="https://github.com/guard-spec/guard-spec/blob/e752f0ceefb224fc1d1a7e0a6190a0ee4200b510/CHANGELOG.md">CHANGELOG</a> has the full upgrade notes of
 every version.</p>
 <ul>
 <li><strong>026 (policy versions).</strong> Adds <code>policies.log_only</code> and <code>policy_versions</code>,
@@ -305,7 +316,7 @@ again.</li>
 <code>DETECTOR_REQUIRE_ML=true</code> a missing model stops it at start, by design.</li>
 </ul>
 
-    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/b60056ddf3b5435f0bdac27366a146a89acec181/docs/upgrade.md">docs/upgrade.md</a> @ <code>b60056ddf3b5</code></p>
+    <p class="doc-source">Source: <a href="https://github.com/guard-spec/guard-spec/blob/e752f0ceefb224fc1d1a7e0a6190a0ee4200b510/docs/upgrade.md">docs/upgrade.md</a> @ <code>e752f0ceefb2</code></p>
   </main>
 </div>
 

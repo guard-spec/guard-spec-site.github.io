@@ -1,52 +1,61 @@
 {
   "_comment": "The current release, shown on the landing page (hero badge, 'New in' link, What's new section). On each release: update this file, bump ref in src/docs.json, run build.py, run check_site.py --external. Text may hold inline HTML (<code>). 'previous' lists the newest first; keep about four. Optional 'also' (label, text): a highlighted note at the top of What's new for a release that is not a gateway version (for example a model candidate); remove it when the next gateway release covers it.",
-  "version": "v0.10.2",
-  "date": "2026-11-18",
-  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.10.2",
-  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.10.2/CHANGELOG.md#0102---2026-11-18",
+  "version": "v0.11.0",
+  "date": "2026-11-20",
+  "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.11.0",
+  "changelog_url": "https://github.com/guard-spec/guard-spec/blob/v0.11.0/CHANGELOG.md#0110---2026-11-20",
   "status": {
     "en": "pre-1.0",
     "vi": "trước 1.0"
   },
   "tagline": {
-    "en": "Split multi-turn attacks blocked, faster chat turns on long documents",
-    "vi": "Chặn tấn công chia nhỏ qua nhiều lượt, lượt chat trên tài liệu dài nhanh hơn"
+    "en": "Classifier v8g by default: fewer false blocks on personas and long documents, far more split attacks caught",
+    "vi": "Classifier v8g làm mặc định: ít chặn nhầm persona và tài liệu dài hơn, bắt nhiều hơn hẳn tấn công chia nhỏ"
   },
   "upgrade": {
-    "en": "Upgrading: no migration and no configuration change. As after any new gateway binary, running sessions are scanned again once.",
-    "vi": "Khi nâng cấp: không cần migration, không đổi cấu hình. Như mọi lần thay binary gateway, các phiên đang chạy được quét lại một lần."
+    "en": "Upgrading: <code>models-init</code> or <code>models pull</code> fetches v8g; to stay on v8e, set <code>L2_MODEL=guardspec-classifier@v8e</code>. No migration.",
+    "vi": "Khi nâng cấp: <code>models-init</code> hoặc <code>models pull</code> tải v8g; muốn giữ v8e thì đặt <code>L2_MODEL=guardspec-classifier@v8e</code>. Không cần migration."
   },
   "highlights": {
     "en": [
       {
-        "title": "Split multi-turn attacks blocked",
-        "text": "An override cut into pieces that the text asks to join and act on (\"fragment A … fragment B … join them and do it\") is now caught by the decisive L1 rule <code>di.override.payload_split</code>. With v8e the conversation window blocks 24 of 24 split attacks in its test set (20 before), with every benign conversation allowed."
+        "title": "Classifier v8g by default",
+        "text": "Benign persona and role-play prompts blocked drop to 0.3% in English and 0.9% in Vietnamese (v8e 1.5–2.3%), benign long technical documents to 1 of 52 (v8e 2–6), and benign \"don't ignore the previous instructions\" messages pass. It met every pre-registered criterion on all three seeds."
       },
       {
-        "title": "Faster chat turns on long documents",
-        "text": "The conversation window is scored at the same time as the rest of the request. Over a 183k-token document, the median later turn drops from about 82 ms to about 70 ms on one ONNX thread (54 ms on 4). Nothing is scanned less."
+        "title": "Far more split attacks caught",
+        "text": "Attacks cut into pieces across chat turns are caught 93.3% of the time by the classifier on the conversation window, against 66.7–71.7% for v8e. On the eval hold-out, TPR at FPR ≤ 1% is 0.965."
       },
       {
-        "title": "v8e everywhere",
-        "text": "The model-layer eval baselines now hold v8e and CI runs them with the models from Hugging Face, whose <code>main</code> branch holds v8e (v3b moved to its own branch)."
+        "title": "GPU file and honest trade-offs",
+        "text": "v8g ships an FP16 file with its own calibration that decides like the CPU on CUDA. It catches fewer attacks embedded in long documentation (73.8% against 79.8%) and blocks a few more benign Vietnamese rows of <code>eval/</code> (1.2% against 0.3%); v8e stays one setting away."
       }
     ],
     "vi": [
       {
-        "title": "Chặn tấn công chia nhỏ qua nhiều lượt",
-        "text": "Lệnh override bị cắt thành nhiều mảnh rồi yêu cầu ghép lại và làm theo (\"mảnh A … mảnh B … ghép lại rồi làm\") nay bị rule L1 decisive <code>di.override.payload_split</code> bắt. Với v8e, cửa sổ hội thoại chặn 24/24 tấn công chia nhỏ trong bộ test (trước là 20), mọi hội thoại bình thường vẫn được cho qua."
+        "title": "Classifier v8g làm mặc định",
+        "text": "Prompt persona và nhập vai bình thường bị chặn nhầm giảm còn 0,3% với tiếng Anh và 0,9% với tiếng Việt (v8e 1,5–2,3%), tài liệu kỹ thuật dài bình thường còn 1/52 (v8e 2–6), và câu bình thường kiểu \"đừng bỏ qua hướng dẫn trước đó\" được cho qua. Model đạt mọi tiêu chí đăng ký trước ở cả ba seed."
       },
       {
-        "title": "Lượt chat trên tài liệu dài nhanh hơn",
-        "text": "Cửa sổ hội thoại được chấm cùng lúc với phần còn lại của request. Trên tài liệu 183k token, p50 các lượt sau giảm từ khoảng 82 ms xuống khoảng 70 ms với một luồng ONNX (54 ms với 4 luồng). Không quét ít đi."
+        "title": "Bắt nhiều hơn hẳn tấn công chia nhỏ",
+        "text": "Tấn công bị cắt thành nhiều mảnh qua các lượt chat bị classifier trên cửa sổ hội thoại bắt 93,3%, so với 66,7–71,7% của v8e. Trên holdout eval, TPR ở FPR ≤ 1% là 0,965."
       },
       {
-        "title": "v8e ở mọi nơi",
-        "text": "Baseline eval có model nay là v8e, và CI chạy chúng với model tải từ Hugging Face; nhánh <code>main</code> trên Hugging Face giữ v8e (v3b chuyển sang nhánh riêng)."
+        "title": "File GPU và đánh đổi rõ ràng",
+        "text": "v8g có file FP16 với calibration riêng, trên CUDA cho quyết định như CPU. Đổi lại, model bắt ít hơn tấn công cài trong tài liệu dài (73,8% so với 79,8%) và chặn nhầm thêm vài dòng tiếng Việt bình thường của <code>eval/</code> (1,2% so với 0,3%); quay về v8e chỉ cần một biến cấu hình."
       }
     ]
   },
   "previous": [
+    {
+      "version": "v0.10.2",
+      "date": "2026-11-18",
+      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.10.2",
+      "summary": {
+        "en": "Split multi-turn attacks blocked, faster chat turns on long documents, ONNX Runtime from PyPI.",
+        "vi": "Chặn tấn công chia nhỏ qua nhiều lượt, lượt chat trên tài liệu dài nhanh hơn, ONNX Runtime lấy từ PyPI."
+      }
+    },
     {
       "version": "v0.10.0",
       "date": "2026-11-17",
@@ -72,15 +81,6 @@
       "summary": {
         "en": "Custom backends for your own JSON APIs, and per-org redaction of personal data in answers.",
         "vi": "Custom backend cho API JSON của chính bạn, và che dữ liệu cá nhân trong câu trả lời theo org."
-      }
-    },
-    {
-      "version": "v0.7.0",
-      "date": "2026-11-13",
-      "url": "https://github.com/guard-spec/guard-spec/releases/tag/v0.7.0",
-      "summary": {
-        "en": "Policy history and two-person approval, per-org input settings, a GPU option; CVE-2026-84243 fixed.",
-        "vi": "Lịch sử policy và duyệt 2 người, cấu hình input theo org, tùy chọn GPU; vá CVE-2026-84243."
       }
     }
   ]
